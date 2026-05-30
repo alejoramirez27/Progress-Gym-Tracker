@@ -107,7 +107,7 @@ export default function DashboardPage() {
               <YAxis tick={{ fill: '#8d9197', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}kg`} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#282a2e', border: '1px solid #43474c', borderRadius: '8px', fontSize: '12px', color: '#e2e2e8' }}
-                formatter={(val: number) => [`${val} kg`, 'Peso máx.']}
+                formatter={(val) => [`${val} kg`, 'Peso máx.']}
                 labelStyle={{ color: '#8d9197', marginBottom: '4px' }}
               />
               <Line type="monotone" dataKey="peso_max" stroke="#b1c9e1" strokeWidth={2} dot={{ fill: '#b1c9e1', r: 4, strokeWidth: 0 }} activeDot={{ r: 6, fill: '#b1c9e1' }} />
