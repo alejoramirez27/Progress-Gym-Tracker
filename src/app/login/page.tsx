@@ -2,74 +2,95 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Dumbbell } from 'lucide-react'
+import { Zap, Mail, Lock, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    const res  = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
+    setLoading(true); setError('')
+    const res  = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
     const data = await res.json()
-    if (!res.ok) {
-      toast.error(data.error ?? 'Error al iniciar sesión')
-      setLoading(false)
-      return
-    }
+    if (!res.ok) { setError(data.error ?? 'Credenciales incorrectas'); setLoading(false); return }
     toast.success(`Bienvenido, ${data.nombre}`)
-    router.push('/')
+    router.push('/rutinas')
+  }
+
+  const inputStyle = {
+    width: '100%', backgroundColor: '#1e2024', border: '1px solid #43474c',
+    borderRadius: '8px', padding: '12px 14px 12px 40px', fontSize: '14px',
+    color: '#e2e2e8', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const,
+    transition: 'border-color 0.15s',
   }
 
   return (
-    <div style={{
-      minHeight: '100dvh', display: 'flex', alignItems: 'center',
-      justifyContent: 'center', backgroundColor: '#09090b', padding: '24px',
-    }}>
-      <div style={{
-        width: '100%', maxWidth: '380px',
-        backgroundColor: '#111113', border: '1px solid #27272a',
-        borderRadius: '16px', padding: '40px 32px',
-      }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px', justifyContent: 'center' }}>
-          <div style={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '10px', padding: '8px' }}>
-            <Dumbbell style={{ width: '20px', height: '20px', color: '#22c55e' }} />
+    <div style={{ minHeight: '100dvh', display: 'flex', backgroundColor: '#111318' }}>
+      {/* Panel izquierdo — decorativo */}
+      <div style={{ flex: 1, backgroundColor: '#0c0e12', borderRight: '1px solid #1e2024', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '40%', left: '40%', width: '400px', height: '400px', borderRadius: '50%', backgroundColor: '#b1c9e1', opacity: 0.03, filter: 'blur(80px)', transform: 'translate(-50%, -50%)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '48px' }}>
+          <div style={{ backgroundColor: '#b1c9e1', borderRadius: '10px', padding: '8px', display: 'flex' }}>
+            <Zap style={{ width: '20px', height: '20px', color: '#0c0e12' }} />
           </div>
-          <div>
-            <p style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff' }}>Progreso Gym</p>
-            <p style={{ fontSize: '11px', color: '#52525b' }}>Tracking de entrenamiento</p>
-          </div>
+          <p style={{ fontSize: '20px', fontWeight: '600', color: '#e2e2e8', margin: 0, letterSpacing: '-0.01em' }}>VoltTrack</p>
+        </div>
+        <h2 style={{ fontSize: '36px', fontWeight: '500', color: '#e2e2e8', letterSpacing: '-0.02em', lineHeight: '1.2', margin: '0 0 16px' }}>
+          Elevando el rendimiento humano
+        </h2>
+        <p style={{ fontSize: '16px', color: '#8d9197', fontWeight: '300', lineHeight: '1.6', margin: 0, maxWidth: '380px' }}>
+          A través de datos precisos y disciplina inquebrantable.
+        </p>
+        <div style={{ marginTop: '60px', display: 'flex', gap: '32px' }}>
+          {[{ label: 'Seguro', sub: 'Datos privados' }, { label: 'Preciso', sub: 'Métricas reales' }, { label: 'Enfocado', sub: 'Sin distracciones' }].map(item => (
+            <div key={item.label}>
+              <p style={{ fontSize: '14px', fontWeight: '500', color: '#c3c7cd', margin: '0 0 2px' }}>{item.label}</p>
+              <p style={{ fontSize: '12px', color: '#43474c', margin: 0, fontWeight: '300' }}>{item.sub}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Panel derecho — formulario */}
+      <div style={{ width: '440px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 48px' }}>
+        <div style={{ marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '500', color: '#e2e2e8', letterSpacing: '-0.01em', margin: '0 0 8px' }}>Bienvenido</h1>
+          <p style={{ fontSize: '14px', color: '#8d9197', margin: 0, fontWeight: '300' }}>Introduce tus credenciales para continuar</p>
         </div>
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <Label>Email</Label>
-            <Input
-              type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="tu@email.com" required autoComplete="email"
-            />
+            <label style={{ fontSize: '11px', color: '#8d9197', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>Email</label>
+            <div style={{ position: 'relative' }}>
+              <Mail style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#43474c' }} />
+              <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" required autoComplete="email"
+                onFocus={e => e.target.style.borderColor = '#b1c9e1'} onBlur={e => e.target.style.borderColor = '#43474c'} />
+            </div>
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <Label>Contraseña</Label>
-            <Input
-              type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••" required autoComplete="current-password"
-            />
+            <label style={{ fontSize: '11px', color: '#8d9197', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>Contraseña</label>
+            <div style={{ position: 'relative' }}>
+              <Lock style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#43474c' }} />
+              <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required autoComplete="current-password"
+                onFocus={e => e.target.style.borderColor = '#b1c9e1'} onBlur={e => e.target.style.borderColor = '#43474c'} />
+            </div>
           </div>
-          <Button type="submit" disabled={loading} style={{ marginTop: '8px', width: '100%' }}>
-            {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-          </Button>
+
+          {error && (
+            <div style={{ backgroundColor: '#2a1515', border: '1px solid #6b2020', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444', flexShrink: 0 }} />
+              <p style={{ fontSize: '13px', color: '#fca5a5', margin: 0, fontWeight: '300' }}>{error}</p>
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} style={{ marginTop: '8px', backgroundColor: '#b1c9e1', color: '#0c0e12', border: 'none', borderRadius: '8px', padding: '13px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'opacity 0.15s', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Iniciando sesión...' : <><span>Iniciar Sesión</span><ArrowRight style={{ width: '16px', height: '16px' }} /></>}
+          </button>
         </form>
       </div>
     </div>

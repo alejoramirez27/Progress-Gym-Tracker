@@ -24,13 +24,13 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const supabase = createServiceClient()
-  const { nombre, descripcion } = await request.json()
+  const { nombre, descripcion, grupos } = await request.json()
 
   if (!nombre) return NextResponse.json({ error: 'El nombre es obligatorio' }, { status: 400 })
 
   const { data, error } = await supabase
     .from('rutina')
-    .insert([{ id_usuario: session.id, nombre, descripcion: descripcion ?? null }])
+    .insert([{ id_usuario: session.id, nombre, descripcion: descripcion ?? null, grupos: grupos ?? null }])
     .select()
     .single()
 

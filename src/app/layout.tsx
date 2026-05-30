@@ -1,20 +1,19 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Lexend } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
+const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' })
 
 export const metadata: Metadata = {
-  title: 'Progreso Gym',
+  title: 'VoltTrack',
   description: 'Tracking de entrenamiento personal',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body style={{ backgroundColor: '#09090b', color: '#ffffff', margin: 0 }}>
+    <html lang="es" className={lexend.variable}>
+      <body style={{ backgroundColor: '#111318', color: '#e2e2e8', margin: 0, fontFamily: 'var(--font-lexend), sans-serif' }}>
         {children}
         <Toaster theme="dark" position="top-right" richColors />
       </body>
