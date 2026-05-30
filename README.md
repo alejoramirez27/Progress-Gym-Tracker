@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VoltTrack — Progress Gym Tracker
 
-## Getting Started
+Aplicación web privada para registrar y analizar el progreso en el gym. Diseñada con un sistema de diseño minimalista de precisión técnica, orientada a atletas que valoran los datos sobre el ruido.
 
-First, run the development server:
+**🔗 Deploy:** [progress-gym-tracker.vercel.app](https://progress-gym-tracker.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Funcionalidades
+
+- **Rutinas** — Crea y organiza rutinas por grupos musculares con tags de colores
+- **Ejercicios** — Agrega ejercicios a cada rutina con descripción y orden
+- **Series** — Registra cada serie con peso (kg), repeticiones, RIR y notas
+- **Dashboard** — Métricas generales + gráfica de progreso de peso por ejercicio
+- **Historial** — Todas las sesiones agrupadas por mes, expandibles por fecha
+
+---
+
+## Stack
+
+| Capa | Tecnología |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Lenguaje | TypeScript |
+| Base de datos | Supabase (PostgreSQL) |
+| Autenticación | Cookies HTTP-only con sesión propia |
+| Gráficas | Recharts |
+| Fuente | Lexend (Google Fonts) |
+| Deploy | Vercel |
+
+---
+
+## Estructura del proyecto
+
+```
+src/
+├── app/
+│   ├── (main)/               # Páginas autenticadas (comparten sidebar)
+│   │   ├── rutinas/          # Lista de rutinas + detalle con ejercicios
+│   │   ├── dashboard/        # Métricas y gráfica de progreso
+│   │   └── historial/        # Sesiones agrupadas por fecha
+│   ├── api/
+│   │   ├── auth/             # Login y logout
+│   │   ├── rutinas/          # CRUD rutinas
+│   │   ├── ejercicios/       # CRUD ejercicios por rutina
+│   │   ├── series/           # Registro de series
+│   │   ├── dashboard/        # Stats + datos para la gráfica
+│   │   └── historial/        # Sesiones y detalle por fecha
+│   └── login/                # Página de inicio de sesión
+├── components/
+│   └── Sidebar.tsx           # Navegación lateral
+└── lib/
+    ├── session.ts            # Helper para leer cookie de sesión
+    └── supabase/             # Cliente Supabase (server)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Base de datos (Supabase)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+usuario       → id, nombre, email, password_hash
+rutina        → id, id_usuario, nombre, descripcion, grupos
+ejercicio     → id, id_rutina, nombre, descripcion, orden
+serie         → id, id_ejercicio, fecha, numero_serie, peso_kg, repeticiones, rir, descanso_seg, notas
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Sistema de diseño — VoltTrack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Basado en el sistema **Kinetic Performance** con paleta Dark Mode:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Token | Color | Uso |
+|---|---|---|
+| `surface` | `#111318` | Fondo principal |
+| `surface-container` | `#1e2024` | Cards y contenedores |
+| `primary` | `#b1c9e1` | Slate Blue — acento principal |
+| `on-surface` | `#e2e2e8` | Texto principal |
+| `outline` | `#43474c` | Bordes y separadores |
 
-## Deploy on Vercel
+Fuente: **Lexend** — peso 300 (body), 500 (labels), 600 (headlines)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Correr localmente
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/alejoramirez27/Progress-Gym-Tracker.git
+cd Progress-Gym-Tracker
+
+# Instalar dependencias
+npm install
+
+# Variables de entorno (crear .env.local)
+NEXT_PUBLIC_SUPABASE_URL=tu_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+
+# Correr en desarrollo
+npm run dev
+```
+
+---
+
+## Repositorio
+
+[github.com/alejoramirez27/Progress-Gym-Tracker](https://github.com/alejoramirez27/Progress-Gym-Tracker)
