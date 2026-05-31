@@ -10,12 +10,25 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const id_ejercicio = searchParams.get('id_ejercicio')
 
-  // Rutinas del usuario
-  const { data: rutinas } = await supabase
+  // Rutinas del usuario — ordenadas por día de semana, luego por orden manual
+  const ORDEN_DIA: Record<string, number> = {
+    'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4,
+    'Viernes': 5, 'Sábado': 6, 'Domingo': 7,
+  }
+
+  const { data: rutinasRaw } = await supabase
     .from('rutina')
-    .select('id_rutina, nombre')
+    .select('id_rutina, nombre, dia_semana, orden')
     .eq('id_usuario', session.id)
-    .order('nombre')
+    .order('orden', { ascending: true, nullsFirst: false })
+
+  // Ordenar: primero por día de semana, luego por orden manual
+  const rutinas = (rutinasRaw ?? []).sort((a, b) => {
+    const diaA = a.dia_semana ? (ORDEN_DIA[a.dia_semana] ?? 8) : 9
+    const diaB = b.dia_semana ? (ORDEN_DIA[b.dia_semana] ?? 8) : 9
+    if (diaA !== diaB) return diaA - diaB
+    return (a.orden ?? 99) - (b.orden ?? 99)
+  })
 
   const ids_rutinas = rutinas?.map(r => r.id_rutina) ?? []
 
