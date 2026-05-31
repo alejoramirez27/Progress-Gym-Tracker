@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, Plus, Trash2, X, Pencil, Check, GripVertical } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, X, Pencil, Check, GripVertical, ChevronDown } from 'lucide-react'
 
-interface Rutina    { id_rutina: string; nombre: string; descripcion: string | null; grupos: string | null }
+interface Rutina    { id_rutina: string; nombre: string; descripcion: string | null; grupos: string | null; dia_semana: string | null }
 interface Ejercicio { id_ejercicio: string; nombre: string; orden: number; num_series: number }
 
 const TAG_BG   = '#1a2f3a'
@@ -21,7 +21,10 @@ export default function RutinaDetallePage() {
   const [editNombre, setEditNombre]     = useState('')
   const [editDesc, setEditDesc]         = useState('')
   const [editGrupos, setEditGrupos]     = useState('')
+  const [editDia, setEditDia]           = useState('')
   const [guardandoRutina, setGuardandoRutina] = useState(false)
+
+  const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
   // — Ejercicios —
   const [ejercicios, setEjercicios]     = useState<Ejercicio[]>([])
@@ -53,7 +56,7 @@ export default function RutinaDetallePage() {
   // — Editar rutina —
   const abrirEdicionRutina = () => {
     if (!rutina) return
-    setEditNombre(rutina.nombre); setEditDesc(rutina.descripcion ?? ''); setEditGrupos(rutina.grupos ?? '')
+    setEditNombre(rutina.nombre); setEditDesc(rutina.descripcion ?? ''); setEditGrupos(rutina.grupos ?? ''); setEditDia(rutina.dia_semana ?? '')
     setEditandoRutina(true)
   }
   const guardarRutina = async () => {
@@ -61,7 +64,7 @@ export default function RutinaDetallePage() {
     setGuardandoRutina(true)
     const res  = await fetch(`/api/rutinas/${id}`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: editNombre, descripcion: editDesc, grupos: editGrupos }),
+      body: JSON.stringify({ nombre: editNombre, descripcion: editDesc, grupos: editGrupos, dia_semana: editDia || null }),
     })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error); setGuardandoRutina(false); return }
@@ -171,6 +174,13 @@ export default function RutinaDetallePage() {
               <h1 style={{ fontSize: '24px', fontWeight: '500', color: '#e2e2e8', letterSpacing: '-0.01em', margin: '0 0 4px' }}>
                 {rutina?.nombre ?? <span style={{ color: '#43474c' }}>—</span>}
               </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: rutina?.descripcion || rutina?.grupos ? '6px' : '0' }}>
+                {rutina?.dia_semana && (
+                  <span style={{ backgroundColor: '#1e3045', color: '#b1c9e1', fontSize: '11px', padding: '2px 9px', borderRadius: '20px', fontWeight: '500' }}>
+                    {rutina.dia_semana}
+                  </span>
+                )}
+              </div>
               {rutina?.descripcion && (
                 <p style={{ fontSize: '13px', color: '#8d9197', margin: '0 0 8px', fontWeight: '300' }}>{rutina.descripcion}</p>
               )}
@@ -211,6 +221,16 @@ export default function RutinaDetallePage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <label style={{ fontSize: '11px', color: '#8d9197', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Grupos musculares</label>
                 <input style={inputStyle} value={editGrupos} onChange={e => setEditGrupos(e.target.value)} placeholder="ej: Pecho, Tríceps" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <label style={{ fontSize: '11px', color: '#8d9197', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Día de la semana</label>
+                <div style={{ position: 'relative' }}>
+                  <select style={{ ...inputStyle, appearance: 'none' as const, cursor: 'pointer', paddingRight: '28px' }} value={editDia} onChange={e => setEditDia(e.target.value)}>
+                    <option value="">Sin asignar</option>
+                    {DIAS.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                  <ChevronDown style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: '#8d9197', pointerEvents: 'none' }} />
+                </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <label style={{ fontSize: '11px', color: '#8d9197', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Descripción</label>
