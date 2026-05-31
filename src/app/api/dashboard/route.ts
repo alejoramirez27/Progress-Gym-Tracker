@@ -10,18 +10,27 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const id_ejercicio = searchParams.get('id_ejercicio')
 
-  // Stats generales
+  // Rutinas del usuario
   const { data: rutinas } = await supabase
-    .from('rutina').select('id_rutina').eq('id_usuario', session.id)
+    .from('rutina')
+    .select('id_rutina, nombre')
+    .eq('id_usuario', session.id)
+    .order('nombre')
 
   const ids_rutinas = rutinas?.map(r => r.id_rutina) ?? []
 
+  // Todos los ejercicios del usuario (con id_rutina para agrupar en frontend)
   const { data: ejercicios } = ids_rutinas.length > 0
-    ? await supabase.from('ejercicio').select('id_ejercicio').in('id_rutina', ids_rutinas)
+    ? await supabase
+        .from('ejercicio')
+        .select('id_ejercicio, nombre, id_rutina')
+        .in('id_rutina', ids_rutinas)
+        .order('nombre')
     : { data: [] }
 
   const ids_ejercicios = ejercicios?.map(e => e.id_ejercicio) ?? []
 
+  // Stats
   const { count: totalSeries } = ids_ejercicios.length > 0
     ? await supabase.from('serie').select('*', { count: 'exact', head: true }).in('id_ejercicio', ids_ejercicios)
     : { count: 0 }
@@ -30,12 +39,7 @@ export async function GET(request: Request) {
     ? await supabase.from('serie').select('fecha').in('id_ejercicio', ids_ejercicios).order('fecha', { ascending: false }).limit(1)
     : { data: [] }
 
-  // Lista de ejercicios para el selector de gráfica
-  const { data: listaEjercicios } = ids_ejercicios.length > 0
-    ? await supabase.from('ejercicio').select('id_ejercicio, nombre').in('id_ejercicio', ids_ejercicios).order('nombre')
-    : { data: [] }
-
-  // Datos de progreso por ejercicio
+  // Progreso por ejercicio
   let progreso: { fecha: string; peso_max: number; reps: number }[] = []
   if (id_ejercicio && ids_ejercicios.includes(id_ejercicio)) {
     const { data: series } = await supabase
@@ -45,12 +49,11 @@ export async function GET(request: Request) {
       .not('peso_kg', 'is', null)
       .order('fecha')
 
-    // Agrupar por fecha: peso máximo del día
+    // Agrupar por fecha: peso máximo del día + reps de esa serie
     const porFecha: Record<string, { peso_max: number; reps: number }> = {}
     for (const s of series ?? []) {
-      const key = s.fecha
-      if (!porFecha[key] || (s.peso_kg ?? 0) > porFecha[key].peso_max) {
-        porFecha[key] = { peso_max: Number(s.peso_kg), reps: s.repeticiones }
+      if (!porFecha[s.fecha] || (s.peso_kg ?? 0) > porFecha[s.fecha].peso_max) {
+        porFecha[s.fecha] = { peso_max: Number(s.peso_kg), reps: s.repeticiones }
       }
     }
     progreso = Object.entries(porFecha).map(([fecha, v]) => ({ fecha, ...v }))
@@ -58,12 +61,13 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     stats: {
-      totalRutinas:    rutinas?.length      ?? 0,
-      totalEjercicios: ejercicios?.length   ?? 0,
-      totalSeries:     totalSeries          ?? 0,
+      totalRutinas:    rutinas?.length    ?? 0,
+      totalEjercicios: ejercicios?.length ?? 0,
+      totalSeries:     totalSeries        ?? 0,
       ultimaSesion:    ultimaFecha?.[0]?.fecha ?? null,
     },
-    ejercicios: listaEjercicios ?? [],
+    rutinas:    rutinas    ?? [],
+    ejercicios: ejercicios ?? [],
     progreso,
   })
 }
