@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, X, Pencil, Check } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, ChevronDown, ChevronRight, X, Pencil, Check, Target } from 'lucide-react'
 
 interface Rutina   { id_rutina: string; nombre: string; descripcion: string | null; grupos: string | null }
-interface Ejercicio { id_ejercicio: string; nombre: string; orden: number }
+interface Ejercicio { id_ejercicio: string; nombre: string; orden: number; num_series: number }
 interface Serie {
   id_serie: string; numero_serie: number; peso_kg: number | null
   repeticiones: number; rir: number | null; descanso_seg: number | null; notas: string | null; fecha: string
@@ -33,7 +33,12 @@ export default function RutinaDetallePage() {
   const [series, setSeries]               = useState<Record<string, Serie[]>>({})
   const [mostrarFormEj, setMostrarFormEj] = useState(false)
   const [nombreEj, setNombreEj]           = useState('')
+  const [numSeriesEj, setNumSeriesEj]     = useState('3')
   const [guardandoEj, setGuardandoEj]     = useState(false)
+  // Edición inline de ejercicio
+  const [editandoEj, setEditandoEj]       = useState<string | null>(null)
+  const [editNombreEj, setEditNombreEj]   = useState('')
+  const [editNumSeriesEj, setEditNumSeriesEj] = useState('3')
   const [ejercicioActivo, setEjercicioActivo] = useState<string | null>(null)
   const [peso, setPeso]         = useState('')
   const [reps, setReps]         = useState('')
@@ -97,12 +102,31 @@ export default function RutinaDetallePage() {
     e.preventDefault(); setGuardandoEj(true)
     const res  = await fetch('/api/ejercicios', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_rutina: id, nombre: nombreEj, orden: ejercicios.length + 1 }),
+      body: JSON.stringify({ id_rutina: id, nombre: nombreEj, orden: ejercicios.length + 1, num_series: Number(numSeriesEj) || 3 }),
     })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error); setGuardandoEj(false); return }
     toast.success(`"${nombreEj}" agregado`)
-    setNombreEj(''); setMostrarFormEj(false); setGuardandoEj(false); cargarEjercicios()
+    setNombreEj(''); setNumSeriesEj('3'); setMostrarFormEj(false); setGuardandoEj(false); cargarEjercicios()
+  }
+
+  const abrirEditEj = (ej: Ejercicio, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditandoEj(ej.id_ejercicio)
+    setEditNombreEj(ej.nombre)
+    setEditNumSeriesEj(String(ej.num_series ?? 3))
+    if (expandido === ej.id_ejercicio) setExpandido(null)
+  }
+
+  const guardarEditEj = async (id_ej: string) => {
+    const res = await fetch(`/api/ejercicios/${id_ej}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: editNombreEj, num_series: Number(editNumSeriesEj) || 3 }),
+    })
+    if (!res.ok) { toast.error('Error al guardar'); return }
+    toast.success('Ejercicio actualizado')
+    setEditandoEj(null)
+    cargarEjercicios()
   }
 
   const eliminarEjercicio = async (ej: Ejercicio) => {
@@ -229,15 +253,21 @@ export default function RutinaDetallePage() {
 
       {/* Form nuevo ejercicio */}
       {mostrarFormEj && (
-        <form onSubmit={crearEjercicio} style={{ backgroundColor: '#1e2024', border: '1px solid #43474c', borderRadius: '12px', padding: '20px 24px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ color: '#c3c7cd', fontSize: '11px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Nombre del ejercicio *</label>
-            <input style={inputStyle} value={nombreEj} onChange={e => setNombreEj(e.target.value)} placeholder="ej: Press banca, Sentadilla..." required />
+        <form onSubmit={crearEjercicio} style={{ backgroundColor: '#1e2024', border: '1px solid #43474c', borderRadius: '12px', padding: '20px 24px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ color: '#c3c7cd', fontSize: '11px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Nombre del ejercicio *</label>
+              <input style={inputStyle} value={nombreEj} onChange={e => setNombreEj(e.target.value)} placeholder="ej: Press banca, Sentadilla..." required />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ color: '#c3c7cd', fontSize: '11px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Series</label>
+              <input style={{ ...inputStyle, width: '72px', textAlign: 'center' }} type="number" min="1" max="20" value={numSeriesEj} onChange={e => setNumSeriesEj(e.target.value)} />
+            </div>
+            <button type="submit" disabled={guardandoEj}
+              style={{ backgroundColor: '#b1c9e1', color: '#0c0e12', border: 'none', borderRadius: '8px', padding: '9px 20px', fontSize: '13px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', alignSelf: 'flex-end' }}>
+              {guardandoEj ? 'Agregando...' : 'Agregar'}
+            </button>
           </div>
-          <button type="submit" disabled={guardandoEj}
-            style={{ backgroundColor: '#b1c9e1', color: '#0c0e12', border: 'none', borderRadius: '8px', padding: '9px 20px', fontSize: '13px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
-            {guardandoEj ? 'Agregando...' : 'Agregar'}
-          </button>
         </form>
       )}
 
@@ -261,7 +291,28 @@ export default function RutinaDetallePage() {
             <div key={ej.id_ejercicio}
               style={{ backgroundColor: '#1e2024', border: `1px solid ${expandido === ej.id_ejercicio ? '#8d9197' : '#43474c'}`, borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.15s' }}>
 
-              {/* Cabecera ejercicio */}
+              {/* Edición inline de ejercicio */}
+              {editandoEj === ej.id_ejercicio ? (
+                <div style={{ padding: '14px 20px', display: 'flex', gap: '10px', alignItems: 'center', borderBottom: '1px solid #282a2e', backgroundColor: '#16181c' }}>
+                  <input
+                    style={{ ...inputStyle, flex: 1 }} value={editNombreEj}
+                    onChange={e => setEditNombreEj(e.target.value)} placeholder="Nombre del ejercicio" autoFocus />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <label style={{ fontSize: '9px', color: '#43474c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Series</label>
+                    <input style={{ ...inputStyle, width: '60px', textAlign: 'center' }} type="number" min="1" max="20"
+                      value={editNumSeriesEj} onChange={e => setEditNumSeriesEj(e.target.value)} />
+                  </div>
+                  <button onClick={() => guardarEditEj(ej.id_ejercicio)}
+                    style={{ backgroundColor: '#b1c9e1', color: '#0c0e12', border: 'none', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Check style={{ width: '12px', height: '12px' }} />
+                  </button>
+                  <button onClick={() => setEditandoEj(null)}
+                    style={{ backgroundColor: 'transparent', border: '1px solid #43474c', borderRadius: '6px', padding: '7px 10px', fontSize: '12px', color: '#8d9197', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    <X style={{ width: '12px', height: '12px' }} />
+                  </button>
+                </div>
+              ) : (
+              /* Cabecera ejercicio */
               <div onClick={() => toggleEjercicio(ej.id_ejercicio)}
                 style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
                 onMouseEnter={e => e.currentTarget.style.backgroundColor = '#282a2e'}
@@ -275,19 +326,26 @@ export default function RutinaDetallePage() {
                     : <ChevronRight style={{ width: '15px', height: '15px', color: '#8d9197' }} />
                   }
                   <p style={{ fontSize: '14px', fontWeight: '500', color: '#e2e2e8', margin: 0 }}>{ej.nombre}</p>
-                  {seriesHoy.length > 0 && (
-                    <span style={{ backgroundColor: '#1a3345', color: '#b1c9e1', fontSize: '11px', padding: '2px 8px', borderRadius: '20px' }}>
-                      {seriesHoy.length} serie{seriesHoy.length !== 1 ? 's' : ''} hoy
-                    </span>
-                  )}
+                  <span style={{ backgroundColor: '#1a2f3a', color: '#7ab8d4', fontSize: '11px', padding: '2px 8px', borderRadius: '20px' }}>
+                    {ej.num_series ?? 3} series
+                  </span>
                 </div>
-                <button onClick={e => { e.stopPropagation(); eliminarEjercicio(ej) }}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#43474c', borderRadius: '4px', transition: 'color 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
-                  onMouseLeave={e => e.currentTarget.style.color = '#43474c'}>
-                  <Trash2 style={{ width: '13px', height: '13px' }} />
-                </button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <button onClick={e => abrirEditEj(ej, e)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#43474c', borderRadius: '4px', transition: 'color 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#b1c9e1'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#43474c'}>
+                    <Pencil style={{ width: '13px', height: '13px' }} />
+                  </button>
+                  <button onClick={e => { e.stopPropagation(); eliminarEjercicio(ej) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#43474c', borderRadius: '4px', transition: 'color 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#43474c'}>
+                    <Trash2 style={{ width: '13px', height: '13px' }} />
+                  </button>
+                </div>
               </div>
+              )}
 
               {/* Panel expandido */}
               {expandido === ej.id_ejercicio && (

@@ -28,14 +28,14 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   const supabase = createServiceClient()
-  const { id_rutina, nombre, orden } = await request.json()
+  const { id_rutina, nombre, orden, num_series } = await request.json()
 
   if (!id_rutina || !nombre)
     return NextResponse.json({ error: 'id_rutina y nombre son obligatorios' }, { status: 400 })
 
   const { data, error } = await supabase
     .from('ejercicio')
-    .insert([{ id_rutina, nombre, orden: orden ?? 1 }])
+    .insert([{ id_rutina, nombre, orden: orden ?? 1, num_series: num_series ?? 3 }])
     .select()
     .single()
 
