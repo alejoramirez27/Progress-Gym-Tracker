@@ -23,9 +23,9 @@ export async function GET(request: Request) {
   const { data: ejercicios } = ids_rutinas.length > 0
     ? await supabase
         .from('ejercicio')
-        .select('id_ejercicio, nombre, id_rutina')
+        .select('id_ejercicio, nombre, id_rutina, orden')
         .in('id_rutina', ids_rutinas)
-        .order('nombre')
+        .order('orden')
     : { data: [] }
 
   const ids_ejercicios = ejercicios?.map(e => e.id_ejercicio) ?? []
