@@ -16,8 +16,8 @@ interface Rutina {
   created_at:  string
 }
 
-const COLORES_TAG = ['#1e3a4a', '#1e2f3a', '#2a1e3a', '#1e3a2a', '#3a2a1e']
-const TEXTO_TAG   = ['#7ab8d4', '#7ab0c9', '#a07ad4', '#7ad4a0', '#d4a07a']
+const TAG_BG   = '#1a2f3a'
+const TAG_TEXT = '#7ab8d4'
 
 export default function RutinasPage() {
   const router = useRouter()
@@ -140,8 +140,8 @@ export default function RutinasPage() {
                     )}
                     {tags.length > 0 && (
                       <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
-                        {tags.map((tag, i) => (
-                          <span key={tag} style={{ backgroundColor: COLORES_TAG[i % COLORES_TAG.length], color: TEXTO_TAG[i % TEXTO_TAG.length], fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: '500' }}>
+                        {tags.map((tag) => (
+                          <span key={tag} style={{ backgroundColor: TAG_BG, color: TAG_TEXT, fontSize: '11px', padding: '3px 10px', borderRadius: '20px', fontWeight: '500' }}>
                             {tag}
                           </span>
                         ))}

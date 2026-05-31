@@ -27,7 +27,7 @@ export default function Sidebar() {
     }}>
       {/* Logo */}
       <div style={{ padding: '28px 20px 24px', borderBottom: '1px solid #1e2024' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div onClick={() => router.push('/rutinas')} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
           <div style={{ backgroundColor: '#b1c9e1', borderRadius: '8px', padding: '6px', display: 'flex' }}>
             <Zap style={{ width: '16px', height: '16px', color: '#0c0e12' }} />
           </div>

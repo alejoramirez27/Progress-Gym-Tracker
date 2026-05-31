@@ -8,8 +8,8 @@ import { ArrowLeft, Plus, Trash2, X, Pencil, Check, GripVertical } from 'lucide-
 interface Rutina    { id_rutina: string; nombre: string; descripcion: string | null; grupos: string | null }
 interface Ejercicio { id_ejercicio: string; nombre: string; orden: number; num_series: number }
 
-const COLORES_TAG = ['#1e3a4a', '#1e2f3a', '#2a1e3a', '#1e3a2a', '#3a2a1e']
-const TEXTO_TAG   = ['#7ab8d4', '#7ab0c9', '#a07ad4', '#7ad4a0', '#d4a07a']
+const TAG_BG   = '#1a2f3a'
+const TAG_TEXT = '#7ab8d4'
 
 export default function RutinaDetallePage() {
   const { id } = useParams<{ id: string }>()
@@ -105,34 +105,40 @@ export default function RutinaDetallePage() {
   }
 
   // — Drag & Drop handlers —
-  const onDragStart = (idx: number) => setDraggedIdx(idx)
+  const onDragStart = (e: React.DragEvent, idx: number) => {
+    // Requerido para Firefox y Safari
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(idx))
+    // Pequeño delay para que React actualice el estado antes de que el browser tome el snapshot
+    setTimeout(() => setDraggedIdx(idx), 0)
+  }
 
   const onDragOver = (e: React.DragEvent, idx: number) => {
     e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
     if (draggedIdx === null || draggedIdx === idx) return
     setDragOverIdx(idx)
   }
 
   const onDrop = async (e: React.DragEvent, dropIdx: number) => {
     e.preventDefault()
-    if (draggedIdx === null || draggedIdx === dropIdx) { setDraggedIdx(null); setDragOverIdx(null); return }
+    const fromIdx = draggedIdx ?? Number(e.dataTransfer.getData('text/plain'))
+    if (fromIdx === null || fromIdx === dropIdx) { setDraggedIdx(null); setDragOverIdx(null); return }
 
-    // Reordenar array localmente
+    // Reordenar array localmente (optimista)
     const next = [...ejercicios]
-    const [moved] = next.splice(draggedIdx, 1)
+    const [moved] = next.splice(fromIdx, 1)
     next.splice(dropIdx, 0, moved)
     setEjercicios(next)
     setDraggedIdx(null); setDragOverIdx(null)
 
-    // Persistir nuevos ordenes en paralelo
+    // Persistir nuevos ordenes en paralelo (solo los que cambiaron)
     await Promise.all(
       next.map((ej, i) =>
-        ej.orden !== i + 1
-          ? fetch(`/api/ejercicios/${ej.id_ejercicio}`, {
-              method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orden: i + 1 }),
-            })
-          : Promise.resolve()
+        fetch(`/api/ejercicios/${ej.id_ejercicio}`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orden: i + 1 }),
+        })
       )
     )
   }
@@ -170,10 +176,10 @@ export default function RutinaDetallePage() {
               )}
               {rutina?.grupos && (
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {rutina.grupos.split(',').map((g, i) => {
+                  {rutina.grupos.split(',').map((g) => {
                     const tag = g.trim()
                     return tag ? (
-                      <span key={tag} style={{ backgroundColor: COLORES_TAG[i % COLORES_TAG.length], color: TEXTO_TAG[i % TEXTO_TAG.length], fontSize: '11px', padding: '2px 10px', borderRadius: '20px', fontWeight: '500' }}>
+                      <span key={tag} style={{ backgroundColor: TAG_BG, color: TAG_TEXT, fontSize: '11px', padding: '2px 10px', borderRadius: '20px', fontWeight: '500' }}>
                         {tag}
                       </span>
                     ) : null
@@ -266,7 +272,7 @@ export default function RutinaDetallePage() {
             <div
               key={ej.id_ejercicio}
               draggable
-              onDragStart={() => onDragStart(index)}
+              onDragStart={e => onDragStart(e, index)}
               onDragOver={e => onDragOver(e, index)}
               onDrop={e => onDrop(e, index)}
               onDragEnd={onDragEnd}
@@ -277,6 +283,7 @@ export default function RutinaDetallePage() {
                 opacity: isDragging ? 0.45 : 1,
                 transform: isDragOver ? 'scale(1.01)' : 'scale(1)',
                 transition: 'border-color 0.1s, opacity 0.1s, transform 0.1s',
+                userSelect: 'none',
               }}
             >
               {editandoEj === ej.id_ejercicio ? (
