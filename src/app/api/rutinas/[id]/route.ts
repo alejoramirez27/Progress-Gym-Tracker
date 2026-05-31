@@ -2,6 +2,28 @@ import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/session'
 
+// GET /api/rutinas/:id → obtener rutina por id
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
+  const { id } = await params
+  const supabase = createServiceClient()
+
+  const { data, error } = await supabase
+    .from('rutina')
+    .select('*')
+    .eq('id_rutina', id)
+    .eq('id_usuario', session.id)
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 404 })
+  return NextResponse.json(data)
+}
+
 // DELETE /api/rutinas/:id
 export async function DELETE(
   _request: Request,
@@ -37,7 +59,7 @@ export async function PATCH(
 
   const { data, error } = await supabase
     .from('rutina')
-    .update({ nombre: body.nombre, descripcion: body.descripcion ?? null })
+    .update({ nombre: body.nombre, descripcion: body.descripcion ?? null, grupos: body.grupos ?? null })
     .eq('id_rutina', id)
     .eq('id_usuario', session.id)
     .select()
