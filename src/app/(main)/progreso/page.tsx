@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { ChevronDown, CheckCircle2, Dumbbell, Target } from 'lucide-react'
+import { ChevronDown, CheckCircle2, Dumbbell, Target, AlertTriangle } from 'lucide-react'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface Rutina    { id_rutina: string; nombre: string }
@@ -35,6 +35,23 @@ export default function ProgresoPage() {
   const [loadingEj, setLoadingEj]     = useState(false)
   const [guardando, setGuardando]     = useState(false)
   const [guardado, setGuardado]       = useState(false)
+
+  // Detectar si hay datos sin guardar
+  const tieneCambios = ejConSeries.some(ej =>
+    ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== '')
+  )
+
+  // Advertir al cerrar/recargar si hay datos sin guardar
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (tieneCambios && !guardado) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [tieneCambios, guardado])
 
   // Cargar rutinas del usuario
   useEffect(() => {
@@ -272,6 +289,16 @@ export default function ProgresoPage() {
               onBlur={e => e.target.style.borderColor = '#43474c'}
             />
           </div>
+
+          {/* Banner: cambios sin guardar */}
+          {tieneCambios && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1e2a14', border: '1px solid #3a5a1a', borderRadius: '8px', padding: '10px 14px' }}>
+              <AlertTriangle style={{ width: '14px', height: '14px', color: '#a3c96a', flexShrink: 0 }} />
+              <p style={{ fontSize: '12px', color: '#a3c96a', margin: 0, fontWeight: '300' }}>
+                Tienes series sin guardar — guarda la sesión antes de salir
+              </p>
+            </div>
+          )}
 
           {/* Botón guardar */}
           <button

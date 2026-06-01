@@ -1,12 +1,13 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
-import { Dumbbell, LayoutDashboard, History, Zap, LogOut, Target } from 'lucide-react'
+import { Dumbbell, LayoutDashboard, History, Zap, LogOut, Target, Trophy } from 'lucide-react'
 
 const navItems = [
   { href: '/rutinas',   label: 'Rutinas',   icon: Dumbbell },
   { href: '/progreso',  label: 'Progreso',  icon: Target },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/historial', label: 'Historial', icon: History },
+  { href: '/records',   label: 'PRs',       icon: Trophy },
 ]
 
 export default function MobileNav() {

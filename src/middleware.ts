@@ -5,11 +5,13 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get('gym_session')
   const { pathname } = request.nextUrl
 
-  if (!session && pathname !== '/login') {
+  const publicPaths = ['/login', '/registro']
+
+  if (!session && !publicPaths.includes(pathname)) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (session && pathname === '/login') {
+  if (session && publicPaths.includes(pathname)) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
