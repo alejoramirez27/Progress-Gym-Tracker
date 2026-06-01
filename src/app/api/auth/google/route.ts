@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
 
 // GET /api/auth/google  →  redirige al consent screen de Google
-export async function GET() {
-  const clientId    = process.env.GOOGLE_CLIENT_ID
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI // ej: https://tu-app.vercel.app/api/auth/google/callback
+export async function GET(request: Request) {
+  const clientId = process.env.GOOGLE_CLIENT_ID
 
-  if (!clientId || !redirectUri) {
-    return NextResponse.json({ error: 'Google OAuth no configurado' }, { status: 500 })
+  if (!clientId) {
+    return NextResponse.json({ error: 'GOOGLE_CLIENT_ID no configurado' }, { status: 500 })
   }
+
+  // Construir redirect_uri dinámicamente desde el origin real de la petición
+  // Así siempre coincide con lo que llega, sin depender de un env var extra
+  const { origin } = new URL(request.url)
+  const redirectUri = `${origin}/api/auth/google/callback`
 
   const params = new URLSearchParams({
     client_id:     clientId,

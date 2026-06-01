@@ -17,7 +17,9 @@ export async function GET(request: Request) {
 
   const clientId     = process.env.GOOGLE_CLIENT_ID!
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET!
-  const redirectUri  = process.env.GOOGLE_REDIRECT_URI!
+  // Reconstruir el mismo redirect_uri que usó /api/auth/google
+  const { origin }   = new URL(request.url)
+  const redirectUri  = `${origin}/api/auth/google/callback`
 
   // 1. Intercambiar code → access_token
   const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
