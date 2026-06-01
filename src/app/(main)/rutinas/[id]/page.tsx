@@ -74,16 +74,27 @@ export default function RutinaDetallePage() {
 
   // — Crear ejercicio —
   const crearEjercicio = async (e: React.FormEvent) => {
-    e.preventDefault(); setGuardandoEj(true)
-    const res = await fetch('/api/ejercicios', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_rutina: id, nombre: nombreEj, orden: ejercicios.length + 1, num_series: Number(numSeriesEj) || 3 }),
-    })
-    const data = await res.json()
-    if (!res.ok) { toast.error(data.error); setGuardandoEj(false); return }
-    toast.success(`"${nombreEj}" agregado`)
-    setNombreEj(''); setNumSeriesEj('3'); setMostrarFormEj(false); setGuardandoEj(false)
-    cargarEjercicios()
+    e.preventDefault()
+    setGuardandoEj(true)
+    try {
+      const res  = await fetch('/api/ejercicios', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_rutina: id, nombre: nombreEj, orden: ejercicios.length + 1, num_series: Number(numSeriesEj) || 3 }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error ?? 'Error al agregar ejercicio')
+        return
+      }
+      toast.success(`"${nombreEj}" agregado`)
+      setNombreEj(''); setNumSeriesEj('3'); setMostrarFormEj(false)
+      cargarEjercicios()
+    } catch (err) {
+      console.error('Error creando ejercicio:', err)
+      toast.error('Error de conexión al agregar ejercicio')
+    } finally {
+      setGuardandoEj(false)
+    }
   }
 
   // — Editar ejercicio —
@@ -92,12 +103,17 @@ export default function RutinaDetallePage() {
     setEditandoEj(ej.id_ejercicio); setEditNombreEj(ej.nombre); setEditNumSeriesEj(String(ej.num_series ?? 3))
   }
   const guardarEditEj = async (id_ej: string) => {
-    const res = await fetch(`/api/ejercicios/${id_ej}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: editNombreEj, num_series: Number(editNumSeriesEj) || 3 }),
-    })
-    if (!res.ok) { toast.error('Error al guardar'); return }
-    toast.success('Ejercicio actualizado'); setEditandoEj(null); cargarEjercicios()
+    try {
+      const res  = await fetch(`/api/ejercicios/${id_ej}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: editNombreEj, num_series: Number(editNumSeriesEj) || 3 }),
+      })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? 'Error al guardar'); return }
+      toast.success('Ejercicio actualizado'); setEditandoEj(null); cargarEjercicios()
+    } catch {
+      toast.error('Error de conexión')
+    }
   }
 
   // — Eliminar ejercicio —

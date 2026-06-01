@@ -27,18 +27,27 @@ export async function POST(request: Request) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-  const supabase = createServiceClient()
-  const { id_rutina, nombre, orden, num_series } = await request.json()
+  try {
+    const supabase = createServiceClient()
+    const body = await request.json()
+    const { id_rutina, nombre, orden, num_series } = body
 
-  if (!id_rutina || !nombre)
-    return NextResponse.json({ error: 'id_rutina y nombre son obligatorios' }, { status: 400 })
+    if (!id_rutina || !nombre)
+      return NextResponse.json({ error: 'id_rutina y nombre son obligatorios' }, { status: 400 })
 
-  const { data, error } = await supabase
-    .from('ejercicio')
-    .insert([{ id_rutina, nombre, orden: orden ?? 1, num_series: num_series ?? 3 }])
-    .select()
-    .single()
+    const { data, error } = await supabase
+      .from('ejercicio')
+      .insert([{ id_rutina, nombre, orden: orden ?? 1, num_series: num_series ?? 3 }])
+      .select()
+      .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 })
-  return NextResponse.json(data, { status: 201 })
+    if (error) {
+      console.error('Supabase error creating ejercicio:', error)
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+    return NextResponse.json(data, { status: 201 })
+  } catch (err) {
+    console.error('Unexpected error in POST /api/ejercicios:', err)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  }
 }
