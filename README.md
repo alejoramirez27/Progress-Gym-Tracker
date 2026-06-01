@@ -9,6 +9,13 @@ Aplicación web privada para registrar y analizar el progreso en el gym. Diseña
 
 ## Funcionalidades
 
+### Autenticación
+- Login con email y contraseña
+- **Login con Google** (OAuth 2.0) — un clic, sin contraseña
+- Registro de cuenta nueva con validación en tiempo real
+- Cookie HTTP-only de 7 días
+- Proxy de protección de rutas (redirige a /login sin sesión)
+
 ### Rutinas
 - Crea rutinas con nombre, grupos musculares, descripción y día de la semana asignado
 - Reordena rutinas con drag & drop (mouse y táctil/móvil)
@@ -22,8 +29,10 @@ Aplicación web privada para registrar y analizar el progreso en el gym. Diseña
 
 ### Progreso *(sección principal de entrenamiento)*
 - Selecciona la rutina del día y la fecha
-- Los ejercicios aparecen con sus slots de series pre-configurados (según las series planificadas)
+- Los ejercicios aparecen con sus slots de series pre-configurados
 - Llena peso (kg), repeticiones y RIR por cada serie
+- Banner de advertencia cuando hay series sin guardar
+- Bloquea el cierre del navegador si hay datos sin guardar (`beforeunload`)
 - Guarda la sesión completa en un solo clic → queda registrada en el historial
 
 ### Dashboard
@@ -39,9 +48,11 @@ Aplicación web privada para registrar y analizar el progreso en el gym. Diseña
 - Expandible: ver todos los pesos y reps registrados en esa sesión
 - Elimina sesiones directamente desde el historial
 
-### Autenticación
-- Login con cookie HTTP-only de 7 días
-- Middleware de protección de rutas (redirige a /login si no hay sesión)
+### Récords Personales (PRs)
+- Vista dedicada con el peso máximo histórico por ejercicio
+- Agrupados por rutina (ordenadas por día de semana)
+- Muestra: peso máximo, repeticiones de ese PR y fecha
+- Expandible por rutina con contador "X/Y con PR"
 
 ### Diseño responsive
 - Sidebar en desktop · Barra inferior + top bar en móvil
@@ -56,7 +67,7 @@ Aplicación web privada para registrar y analizar el progreso en el gym. Diseña
 | Framework | Next.js 16 (App Router) |
 | Lenguaje | TypeScript |
 | Base de datos | Supabase (PostgreSQL) |
-| Autenticación | Cookies HTTP-only con sesión propia |
+| Autenticación | Cookies HTTP-only + Google OAuth 2.0 |
 | Drag & Drop | @dnd-kit/core + @dnd-kit/sortable |
 | Gráficas | Recharts |
 | Fuente | Lexend (Google Fonts) |
@@ -83,24 +94,33 @@ src/
 │   │   │   └── [id]/         # Detalle: ejercicios, edición, reorden
 │   │   ├── progreso/         # Registro de sesión del día
 │   │   ├── dashboard/        # Métricas + gráfica de progreso
-│   │   └── historial/        # Sesiones agrupadas por mes
+│   │   ├── historial/        # Sesiones agrupadas por mes
+│   │   └── records/          # Récords personales (PR) por ejercicio
 │   ├── api/
-│   │   ├── auth/             # Login y logout
+│   │   ├── auth/
+│   │   │   ├── login/        # Login con email/contraseña
+│   │   │   ├── logout/       # Cerrar sesión
+│   │   │   ├── registro/     # Crear cuenta nueva
+│   │   │   └── google/       # OAuth 2.0 con Google
+│   │   │       └── callback/ # Callback de Google → crea sesión
 │   │   ├── rutinas/          # CRUD + reorden
 │   │   ├── ejercicios/       # CRUD + reorden + num_series
 │   │   ├── sesiones/         # Crear, listar y eliminar sesiones
 │   │   ├── series/           # CRUD series individuales
+│   │   ├── records/          # PRs: peso máximo histórico por ejercicio
 │   │   ├── dashboard/        # Stats + datos gráfica ordenados por día
 │   │   └── historial/        # Sesiones con detalle expandible
-│   └── login/
+│   ├── login/                # Página de login (responsive, botón Google)
+│   └── registro/             # Página de registro de cuenta
 ├── components/
-│   ├── Sidebar.tsx           # Nav desktop (clickear logo → /rutinas)
+│   ├── Sidebar.tsx           # Nav desktop (logo → /rutinas, 5 secciones)
 │   └── MobileNav.tsx         # Top bar + bottom nav para móvil
 ├── hooks/
 │   └── useIsMobile.ts        # Detecta breakpoint < 768px
-└── lib/
-    ├── session.ts            # Lee cookie gym_session
-    └── supabase/             # Cliente con service_role_key
+├── lib/
+│   ├── session.ts            # Lee cookie gym_session
+│   └── supabase/             # Cliente con service_role_key
+└── proxy.ts                  # Protección de rutas (Next.js 16)
 ```
 
 ---
@@ -126,6 +146,21 @@ serie
   id_serie, id_ejercicio, id_sesion (FK → sesion),
   fecha, numero_serie, peso_kg, repeticiones,
   rir, descanso_seg, notas
+```
+
+---
+
+## Variables de entorno
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=tu_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
+SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+
+# Google OAuth (activa el boton "Continuar con Google")
+GOOGLE_CLIENT_ID=tu_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=tu_client_secret
 ```
 
 ---
@@ -156,10 +191,12 @@ git clone https://github.com/alejoramirez27/Progress-Gym-Tracker.git
 cd Progress-Gym-Tracker
 npm install
 
-# Crear .env.local con las credenciales de Supabase
+# Crear .env.local con las credenciales de Supabase y Google OAuth
 NEXT_PUBLIC_SUPABASE_URL=tu_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
 SUPABASE_SERVICE_ROLE_KEY=tu_service_role_key
+GOOGLE_CLIENT_ID=tu_client_id
+GOOGLE_CLIENT_SECRET=tu_client_secret
 
 npm run dev
 ```

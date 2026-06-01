@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { ChevronDown, CheckCircle2, Dumbbell, Target, AlertTriangle } from 'lucide-react'
+import { ChevronDown, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle } from 'lucide-react'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface Rutina    { id_rutina: string; nombre: string }
@@ -312,7 +312,7 @@ export default function ProgresoPage() {
               transition: 'all 0.15s',
             }}
           >
-            <Target style={{ width: '16px', height: '16px' }} />
+            <BicepsFlexed style={{ width: '16px', height: '16px' }} />
             {guardando ? 'Guardando sesión...' : 'Guardar sesión'}
           </button>
         </div>
