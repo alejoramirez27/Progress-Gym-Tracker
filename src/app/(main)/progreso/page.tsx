@@ -116,7 +116,7 @@ export default function ProgresoPage() {
     <div className="page-enter">
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 3px' }}>Registrar Sesión</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Registrar Sesión</h1>
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Registra los pesos y reps de hoy</p>
       </div>
 

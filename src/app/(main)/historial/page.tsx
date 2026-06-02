@@ -60,7 +60,7 @@ export default function HistorialPage() {
   return (
     <div className="page-enter">
       <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 3px' }}>Historial</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Historial</h1>
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
           {!loading && `${sesiones.length} sesión${sesiones.length !== 1 ? 'es' : ''} registrada${sesiones.length !== 1 ? 's' : ''}`}
         </p>

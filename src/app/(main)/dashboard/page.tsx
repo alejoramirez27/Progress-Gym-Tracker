@@ -74,7 +74,7 @@ export default function DashboardPage() {
     <div className="page-enter">
       {/* Header */}
       <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 3px' }}>Dashboard</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Dashboard</h1>
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Evolución y métricas de tu entrenamiento</p>
       </div>
 
@@ -84,16 +84,16 @@ export default function DashboardPage() {
           {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: '76px' }} />)}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
           {metricCards.map(c => {
             const Icon = c.icon
             return (
-              <div key={c.label} className="card" style={{ padding: '14px 16px' }}>
+              <div key={c.label} style={{ backgroundColor: 'var(--surface-deep)', padding: '16px 18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <span className="label">{c.label}</span>
-                  <Icon style={{ width: '13px', height: '13px', color: c.color, opacity: 0.6 }} />
+                  <Icon style={{ width: '13px', height: '13px', color: c.color, opacity: 0.5 }} />
                 </div>
-                <p className="num" style={{ fontSize: '24px', fontWeight: '500', color: c.color, margin: 0, letterSpacing: '-0.03em' }}>{c.value}</p>
+                <p className="num" style={{ fontSize: '28px', fontWeight: '700', color: c.color, margin: 0, letterSpacing: '-0.04em' }}>{c.value}</p>
               </div>
             )
           })}

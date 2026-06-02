@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Zap, User, Mail, Lock, ArrowRight } from 'lucide-react'
 
+const IMG = 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=85'
+
 export default function RegistroPage() {
   const router = useRouter()
   const [nombre, setNombre]     = useState('')
@@ -25,55 +27,44 @@ export default function RegistroPage() {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', backgroundColor: 'var(--surface-base)' }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', backgroundColor: '#0a0c10' }}>
 
-      {/* Left panel */}
-      <div style={{ flex: 1, backgroundColor: 'var(--surface-deep)', borderRight: '1px solid var(--border-faint)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px', position: 'relative', overflow: 'hidden' }}
-        className="auth-left-panel">
-        <div style={{ position: 'absolute', top: '35%', left: '35%', width: '480px', height: '480px', borderRadius: '50%', backgroundColor: 'var(--accent)', opacity: 0.025, filter: 'blur(100px)', transform: 'translate(-50%, -50%)' }} />
+      {/* Left: editorial image panel */}
+      <div className="auth-img-panel" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={IMG} alt="Atleta entrenando con pesas" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 45%, rgba(10,12,16,0.97) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,16,0.97) 0%, rgba(10,12,16,0.35) 50%, transparent 75%)' }} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '52px' }}>
-          <div style={{ backgroundColor: 'var(--accent)', borderRadius: 'var(--r-md)', padding: '7px', display: 'flex' }}>
-            <Zap style={{ width: '16px', height: '16px', color: '#0c0e12' }} />
-          </div>
-          <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>VoltTrack</span>
-        </div>
-
-        <h2 style={{ fontSize: '32px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: '1.15', margin: '0 0 14px' }}>
-          Empieza a trackear tu progreso hoy
-        </h2>
-        <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: '0 0 48px', maxWidth: '360px' }}>
-          Crea tu cuenta y comienza a registrar cada sesión, cada peso, cada repetición.
-        </p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {[
-            { text: 'Dashboard con evolución de peso por ejercicio' },
-            { text: 'Rutinas organizadas por día de semana' },
-            { text: 'Récords personales automáticos' },
-          ].map(item => (
-            <div key={item.text} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-              <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: 'var(--accent)', flexShrink: 0, marginTop: '6px', opacity: 0.7 }} />
-              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>{item.text}</p>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, padding: 'clamp(32px,4vw,52px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '22px' }}>
+            <div style={{ backgroundColor: '#b1c9e1', borderRadius: '7px', padding: '6px', display: 'flex' }}>
+              <Zap style={{ width: '13px', height: '13px', color: '#0c0e12' }} />
             </div>
-          ))}
+            <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</span>
+          </div>
+          <h2 style={{ fontSize: 'clamp(26px, 3.2vw, 42px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.03em', lineHeight: '1.05', margin: '0 0 12px' }}>
+            Empieza hoy.<br />Supera mañana.
+          </h2>
+          <p style={{ fontSize: '14px', color: '#9199a3', margin: 0, fontWeight: '300', lineHeight: '1.6', maxWidth: '320px' }}>
+            Registra cada sesión, sigue tus récords y observa tu progreso real.
+          </p>
         </div>
       </div>
 
-      {/* Form */}
-      <div style={{ width: '420px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '52px 44px' }}
-        className="auth-right-panel">
+      {/* Right: form panel */}
+      <div className="auth-form-panel" style={{ width: '440px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 44px', backgroundColor: '#0a0c10' }}>
 
         <div className="auth-mobile-logo" style={{ display: 'none', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '36px' }}>
-          <div style={{ backgroundColor: 'var(--accent)', borderRadius: 'var(--r-md)', padding: '7px', display: 'flex' }}>
-            <Zap style={{ width: '16px', height: '16px', color: '#0c0e12' }} />
+          <div style={{ backgroundColor: '#b1c9e1', borderRadius: '7px', padding: '6px', display: 'flex' }}>
+            <Zap style={{ width: '14px', height: '14px', color: '#0c0e12' }} />
           </div>
-          <span style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>VoltTrack</span>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</span>
         </div>
 
-        <div style={{ marginBottom: '28px' }}>
-          <h1 style={{ fontSize: '22px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Crear cuenta</h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Completa los datos para empezar</p>
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#e2e2e8', letterSpacing: '-0.03em', margin: '0 0 6px' }}>Crear cuenta</h1>
+          <p style={{ fontSize: '13px', color: '#9199a3', margin: 0 }}>Completa los datos para empezar</p>
         </div>
 
         <form onSubmit={handleRegistro} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -123,20 +114,25 @@ export default function RegistroPage() {
             </div>
           )}
 
-          <button type="submit" disabled={loading} style={{ marginTop: '4px', backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-md)', padding: '11px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            {loading ? 'Creando cuenta...' : <><span>Crear cuenta</span><ArrowRight style={{ width: '15px', height: '15px' }} /></>}
+          <button type="submit" disabled={loading}
+            style={{ marginTop: '4px', backgroundColor: '#b1c9e1', color: '#0c0e12', border: 'none', borderRadius: '8px', padding: '11px', fontSize: '14px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'background-color 0.14s', opacity: loading ? 0.7 : 1 }}
+            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.backgroundColor = '#c4d6ea' }}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#b1c9e1'}
+          >
+            {loading ? 'Creando cuenta...' : <><span>Crear cuenta</span><ArrowRight style={{ width: '14px', height: '14px' }} /></>}
           </button>
         </form>
 
-        {/* Google */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '18px 0' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-faint)' }} />
-          <span className="label">o</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-faint)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '16px 0' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
+          <span style={{ fontSize: '11px', fontWeight: '500', color: '#636870', letterSpacing: '0.06em', textTransform: 'uppercase' }}>o</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
         </div>
-        <a href="/api/auth/google" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-md)', padding: '11px', fontSize: '14px', color: 'var(--text-primary)', fontFamily: 'inherit', textDecoration: 'none', transition: 'border-color var(--t-sm) var(--ease-out), background-color var(--t-sm) var(--ease-out)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--surface-high)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-subtle)'; (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--surface-card)' }}
+
+        <a href="/api/auth/google"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: '#111318', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '11px', fontSize: '14px', color: '#e2e2e8', fontFamily: 'inherit', textDecoration: 'none', transition: 'border-color 0.14s, background-color 0.14s' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLElement).style.backgroundColor = '#16181d' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.backgroundColor = '#111318' }}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -147,16 +143,16 @@ export default function RegistroPage() {
           Continuar con Google
         </a>
 
-        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: 'var(--text-tertiary)' }}>
+        <p style={{ textAlign: 'center', marginTop: '18px', fontSize: '13px', color: '#636870' }}>
           Ya tienes cuenta?{' '}
-          <a href="/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: '500' }}>Iniciar sesión</a>
+          <a href="/login" style={{ color: '#b1c9e1', textDecoration: 'none', fontWeight: '500' }}>Iniciar sesión</a>
         </p>
       </div>
 
       <style>{`
         @media (max-width: 767px) {
-          .auth-left-panel { display: none !important; }
-          .auth-right-panel { width: 100% !important; padding: 44px 24px !important; }
+          .auth-img-panel  { display: none !important; }
+          .auth-form-panel { width: 100% !important; padding: 44px 24px !important; }
           .auth-mobile-logo { display: flex !important; }
         }
       `}</style>
