@@ -123,22 +123,7 @@ function Nav() {
         </div>
         <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</span>
       </Link>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Link href="/login"
-          style={{ fontSize: '13px', color: '#9199a3', textDecoration: 'none', padding: '7px 12px', borderRadius: '7px', transition: 'color 0.14s' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#9199a3')}
-        >
-          Iniciar sesión
-        </Link>
-        <Link href="/registro"
-          style={{ fontSize: '13px', fontWeight: '600', backgroundColor: '#b1c9e1', color: '#0c0e12', textDecoration: 'none', padding: '7px 14px', borderRadius: '7px', display: 'flex', alignItems: 'center', gap: '5px', transition: 'background-color 0.14s' }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#c4d6ea')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#b1c9e1')}
-        >
-          Empezar <ArrowRight style={{ width: '12px', height: '12px' }} />
-        </Link>
-      </div>
+      <div />
     </motion.header>
   )
 }
@@ -172,7 +157,7 @@ function Hero() {
             animate={{ y: '0%' }}
             transition={{ duration: 1.0, delay: 0.2, ease: E }}
           >
-            datos.
+            intención.
           </motion.h1>
         </div>
 
@@ -192,10 +177,10 @@ function Hero() {
           style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}
         >
           <MagneticCTA href="/registro" primary>
-            Empezar gratis <ArrowRight style={{ width: '15px', height: '15px' }} />
+            Crear cuenta <ArrowRight style={{ width: '15px', height: '15px' }} />
           </MagneticCTA>
           <MagneticCTA href="/login">
-            Ya tengo cuenta
+            Iniciar sesión
           </MagneticCTA>
         </motion.div>
       </div>
