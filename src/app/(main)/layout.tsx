@@ -1,25 +1,19 @@
-'use client'
 import Sidebar from '@/components/Sidebar'
 import MobileNav from '@/components/MobileNav'
-import { useIsMobile } from '@/hooks/useIsMobile'
 
+// Server Component — CSS handles responsive, no SSR flash
 export default function MainLayout({ children }: { children: React.ReactNode }) {
-  const isMobile = useIsMobile()
-
   return (
-    <div style={{ display: 'flex', minHeight: '100dvh' }}>
-      {!isMobile && <Sidebar />}
-      <main style={{
-        marginLeft: isMobile ? '0' : '220px',
-        flex: 1,
-        padding: isMobile ? '68px 16px 88px' : '40px 48px',
-        maxWidth: isMobile ? '100%' : '1000px',
-        width: '100%',
-        boxSizing: 'border-box',
-      }}>
+    <div className="app-shell">
+      <div className="app-sidebar-wrap">
+        <Sidebar />
+      </div>
+      <main className="app-main">
         {children}
       </main>
-      {isMobile && <MobileNav />}
+      <div className="app-mobile-nav">
+        <MobileNav />
+      </div>
     </div>
   )
 }

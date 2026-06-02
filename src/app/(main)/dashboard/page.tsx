@@ -1,9 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Dumbbell, TrendingUp, Layers, Calendar, ChevronDown, Info } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { useIsMobile } from '@/hooks/useIsMobile'
 
 interface Stats      { totalRutinas: number; totalEjercicios: number; totalSeries: number; ultimaSesion: string | null }
 interface Rutina     { id_rutina: string; nombre: string }
@@ -14,199 +12,175 @@ function fmtFecha(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
 }
 
-const selectStyle = {
-  backgroundColor: '#1e2024', border: '1px solid #43474c', color: '#e2e2e8',
-  borderRadius: '8px', padding: '8px 32px 8px 12px', fontSize: '13px',
-  cursor: 'pointer', fontFamily: 'inherit', appearance: 'none' as const, outline: 'none', width: '100%',
+const sel: React.CSSProperties = {
+  backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)',
+  color: 'var(--text-primary)', borderRadius: 'var(--r-md)',
+  padding: '7px 28px 7px 10px', fontSize: '13px', cursor: 'pointer',
+  fontFamily: 'inherit', appearance: 'none', outline: 'none', width: '100%',
 }
 
 export default function DashboardPage() {
-  const isMobile = useIsMobile()
-
   const [stats, setStats]           = useState<Stats | null>(null)
   const [rutinas, setRutinas]       = useState<Rutina[]>([])
   const [ejercicios, setEjercicios] = useState<Ejercicio[]>([])
   const [progreso, setProgreso]     = useState<PuntoProgreso[]>([])
-
-  const [rutinaSeleccionada, setRutinaSeleccionada] = useState<string>('')
-  const [ejSeleccionado, setEjSeleccionado]         = useState<string>('')
-
-  const [loading, setLoading]           = useState(true)
+  const [rutinaSeleccionada, setRutinaSel] = useState('')
+  const [ejSeleccionado, setEjSel]         = useState('')
+  const [loading, setLoading]       = useState(true)
   const [loadingChart, setLoadingChart] = useState(false)
 
-  // Ejercicios filtrados por rutina seleccionada
   const ejerciciosFiltrados = rutinaSeleccionada
     ? ejercicios.filter(e => e.id_rutina === rutinaSeleccionada)
     : ejercicios
 
-  // Carga inicial: stats + rutinas + ejercicios
   useEffect(() => {
     fetch('/api/dashboard').then(r => r.json()).then(d => {
-      setStats(d.stats)
-      setRutinas(d.rutinas ?? [])
-      setEjercicios(d.ejercicios ?? [])
-
-      // Seleccionar primera rutina y primer ejercicio
+      setStats(d.stats); setRutinas(d.rutinas ?? []); setEjercicios(d.ejercicios ?? [])
       if (d.rutinas?.length > 0) {
         const primeraRutina = d.rutinas[0].id_rutina
-        setRutinaSeleccionada(primeraRutina)
+        setRutinaSel(primeraRutina)
         const ejDeRutina = (d.ejercicios ?? []).filter((e: Ejercicio) => e.id_rutina === primeraRutina)
-        if (ejDeRutina.length > 0) setEjSeleccionado(ejDeRutina[0].id_ejercicio)
+        if (ejDeRutina.length > 0) setEjSel(ejDeRutina[0].id_ejercicio)
       }
       setLoading(false)
     })
   }, [])
 
-  // Cuando cambia la rutina, seleccionar primer ejercicio de esa rutina
   const onRutinaChange = (id: string) => {
-    setRutinaSeleccionada(id)
+    setRutinaSel(id)
     const ejDeRutina = ejercicios.filter(e => e.id_rutina === id)
-    setEjSeleccionado(ejDeRutina.length > 0 ? ejDeRutina[0].id_ejercicio : '')
+    setEjSel(ejDeRutina.length > 0 ? ejDeRutina[0].id_ejercicio : '')
     setProgreso([])
   }
 
-  // Cargar progreso cuando cambia el ejercicio
   useEffect(() => {
     if (!ejSeleccionado) return
     setLoadingChart(true)
     fetch(`/api/dashboard?id_ejercicio=${ejSeleccionado}`).then(r => r.json()).then(d => {
-      setProgreso(d.progreso ?? [])
-      setLoadingChart(false)
+      setProgreso(d.progreso ?? []); setLoadingChart(false)
     })
   }, [ejSeleccionado])
 
-  const cards = stats ? [
-    { label: 'Rutinas',         value: stats.totalRutinas,    icon: Dumbbell,   color: '#b1c9e1' },
-    { label: 'Ejercicios',      value: stats.totalEjercicios, icon: TrendingUp, color: '#7ad4a0' },
-    { label: 'Series totales',  value: stats.totalSeries,     icon: Layers,     color: '#d4a07a' },
-    { label: 'Última sesión',   value: stats.ultimaSesion ? fmtFecha(stats.ultimaSesion) : '—', icon: Calendar, color: '#a07ad4' },
-  ] : []
-
   const nombreEjercicio = ejercicios.find(e => e.id_ejercicio === ejSeleccionado)?.nombre ?? ''
 
+  const metricCards = stats ? [
+    { label: 'Rutinas',        value: stats.totalRutinas,    icon: Dumbbell,   color: 'var(--accent)' },
+    { label: 'Ejercicios',     value: stats.totalEjercicios, icon: TrendingUp, color: 'var(--success)' },
+    { label: 'Series totales', value: stats.totalSeries,     icon: Layers,     color: '#d4a07a' },
+    { label: 'Última sesión',  value: stats.ultimaSesion ? fmtFecha(stats.ultimaSesion) : '—', icon: Calendar, color: '#a07ad4' },
+  ] : []
+
   return (
-    <div>
+    <div className="page-enter">
       {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '500', color: '#e2e2e8', letterSpacing: '-0.01em', margin: 0 }}>Dashboard</h1>
-        <p style={{ fontSize: '14px', color: '#8d9197', marginTop: '6px', fontWeight: '300' }}>Evolución y métricas de tu entrenamiento</p>
+      <div style={{ marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 3px' }}>Dashboard</h1>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Evolución y métricas de tu entrenamiento</p>
       </div>
 
-      {/* Stats cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
-        {loading
-          ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} style={{ height: '96px', borderRadius: '12px', backgroundColor: '#1e2024' }} />)
-          : cards.map(c => {
+      {/* Stats — compact metric row */}
+      {loading ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '24px' }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: '76px' }} />)}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '24px' }}>
+          {metricCards.map(c => {
             const Icon = c.icon
             return (
-              <div key={c.label} style={{ backgroundColor: '#1e2024', border: '1px solid #43474c', borderRadius: '12px', padding: '18px 20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  <p style={{ fontSize: '11px', color: '#8d9197', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0, fontWeight: '500' }}>{c.label}</p>
-                  <Icon style={{ width: '14px', height: '14px', color: c.color, opacity: 0.7 }} />
+              <div key={c.label} className="card" style={{ padding: '14px 16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <span className="label">{c.label}</span>
+                  <Icon style={{ width: '13px', height: '13px', color: c.color, opacity: 0.6 }} />
                 </div>
-                <p style={{ fontSize: '26px', fontWeight: '500', color: c.color, margin: 0, letterSpacing: '-0.02em' }}>{c.value}</p>
+                <p className="num" style={{ fontSize: '24px', fontWeight: '500', color: c.color, margin: 0, letterSpacing: '-0.03em' }}>{c.value}</p>
               </div>
             )
-          })
-        }
-      </div>
+          })}
+        </div>
+      )}
 
-      {/* Gráfica */}
-      <div style={{ backgroundColor: '#1e2024', border: '1px solid #43474c', borderRadius: '16px', padding: isMobile ? '20px 16px' : '28px 32px' }}>
-        {/* Header gráfica */}
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <div>
-              <h2 style={{ fontSize: '16px', fontWeight: '500', color: '#e2e2e8', margin: 0, letterSpacing: '-0.01em' }}>Progreso de Peso</h2>
-              <p style={{ fontSize: '12px', color: '#8d9197', marginTop: '4px', margin: '4px 0 0', fontWeight: '300' }}>
-                Peso máximo registrado por sesión — en kg
-              </p>
-            </div>
+      {/* Chart section */}
+      <div className="card" style={{ padding: '24px' }}>
+        {/* Chart header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h2 style={{ fontSize: '15px', fontWeight: '500', color: 'var(--text-primary)', margin: '0 0 3px', letterSpacing: '-0.01em' }}>
+              Progreso de peso
+            </h2>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+              Peso máximo por sesión · kg
+            </p>
           </div>
 
-          {/* Filtros rutina + ejercicio */}
+          {/* Filtros */}
           {!loading && rutinas.length > 0 && (
-            <div style={{ display: 'flex', gap: '10px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
-              {/* Selector de rutina */}
-              <div style={{ position: 'relative', flex: 1, minWidth: '140px' }}>
-                <label style={{ fontSize: '10px', color: '#43474c', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                  Rutina
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <select value={rutinaSeleccionada} onChange={e => onRutinaChange(e.target.value)} style={selectStyle}>
-                    {rutinas.map(r => <option key={r.id_rutina} value={r.id_rutina}>{r.nombre}</option>)}
-                  </select>
-                  <ChevronDown style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: '#8d9197', pointerEvents: 'none' }} />
-                </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative', minWidth: '140px' }}>
+                <select value={rutinaSeleccionada} onChange={e => onRutinaChange(e.target.value)} style={sel}>
+                  {rutinas.map(r => <option key={r.id_rutina} value={r.id_rutina}>{r.nombre}</option>)}
+                </select>
+                <ChevronDown style={{ position: 'absolute', right: '9px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
               </div>
-
-              {/* Selector de ejercicio */}
-              <div style={{ position: 'relative', flex: 1, minWidth: '140px' }}>
-                <label style={{ fontSize: '10px', color: '#43474c', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                  Ejercicio
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <select
-                    value={ejSeleccionado}
-                    onChange={e => setEjSeleccionado(e.target.value)}
-                    disabled={ejerciciosFiltrados.length === 0}
-                    style={{ ...selectStyle, opacity: ejerciciosFiltrados.length === 0 ? 0.5 : 1 }}
-                  >
-                    {ejerciciosFiltrados.length === 0
-                      ? <option>Sin ejercicios</option>
-                      : ejerciciosFiltrados.map(e => <option key={e.id_ejercicio} value={e.id_ejercicio}>{e.nombre}</option>)
-                    }
-                  </select>
-                  <ChevronDown style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: '#8d9197', pointerEvents: 'none' }} />
-                </div>
+              <div style={{ position: 'relative', minWidth: '140px' }}>
+                <select value={ejSeleccionado} onChange={e => setEjSel(e.target.value)} disabled={ejerciciosFiltrados.length === 0}
+                  style={{ ...sel, opacity: ejerciciosFiltrados.length === 0 ? 0.4 : 1 }}>
+                  {ejerciciosFiltrados.length === 0
+                    ? <option>Sin ejercicios</option>
+                    : ejerciciosFiltrados.map(e => <option key={e.id_ejercicio} value={e.id_ejercicio}>{e.nombre}</option>)}
+                </select>
+                <ChevronDown style={{ position: 'absolute', right: '9px', top: '50%', transform: 'translateY(-50%)', width: '12px', height: '12px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
               </div>
             </div>
           )}
         </div>
 
-        {/* Chart */}
+        {/* Chart body */}
         {loading || loadingChart ? (
-          <Skeleton style={{ height: '240px', borderRadius: '8px', backgroundColor: '#282a2e' }} />
+          <div className="skeleton" style={{ height: '240px' }} />
         ) : ejerciciosFiltrados.length === 0 ? (
-          <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
-            <TrendingUp style={{ width: '28px', height: '28px', color: '#43474c' }} />
-            <p style={{ color: '#43474c', fontSize: '13px', margin: 0 }}>Esta rutina no tiene ejercicios todavía</p>
+          <div className="empty-state" style={{ height: '240px', padding: 0 }}>
+            <TrendingUp style={{ width: '24px', height: '24px' }} />
+            <p>Esta rutina no tiene ejercicios</p>
           </div>
         ) : progreso.length === 0 ? (
-          <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px' }}>
-            <TrendingUp style={{ width: '28px', height: '28px', color: '#43474c' }} />
-            <p style={{ color: '#43474c', fontSize: '13px', margin: 0 }}>Sin datos de peso para {nombreEjercicio}</p>
-            <p style={{ color: '#43474c', fontSize: '12px', margin: 0, fontWeight: '300' }}>Registra series con peso para ver tu progreso</p>
+          <div className="empty-state" style={{ height: '240px', padding: 0 }}>
+            <TrendingUp style={{ width: '24px', height: '24px' }} />
+            <p>Sin datos para {nombreEjercicio}</p>
+            <p className="empty-hint">Registra sesiones con peso para ver tu progreso</p>
           </div>
         ) : progreso.length === 1 ? (
-          /* Un solo punto — no alcanza para línea, se muestra stat */
-          <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#16181c', border: '1px solid #282a2e', borderRadius: '10px', padding: '16px 24px' }}>
-              <Info style={{ width: '14px', height: '14px', color: '#8d9197', flexShrink: 0 }} />
-              <p style={{ fontSize: '12px', color: '#8d9197', margin: 0, fontWeight: '300' }}>
+          <div style={{ height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-faint)', borderRadius: 'var(--r-md)', padding: '12px 16px' }}>
+              <Info style={{ width: '13px', height: '13px', color: 'var(--text-secondary)', flexShrink: 0 }} />
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                 Solo hay una sesión registrada. Entrena más veces para ver la línea de progreso.
               </p>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: '36px', fontWeight: '500', color: '#b1c9e1', margin: 0, letterSpacing: '-0.02em' }}>{progreso[0].peso_max} <span style={{ fontSize: '16px', fontWeight: '300', color: '#8d9197' }}>kg</span></p>
-              <p style={{ fontSize: '12px', color: '#8d9197', marginTop: '4px', fontWeight: '300' }}>{fmtFecha(progreso[0].fecha)} · {progreso[0].reps} reps</p>
+              <p className="num" style={{ fontSize: '36px', fontWeight: '500', color: 'var(--accent)', margin: 0, letterSpacing: '-0.03em' }}>
+                {progreso[0].peso_max} <span style={{ fontSize: '16px', fontWeight: '300', color: 'var(--text-secondary)' }}>kg</span>
+              </p>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                {fmtFecha(progreso[0].fecha)} · {progreso[0].reps} reps
+              </p>
             </div>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={progreso.map(p => ({ ...p, fechaFmt: fmtFecha(p.fecha) }))} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#282a2e" vertical={false} />
-              <XAxis dataKey="fechaFmt" tick={{ fill: '#8d9197', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#8d9197', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}kg`} />
+            <LineChart data={progreso.map(p => ({ ...p, fechaFmt: fmtFecha(p.fecha) }))} margin={{ top: 5, right: 8, left: -16, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
+              <XAxis dataKey="fechaFmt" tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'inherit' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'inherit' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}kg`} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1e2024', border: '1px solid #43474c', borderRadius: '8px', fontSize: '12px', color: '#e2e2e8' }}
-                formatter={(val, name) => name === 'peso_max' ? [`${val} kg`, 'Peso máx.'] : [`${val} reps`, 'Repeticiones']}
-                labelStyle={{ color: '#8d9197', marginBottom: '6px', fontSize: '11px' }}
+                contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', fontSize: '12px', color: 'var(--text-primary)', fontFamily: 'inherit' }}
+                formatter={(val, name) => name === 'peso_max' ? [`${val} kg`, 'Peso máx.'] : [`${val} reps`, 'Reps']}
+                labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px', fontSize: '11px' }}
+                cursor={{ stroke: 'var(--border-default)' }}
               />
-              <Line
-                type="monotone" dataKey="peso_max" stroke="#b1c9e1" strokeWidth={2}
-                dot={{ fill: '#b1c9e1', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: '#b1c9e1', stroke: '#111318', strokeWidth: 2 }}
+              <Line type="monotone" dataKey="peso_max" stroke="var(--accent)" strokeWidth={2}
+                dot={{ fill: 'var(--accent)', r: 3.5, strokeWidth: 0 }}
+                activeDot={{ r: 5.5, fill: 'var(--accent)', stroke: 'var(--surface-base)', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

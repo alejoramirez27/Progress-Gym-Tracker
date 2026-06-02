@@ -1,33 +1,19 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Skeleton } from '@/components/ui/skeleton'
 import { ChevronDown, ChevronRight, History, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface Sesion {
-  id_sesion:      string
-  fecha:          string
-  nombre_rutina:  string
-  num_ejercicios: number
-  num_series:     number
-}
+interface Sesion { id_sesion: string; fecha: string; nombre_rutina: string; num_ejercicios: number; num_series: number }
 interface DetalleEjercicio {
   nombre: string
-  series: {
-    id_serie: string; numero_serie: number; peso_kg: number | null
-    repeticiones: number; rir: number | null; notas: string | null
-  }[]
+  series: { id_serie: string; numero_serie: number; peso_kg: number | null; repeticiones: number; rir: number | null; notas: string | null }[]
 }
 
 function fmtFecha(s: string) {
-  return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', {
-    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
-  })
+  return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
 }
 function fmtMes(s: string) {
-  return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', {
-    month: 'long', year: 'numeric',
-  }).toUpperCase()
+  return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })
 }
 
 export default function HistorialPage() {
@@ -39,11 +25,8 @@ export default function HistorialPage() {
 
   const cargar = () => {
     setLoading(true)
-    fetch('/api/historial')
-      .then(r => r.json())
-      .then(d => { setSesiones(Array.isArray(d) ? d : []); setLoading(false) })
+    fetch('/api/historial').then(r => r.json()).then(d => { setSesiones(Array.isArray(d) ? d : []); setLoading(false) })
   }
-
   useEffect(() => { cargar() }, [])
 
   const toggleSesion = async (id: string) => {
@@ -75,109 +58,120 @@ export default function HistorialPage() {
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '500', color: '#e2e2e8', letterSpacing: '-0.01em', margin: 0 }}>Historial</h1>
-        <p style={{ fontSize: '14px', color: '#8d9197', marginTop: '6px', fontWeight: '300' }}>
-          Registro completo de tus sesiones de entrenamiento
+    <div className="page-enter">
+      <div style={{ marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: '500', color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 3px' }}>Historial</h1>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
+          {!loading && `${sesiones.length} sesión${sesiones.length !== 1 ? 'es' : ''} registrada${sesiones.length !== 1 ? 's' : ''}`}
         </p>
       </div>
 
-      {loading && Array.from({ length: 4 }).map((_, i) =>
-        <Skeleton key={i} style={{ height: '72px', borderRadius: '12px', marginBottom: '10px', backgroundColor: '#1e2024' }} />
+      {loading && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {[64, 56, 64, 56].map((h, i) => <div key={i} className="skeleton" style={{ height: `${h}px` }} />)}
+        </div>
       )}
 
       {!loading && sesiones.length === 0 && (
-        <div style={{ backgroundColor: '#1e2024', border: '1px solid #43474c', borderRadius: '12px', padding: '64px', textAlign: 'center' }}>
-          <History style={{ width: '32px', height: '32px', color: '#43474c', margin: '0 auto 16px' }} />
-          <p style={{ color: '#8d9197', fontSize: '14px', margin: 0 }}>Sin sesiones registradas</p>
-          <p style={{ color: '#43474c', fontSize: '13px', marginTop: '6px', fontWeight: '300' }}>
-            Empieza registrando una sesión en <strong style={{ color: '#8d9197' }}>Progreso</strong>
-          </p>
+        <div className="card empty-state">
+          <History style={{ width: '26px', height: '26px' }} />
+          <p>Sin sesiones registradas</p>
+          <p className="empty-hint">Empieza registrando una sesión en Progreso</p>
         </div>
       )}
 
       {!loading && Object.entries(porMes).map(([mes, sessMes]) => (
-        <div key={mes} style={{ marginBottom: '32px' }}>
-          <p style={{ fontSize: '11px', color: '#43474c', fontWeight: '500', letterSpacing: '0.1em', marginBottom: '12px', marginTop: 0 }}>
-            {fmtMes(sessMes[0].fecha)}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {sessMes.map(sesion => (
-              <div key={sesion.id_sesion}
-                style={{ backgroundColor: '#1e2024', border: `1px solid ${expandida === sesion.id_sesion ? '#8d9197' : '#43474c'}`, borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.15s' }}>
+        <div key={mes} style={{ marginBottom: '28px' }}>
+          {/* Month header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-tertiary)', textTransform: 'capitalize', letterSpacing: '0.02em' }}>
+              {fmtMes(sessMes[0].fecha)}
+            </span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-faint)' }} />
+            <span style={{ fontSize: '11px', color: 'var(--text-disabled)' }}>{sessMes.length} sesión{sessMes.length !== 1 ? 'es' : ''}</span>
+          </div>
 
+          <div className="card stagger-list" style={{ overflow: 'hidden' }}>
+            {sessMes.map((sesion, idx) => (
+              <div key={sesion.id_sesion}>
+                {idx > 0 && <hr className="divider" />}
+
+                {/* Session row */}
                 <div
                   onClick={() => toggleSesion(sesion.id_sesion)}
-                  style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
-                  onMouseEnter={e => e.currentTarget.style.backgroundColor = '#282a2e'}
-                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    {expandida === sesion.id_sesion
-                      ? <ChevronDown style={{ width: '15px', height: '15px', color: '#b1c9e1', flexShrink: 0 }} />
-                      : <ChevronRight style={{ width: '15px', height: '15px', color: '#8d9197', flexShrink: 0 }} />
-                    }
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => e.key === 'Enter' && toggleSesion(sesion.id_sesion)}
+                  style={{
+                    padding: '14px 16px', display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between', cursor: 'pointer',
+                    transition: 'background-color var(--t-sm) var(--ease-out)',
+                    backgroundColor: expandida === sesion.id_sesion ? 'var(--surface-raised)' : 'transparent',
+                  }}
+                  onMouseEnter={e => { if (expandida !== sesion.id_sesion) e.currentTarget.style.backgroundColor = 'var(--surface-raised)' }}
+                  onMouseLeave={e => { if (expandida !== sesion.id_sesion) e.currentTarget.style.backgroundColor = 'transparent' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ color: expandida === sesion.id_sesion ? 'var(--accent)' : 'var(--text-tertiary)', display: 'flex', transition: 'color var(--t-sm) var(--ease-out)' }}>
+                      {expandida === sesion.id_sesion
+                        ? <ChevronDown style={{ width: '14px', height: '14px' }} />
+                        : <ChevronRight style={{ width: '14px', height: '14px' }} />}
+                    </span>
                     <div>
-                      <p style={{ fontSize: '13px', fontWeight: '500', color: '#e2e2e8', margin: 0, textTransform: 'capitalize' }}>
+                      <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize', letterSpacing: '-0.01em' }}>
                         {fmtFecha(sesion.fecha)}
                       </p>
-                      <p style={{ fontSize: '12px', color: '#8d9197', margin: '3px 0 0', fontWeight: '300' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
                         {sesion.nombre_rutina}
                       </p>
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '16px', textAlign: 'right' }}>
-                      <div>
-                        <p style={{ fontSize: '16px', fontWeight: '500', color: '#b1c9e1', margin: 0 }}>{sesion.num_ejercicios}</p>
-                        <p style={{ fontSize: '10px', color: '#43474c', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ejerc.</p>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <p className="num" style={{ fontSize: '16px', fontWeight: '500', color: 'var(--accent)', margin: 0 }}>{sesion.num_ejercicios}</p>
+                        <p className="label" style={{ margin: '1px 0 0' }}>ejerc.</p>
                       </div>
-                      <div>
-                        <p style={{ fontSize: '16px', fontWeight: '500', color: '#b1c9e1', margin: 0 }}>{sesion.num_series}</p>
-                        <p style={{ fontSize: '10px', color: '#43474c', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>series</p>
+                      <div style={{ textAlign: 'right' }}>
+                        <p className="num" style={{ fontSize: '16px', fontWeight: '500', color: 'var(--accent)', margin: 0 }}>{sesion.num_series}</p>
+                        <p className="label" style={{ margin: '1px 0 0' }}>series</p>
                       </div>
                     </div>
                     <button
                       onClick={e => eliminarSesion(sesion.id_sesion, e)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#43474c', padding: '4px', borderRadius: '4px', transition: 'color 0.15s', flexShrink: 0 }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
-                      onMouseLeave={e => e.currentTarget.style.color = '#43474c'}>
+                      aria-label="Eliminar sesión"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out), background-color var(--t-sm) var(--ease-out)' }}
+                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.backgroundColor = 'var(--error-dim)' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-disabled)'; e.currentTarget.style.backgroundColor = 'transparent' }}
+                    >
                       <Trash2 style={{ width: '13px', height: '13px' }} />
                     </button>
                   </div>
                 </div>
 
+                {/* Expanded detail */}
                 {expandida === sesion.id_sesion && (
-                  <div style={{ borderTop: '1px solid #282a2e', padding: '20px 24px', backgroundColor: '#16181c' }}>
+                  <div style={{ borderTop: '1px solid var(--border-faint)', padding: '16px 20px', backgroundColor: 'var(--surface-raised)' }}>
                     {cargandoDet === sesion.id_sesion ? (
-                      <Skeleton style={{ height: '60px', borderRadius: '8px', backgroundColor: '#1e2024' }} />
+                      <div className="skeleton" style={{ height: '60px' }} />
                     ) : (detalles[sesion.id_sesion] ?? []).map(ej => (
-                      <div key={ej.nombre} style={{ marginBottom: '16px' }}>
-                        <p style={{ fontSize: '12px', fontWeight: '500', color: '#c3c7cd', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          {ej.nombre}
-                        </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div key={ej.nombre} style={{ marginBottom: '14px' }}>
+                        <p className="label" style={{ margin: '0 0 6px' }}>{ej.nombre}</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                           {ej.series.map((s, i) => (
-                            <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'center', padding: '8px 12px', backgroundColor: '#1e2024', borderRadius: '6px', flexWrap: 'wrap' }}>
-                              <span style={{ fontSize: '11px', color: '#43474c', minWidth: '24px', fontWeight: '600' }}>S{s.numero_serie}</span>
+                            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '6px 10px', backgroundColor: 'var(--surface-card)', borderRadius: 'var(--r-sm)', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '11px', color: 'var(--text-disabled)', minWidth: '22px', fontWeight: '600', fontVariantNumeric: 'tabular-nums' }}>S{s.numero_serie}</span>
                               {s.peso_kg != null && (
-                                <span style={{ fontSize: '14px', color: '#e2e2e8', fontWeight: '500' }}>
-                                  {s.peso_kg} <span style={{ fontSize: '11px', color: '#8d9197', fontWeight: '300' }}>kg</span>
+                                <span className="num" style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' }}>
+                                  {s.peso_kg} <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '300' }}>kg</span>
                                 </span>
                               )}
-                              <span style={{ fontSize: '13px', color: '#c3c7cd' }}>
-                                {s.repeticiones} <span style={{ fontSize: '11px', color: '#8d9197', fontWeight: '300' }}>reps</span>
+                              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                                {s.repeticiones} <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: '300' }}>reps</span>
                               </span>
-                              {s.rir !== null && (
-                                <span style={{ fontSize: '11px', color: '#7ab8d4', backgroundColor: '#1a2f3a', padding: '2px 7px', borderRadius: '4px' }}>
-                                  RIR {s.rir}
-                                </span>
-                              )}
-                              {s.notas && (
-                                <span style={{ fontSize: '11px', color: '#43474c', fontStyle: 'italic' }}>{s.notas}</span>
-                              )}
+                              {s.rir !== null && <span className="tag tag-accent">RIR {s.rir}</span>}
+                              {s.notas && <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>{s.notas}</span>}
                             </div>
                           ))}
                         </div>

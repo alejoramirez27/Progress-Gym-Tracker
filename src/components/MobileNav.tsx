@@ -23,32 +23,69 @@ export default function MobileNav() {
     <>
       {/* Top bar */}
       <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, height: '52px',
-        backgroundColor: '#0c0e12', borderBottom: '1px solid #1e2024',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', zIndex: 50,
+        position: 'fixed', top: 0, left: 0, right: 0,
+        height: 'var(--mobile-top)',
+        backgroundColor: 'var(--surface-deep)',
+        borderBottom: '1px solid var(--border-faint)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 16px',
+        zIndex: 50,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ backgroundColor: '#b1c9e1', borderRadius: '6px', padding: '5px', display: 'flex' }}>
-            <Zap style={{ width: '13px', height: '13px', color: '#0c0e12' }} />
+        <button
+          onClick={() => router.push('/rutinas')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          }}
+        >
+          <div style={{
+            backgroundColor: 'var(--accent)',
+            borderRadius: '6px',
+            padding: '5px',
+            display: 'flex',
+          }}>
+            <Zap style={{ width: '12px', height: '12px', color: '#0c0e12' }} />
           </div>
-          <p style={{ fontSize: '14px', fontWeight: '600', color: '#e2e2e8', margin: 0, letterSpacing: '-0.01em' }}>VoltTrack</p>
-        </div>
+          <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+            VoltTrack
+          </span>
+        </button>
+
         <button
           onClick={cerrarSesion}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8d9197', padding: '6px', display: 'flex', alignItems: 'center' }}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--text-tertiary)', padding: '6px',
+            borderRadius: 'var(--r-sm)',
+            display: 'flex', alignItems: 'center',
+            transition: 'color var(--t-sm) var(--ease-out)',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--error)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}
+          aria-label="Cerrar sesión"
         >
           <LogOut style={{ width: '16px', height: '16px' }} />
         </button>
       </div>
 
       {/* Bottom nav */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        backgroundColor: '#0c0e12', borderTop: '1px solid #1e2024',
-        display: 'flex', zIndex: 50,
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}>
+      <nav
+        aria-label="Navegación principal"
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          backgroundColor: 'var(--surface-deep)',
+          borderTop: '1px solid var(--border-faint)',
+          display: 'flex',
+          zIndex: 50,
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+        }}
+      >
         {navItems.map(item => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/')
           const Icon   = item.icon
@@ -57,20 +94,38 @@ export default function MobileNav() {
               key={item.href}
               onClick={() => router.push(item.href)}
               style={{
-                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-                gap: '4px', padding: '10px 0', background: 'none', border: 'none',
-                cursor: 'pointer', color: active ? '#b1c9e1' : '#43474c',
-                fontFamily: 'inherit', transition: 'color 0.15s',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '3px',
+                padding: '10px 0 8px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: active ? 'var(--accent)' : 'var(--text-tertiary)',
+                fontFamily: 'inherit',
+                transition: 'color var(--t-sm) var(--ease-out)',
+                position: 'relative',
               }}
             >
-              <Icon style={{ width: '20px', height: '20px' }} />
-              <span style={{ fontSize: '10px', fontWeight: active ? '500' : '400', letterSpacing: '0.03em' }}>
+              {active && (
+                <span style={{
+                  position: 'absolute',
+                  top: 0, left: '20%', right: '20%',
+                  height: '2px',
+                  backgroundColor: 'var(--accent)',
+                  borderRadius: '0 0 2px 2px',
+                }} />
+              )}
+              <Icon style={{ width: '18px', height: '18px' }} />
+              <span style={{ fontSize: '9.5px', fontWeight: active ? '500' : '400', letterSpacing: '0.02em' }}>
                 {item.label}
               </span>
             </button>
           )
         })}
-      </div>
+      </nav>
     </>
   )
 }

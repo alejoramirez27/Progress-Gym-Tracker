@@ -21,26 +21,50 @@ export default function Sidebar() {
 
   return (
     <aside style={{
-      width: '220px', minWidth: '220px', height: '100vh',
-      backgroundColor: '#0c0e12', borderRight: '1px solid #43474c',
-      display: 'flex', flexDirection: 'column',
-      position: 'fixed', left: 0, top: 0, zIndex: 50,
+      width: '100%',
+      height: '100dvh',
+      backgroundColor: 'var(--surface-deep)',
+      borderRight: '1px solid var(--border-faint)',
+      display: 'flex',
+      flexDirection: 'column',
     }}>
+
       {/* Logo */}
-      <div style={{ padding: '28px 20px 24px', borderBottom: '1px solid #1e2024' }}>
-        <div onClick={() => router.push('/rutinas')} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-          <div style={{ backgroundColor: '#b1c9e1', borderRadius: '8px', padding: '6px', display: 'flex' }}>
-            <Zap style={{ width: '16px', height: '16px', color: '#0c0e12' }} />
-          </div>
-          <div>
-            <p style={{ fontSize: '15px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</p>
-            <p style={{ fontSize: '10px', color: '#8d9197', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Performance</p>
-          </div>
+      <div
+        onClick={() => router.push('/rutinas')}
+        style={{
+          padding: '20px 16px 18px',
+          borderBottom: '1px solid var(--border-faint)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          cursor: 'pointer',
+          transition: 'opacity var(--t-sm) var(--ease-out)',
+        }}
+        onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+      >
+        <div style={{
+          backgroundColor: 'var(--accent)',
+          borderRadius: 'var(--r-md)',
+          padding: '6px',
+          display: 'flex',
+          flexShrink: 0,
+        }}>
+          <Zap style={{ width: '14px', height: '14px', color: '#0c0e12' }} />
+        </div>
+        <div>
+          <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>
+            VoltTrack
+          </p>
+          <p style={{ fontSize: '10px', color: 'var(--text-tertiary)', margin: 0, letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: '1px' }}>
+            Performance
+          </p>
         </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <nav aria-label="Navegación principal" style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
         {navItems.map(item => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/')
           const Icon   = item.icon
@@ -49,40 +73,85 @@ export default function Sidebar() {
               key={item.href}
               onClick={() => router.push(item.href)}
               style={{
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '9px 12px', borderRadius: '8px', border: 'none',
-                cursor: 'pointer', width: '100%', textAlign: 'left',
-                backgroundColor: active ? '#1e2024' : 'transparent',
-                color: active ? '#b1c9e1' : '#8d9197',
-                fontSize: '13px', fontWeight: active ? '500' : '400',
-                transition: 'all 0.15s', fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 10px',
+                borderRadius: 'var(--r-md)',
+                border: 'none',
+                cursor: 'pointer',
+                width: '100%',
+                textAlign: 'left',
+                backgroundColor: active ? 'color-mix(in srgb, var(--accent) 8%, var(--surface-raised))' : 'transparent',
+                color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                fontSize: '13px',
+                fontWeight: active ? '500' : '400',
+                fontFamily: 'inherit',
+                position: 'relative',
+                transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out)',
               }}
-              onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = '#1a1c20' }}
-              onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = 'transparent' }}
+              onMouseEnter={e => {
+                if (!active) {
+                  e.currentTarget.style.backgroundColor = 'var(--surface-raised)'
+                  e.currentTarget.style.color = 'var(--text-primary)'
+                }
+              }}
+              onMouseLeave={e => {
+                if (!active) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = 'var(--text-secondary)'
+                }
+              }}
             >
-              <Icon style={{ width: '15px', height: '15px', flexShrink: 0 }} />
+              {/* Active indicator */}
+              {active && (
+                <span style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: '20%',
+                  bottom: '20%',
+                  width: '2px',
+                  borderRadius: '0 2px 2px 0',
+                  backgroundColor: 'var(--accent)',
+                }} />
+              )}
+              <Icon style={{ width: '14px', height: '14px', flexShrink: 0 }} />
               {item.label}
-              {active && <div style={{ marginLeft: 'auto', width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#b1c9e1' }} />}
             </button>
           )
         })}
       </nav>
 
-      {/* Cerrar sesión */}
-      <div style={{ padding: '16px 12px', borderTop: '1px solid #1e2024' }}>
+      {/* Footer */}
+      <div style={{ padding: '8px 8px 12px', borderTop: '1px solid var(--border-faint)' }}>
         <button
           onClick={cerrarSesion}
           style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '9px 12px', borderRadius: '8px', border: 'none',
-            cursor: 'pointer', width: '100%', textAlign: 'left',
-            backgroundColor: 'transparent', color: '#8d9197',
-            fontSize: '13px', fontFamily: 'inherit', transition: 'all 0.15s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '7px 10px',
+            borderRadius: 'var(--r-md)',
+            border: 'none',
+            cursor: 'pointer',
+            width: '100%',
+            textAlign: 'left',
+            backgroundColor: 'transparent',
+            color: 'var(--text-tertiary)',
+            fontSize: '13px',
+            fontFamily: 'inherit',
+            transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out)',
           }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#1a1c20'; e.currentTarget.style.color = '#e2e2e8' }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#8d9197' }}
+          onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--error) 10%, transparent)'
+            e.currentTarget.style.color = 'var(--error)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.color = 'var(--text-tertiary)'
+          }}
         >
-          <LogOut style={{ width: '15px', height: '15px' }} />
+          <LogOut style={{ width: '14px', height: '14px' }} />
           Cerrar sesión
         </button>
       </div>
