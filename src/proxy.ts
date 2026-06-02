@@ -11,8 +11,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (session && publicPaths.includes(pathname)) {
-    return NextResponse.redirect(new URL('/', request.url))
+  if (session && (pathname === '/login' || pathname === '/registro')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return NextResponse.next()
