@@ -5,7 +5,7 @@ export function proxy(request: NextRequest) {
   const session = request.cookies.get('gym_session')
   const { pathname } = request.nextUrl
 
-  const publicPaths = ['/login', '/registro']
+  const publicPaths = ['/', '/login', '/registro']
 
   if (!session && !publicPaths.includes(pathname)) {
     return NextResponse.redirect(new URL('/login', request.url))
