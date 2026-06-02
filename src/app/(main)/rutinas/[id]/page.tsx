@@ -2,7 +2,19 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { ArrowLeft, Plus, Trash2, X, Pencil, Check, GripVertical, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, X, Pencil, Check, GripVertical, ChevronDown, BookOpen } from 'lucide-react'
+
+const BANCO_EJERCICIOS: Record<string, string[]> = {
+  'Pecho': ['Press banca', 'Press banca inclinado', 'Press banca declinado', 'Aperturas con mancuernas', 'Fondos en paralelas', 'Press con mancuernas', 'Cruces en polea'],
+  'Espalda': ['Jalón al pecho', 'Remo en barra', 'Remo con mancuerna', 'Pull-up', 'Chin-up', 'Remo en polea baja', 'Peso muerto', 'Peso muerto sumo'],
+  'Hombros': ['Press militar', 'Press con mancuernas', 'Elevaciones laterales', 'Elevaciones frontales', 'Pájaros', 'Press Arnold', 'Face pull'],
+  'Bíceps': ['Curl con barra', 'Curl con mancuernas', 'Curl martillo', 'Curl predicador', 'Curl concentrado', 'Curl en polea'],
+  'Tríceps': ['Press francés', 'Extensión en polea', 'Patada de tríceps', 'Fondos en banco', 'Extensión sobre la cabeza', 'Skull crusher'],
+  'Cuádriceps': ['Sentadilla', 'Sentadilla frontal', 'Prensa de pierna', 'Extensión de cuádriceps', 'Zancadas', 'Sentadilla búlgara', 'Hack squat'],
+  'Isquios/Glúteos': ['Peso muerto rumano', 'Curl femoral', 'Hip thrust', 'Buenos días', 'Extensión de cadera en polea', 'Sentadilla sumo'],
+  'Gemelos': ['Elevación de talones de pie', 'Elevación de talones sentado', 'Prensa de gemelos'],
+  'Core': ['Plancha', 'Crunch', 'Crunch en polea', 'Elevación de piernas', 'Ab wheel', 'Russian twist', 'Plancha lateral'],
+}
 
 interface Rutina    { id_rutina: string; nombre: string; descripcion: string | null; grupos: string | null; dia_semana: string | null }
 interface Ejercicio { id_ejercicio: string; nombre: string; orden: number; num_series: number }
@@ -24,6 +36,8 @@ export default function RutinaDetallePage() {
   const [ejercicios, setEjercicios]         = useState<Ejercicio[]>([])
   const [loading, setLoading]               = useState(true)
   const [mostrarFormEj, setMostrarFormEj]   = useState(false)
+  const [mostrarBanco, setMostrarBanco]     = useState(false)
+  const [grupoBanco, setGrupoBanco]         = useState(Object.keys(BANCO_EJERCICIOS)[0])
   const [nombreEj, setNombreEj]             = useState('')
   const [numSeriesEj, setNumSeriesEj]       = useState('3')
   const [guardandoEj, setGuardandoEj]       = useState(false)
@@ -157,10 +171,16 @@ export default function RutinaDetallePage() {
             >
               <Pencil style={{ width: '11px', height: '11px' }} /> Editar
             </button>
-            <button onClick={() => setMostrarFormEj(f => !f)}
+            <button onClick={() => { setMostrarBanco(false); setMostrarFormEj(f => !f) }}
               style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: mostrarFormEj ? 'transparent' : 'color-mix(in srgb, var(--accent) 10%, var(--surface-card))', color: mostrarFormEj ? 'var(--text-secondary)' : 'var(--accent)', border: `1px solid ${mostrarFormEj ? 'var(--border-default)' : 'color-mix(in srgb, var(--accent) 25%, transparent)'}`, borderRadius: 'var(--r-md)', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '500', transition: 'all var(--t-sm) var(--ease-out)' }}
             >
               {mostrarFormEj ? <><X style={{ width: '11px', height: '11px' }} />Cancelar</> : <><Plus style={{ width: '11px', height: '11px' }} />Ejercicio</>}
+            </button>
+            <button onClick={() => { setMostrarFormEj(false); setMostrarBanco(b => !b) }}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: mostrarBanco ? 'transparent' : 'var(--surface-raised)', color: mostrarBanco ? 'var(--text-secondary)' : 'var(--text-secondary)', border: `1px solid ${mostrarBanco ? 'var(--border-default)' : 'var(--border-subtle)'}`, borderRadius: 'var(--r-md)', padding: '6px 10px', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all var(--t-sm) var(--ease-out)' }}
+            >
+              <BookOpen style={{ width: '11px', height: '11px' }} />
+              {mostrarBanco ? 'Cerrar' : 'Banco'}
             </button>
           </div>
         </div>
@@ -198,6 +218,46 @@ export default function RutinaDetallePage() {
             <button onClick={guardarRutina} disabled={guardandoRutina || !editNombre.trim()} style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-md)', padding: '6px 16px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit' }}>
               <Check style={{ width: '11px', height: '11px' }} /> {guardandoRutina ? 'Guardando...' : 'Guardar'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Banco de ejercicios */}
+      {mostrarBanco && (
+        <div className="card" style={{ padding: '16px', marginBottom: '16px', overflow: 'hidden' }}>
+          <p className="label" style={{ margin: '0 0 12px' }}>Banco de ejercicios</p>
+          {/* Grupo tabs */}
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            {Object.keys(BANCO_EJERCICIOS).map(grupo => (
+              <button key={grupo} onClick={() => setGrupoBanco(grupo)}
+                style={{ padding: '4px 10px', fontSize: '11px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                  backgroundColor: grupoBanco === grupo ? 'var(--accent)' : 'var(--surface-raised)',
+                  color: grupoBanco === grupo ? '#0c0e12' : 'var(--text-secondary)',
+                  fontWeight: grupoBanco === grupo ? '500' : '400',
+                }}>
+                {grupo}
+              </button>
+            ))}
+          </div>
+          {/* Ejercicios del grupo */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            {BANCO_EJERCICIOS[grupoBanco].map(ej => (
+              <button key={ej} onClick={async () => {
+                setGuardandoEj(true)
+                const res = await fetch('/api/ejercicios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id_rutina: id, nombre: ej, orden: ejercicios.length + 1, num_series: 3 }) })
+                const data = await res.json()
+                if (!res.ok) { toast.error(data.error ?? 'Error'); setGuardandoEj(false); return }
+                toast.success(`"${ej}" agregado`)
+                setGuardandoEj(false); cargarEjercicios()
+              }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 'var(--r-sm)', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'transparent', textAlign: 'left', transition: 'background-color var(--t-sm) var(--ease-out)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-raised)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                {ej}
+                <Plus style={{ width: '12px', height: '12px', color: 'var(--accent)', flexShrink: 0 }} />
+              </button>
+            ))}
           </div>
         </div>
       )}

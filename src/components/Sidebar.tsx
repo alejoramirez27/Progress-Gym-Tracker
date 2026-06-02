@@ -1,6 +1,6 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
-import { Dumbbell, LayoutDashboard, History, LogOut, Zap, BicepsFlexed, Trophy } from 'lucide-react'
+import { Dumbbell, LayoutDashboard, History, LogOut, Zap, BicepsFlexed, Trophy, User } from 'lucide-react'
 
 const navItems = [
   { href: '/rutinas',   label: 'Rutinas',    icon: Dumbbell },
@@ -8,6 +8,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard',  icon: LayoutDashboard },
   { href: '/historial', label: 'Historial',  icon: History },
   { href: '/records',   label: 'PRs',        icon: Trophy },
+  { href: '/perfil',    label: 'Perfil',     icon: User },
 ]
 
 export default function Sidebar() {
@@ -123,7 +124,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: '8px 8px 12px', borderTop: '1px solid var(--border-faint)' }}>
+      <div style={{ padding: '8px 8px 12px', borderTop: '1px solid var(--border-faint)', display: 'flex', flexDirection: 'column', gap: '1px' }}>
         <button
           onClick={cerrarSesion}
           style={{

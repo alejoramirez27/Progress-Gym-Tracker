@@ -1,19 +1,105 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { ChevronDown, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle } from 'lucide-react'
+import { ChevronDown, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle, Plus, Minus, Timer, X } from 'lucide-react'
 
 interface Rutina    { id_rutina: string; nombre: string }
 interface Ejercicio { id_ejercicio: string; nombre: string; num_series: number; orden: number }
-interface SerieInput { peso_kg: string; repeticiones: string; rir: string }
+interface SerieInput { peso_kg: string; repeticiones: string; rir: string; notas: string }
 interface EjConSeries { ejercicio: Ejercicio; series: SerieInput[] }
 
 function hoy() { return new Date().toISOString().split('T')[0] }
 function fmtFechaLarga(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
 }
-function serieVacia(): SerieInput { return { peso_kg: '', repeticiones: '', rir: '' } }
+function serieVacia(): SerieInput { return { peso_kg: '', repeticiones: '', rir: '', notas: '' } }
+
+const TIMER_OPCIONES = [60, 90, 120, 180]
+
+function RestTimer({ onClose }: { onClose: () => void }) {
+  const [duracion, setDuracion] = useState(90)
+  const [restante, setRestante] = useState<number | null>(null)
+  const [activo, setActivo] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const iniciar = useCallback((seg: number) => {
+    setDuracion(seg)
+    setRestante(seg)
+    setActivo(true)
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(() => {
+      setRestante(prev => {
+        if (prev === null || prev <= 1) {
+          clearInterval(intervalRef.current!)
+          setActivo(false)
+          toast.success('¡Descanso terminado!', { duration: 3000 })
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }, [])
+
+  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current) }, [])
+
+  const pct = restante !== null ? (restante / duracion) * 100 : 100
+  const mins = restante !== null ? Math.floor(restante / 60) : 0
+  const secs = restante !== null ? restante % 60 : 0
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: '80px', right: '16px', zIndex: 100,
+      backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)',
+      borderRadius: '14px', padding: '16px', width: '220px',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Timer style={{ width: '13px', height: '13px', color: 'var(--accent)' }} />
+          <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-primary)' }}>Descanso</span>
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '2px', display: 'flex' }}>
+          <X style={{ width: '13px', height: '13px' }} />
+        </button>
+      </div>
+
+      {/* Opciones de tiempo */}
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
+        {TIMER_OPCIONES.map(s => (
+          <button key={s} onClick={() => iniciar(s)}
+            style={{
+              flex: 1, padding: '5px 0', fontSize: '11px', fontFamily: 'inherit', cursor: 'pointer', borderRadius: '6px', border: 'none',
+              backgroundColor: duracion === s && activo ? 'var(--accent)' : 'var(--surface-raised)',
+              color: duracion === s && activo ? '#0c0e12' : 'var(--text-secondary)',
+              fontWeight: duracion === s && activo ? '600' : '400',
+            }}
+          >
+            {s >= 60 ? `${s / 60}m` : `${s}s`}
+          </button>
+        ))}
+      </div>
+
+      {/* Display */}
+      <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+        <p className="num" style={{ fontSize: '36px', fontWeight: '700', color: restante === 0 ? 'var(--success)' : 'var(--text-primary)', margin: 0, letterSpacing: '-0.04em' }}>
+          {`${mins}:${String(secs).padStart(2, '0')}`}
+        </p>
+        {/* Progress bar */}
+        <div style={{ height: '3px', backgroundColor: 'var(--surface-high)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${pct}%`, backgroundColor: restante === 0 ? 'var(--success)' : 'var(--accent)', borderRadius: '2px', transition: 'width 1s linear' }} />
+        </div>
+      </div>
+
+      {activo && (
+        <button onClick={() => { setActivo(false); if (intervalRef.current) clearInterval(intervalRef.current) }}
+          style={{ width: '100%', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '7px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit' }}>
+          Pausar
+        </button>
+      )}
+    </div>
+  )
+}
 
 const inp: React.CSSProperties = {
   backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)',
@@ -33,6 +119,8 @@ export default function ProgresoPage() {
   const [loadingEj, setLoadingEj]       = useState(false)
   const [guardando, setGuardando]       = useState(false)
   const [guardado, setGuardado]         = useState(false)
+  const [mostrarTimer, setMostrarTimer] = useState(false)
+  const [notasEj, setNotasEj]           = useState<Set<number>>(new Set()) // ejercicios con notas visibles
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
 
@@ -54,6 +142,7 @@ export default function ProgresoPage() {
     fetch(`/api/ejercicios?id_rutina=${rutinaId}`).then(r => r.json()).then((data: Ejercicio[]) => {
       const lista = Array.isArray(data) ? data : []
       setEjConSeries(lista.map(ej => ({ ejercicio: ej, series: Array.from({ length: Math.max(ej.num_series ?? 1, 1) }, serieVacia) })))
+      setNotasEj(new Set())
       setLoadingEj(false)
     })
   }, [rutinaId])
@@ -62,6 +151,33 @@ export default function ProgresoPage() {
     setEjConSeries(prev => {
       const next = [...prev]
       next[ejIdx] = { ...next[ejIdx], series: next[ejIdx].series.map((s, i) => i === sIdx ? { ...s, [campo]: val } : s) }
+      return next
+    })
+  }
+
+  const addSerie = (ejIdx: number) => {
+    setEjConSeries(prev => {
+      const next = [...prev]
+      const last = next[ejIdx].series[next[ejIdx].series.length - 1]
+      // Pre-fill con los valores de la última serie
+      next[ejIdx] = { ...next[ejIdx], series: [...next[ejIdx].series, { ...last, notas: '' }] }
+      return next
+    })
+  }
+
+  const removeSerie = (ejIdx: number) => {
+    setEjConSeries(prev => {
+      const next = [...prev]
+      if (next[ejIdx].series.length <= 1) return prev
+      next[ejIdx] = { ...next[ejIdx], series: next[ejIdx].series.slice(0, -1) }
+      return next
+    })
+  }
+
+  const toggleNotasEj = (ejIdx: number) => {
+    setNotasEj(prev => {
+      const next = new Set(prev)
+      next.has(ejIdx) ? next.delete(ejIdx) : next.add(ejIdx)
       return next
     })
   }
@@ -115,9 +231,24 @@ export default function ProgresoPage() {
   return (
     <div className="page-enter">
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Registrar Sesión</h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Registra los pesos y reps de hoy</p>
+      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Registrar Sesión</h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Registra los pesos y reps de hoy</p>
+        </div>
+        <button
+          onClick={() => setMostrarTimer(t => !t)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px',
+            backgroundColor: mostrarTimer ? 'color-mix(in srgb, var(--accent) 12%, var(--surface-card))' : 'var(--surface-raised)',
+            border: `1px solid ${mostrarTimer ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--border-subtle)'}`,
+            borderRadius: 'var(--r-md)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
+            color: mostrarTimer ? 'var(--accent)' : 'var(--text-secondary)',
+          }}
+        >
+          <Timer style={{ width: '12px', height: '12px' }} />
+          Timer
+        </button>
       </div>
 
       {/* Rutina + fecha */}
@@ -163,6 +294,12 @@ export default function ProgresoPage() {
                 <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, flex: 1, letterSpacing: '-0.01em' }}>
                   {item.ejercicio.nombre}
                 </p>
+                <button
+                  onClick={() => toggleNotasEj(ejIdx)}
+                  style={{ fontSize: '11px', color: notasEj.has(ejIdx) ? 'var(--accent)' : 'var(--text-disabled)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 'var(--r-sm)', fontFamily: 'inherit' }}
+                >
+                  notas
+                </button>
                 <span className="tag tag-accent">{item.series.length} series</span>
               </div>
 
@@ -177,16 +314,45 @@ export default function ProgresoPage() {
                 </div>
                 {/* Series rows */}
                 {item.series.map((serie, sIdx) => (
-                  <div key={sIdx} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', marginBottom: '5px', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
-                    <input type="number" step="0.5" min="0" placeholder="80" value={serie.peso_kg}
-                      onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
-                    <input type="number" step="1" min="1" placeholder="10" value={serie.repeticiones}
-                      onChange={e => updateSerie(ejIdx, sIdx, 'repeticiones', e.target.value)} style={inp} />
-                    <input type="number" step="1" min="0" max="5" placeholder="2" value={serie.rir}
-                      onChange={e => updateSerie(ejIdx, sIdx, 'rir', e.target.value)} style={inp} />
+                  <div key={sIdx} style={{ marginBottom: notasEj.has(ejIdx) ? '8px' : '5px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
+                      <input type="number" step="0.5" min="0" placeholder="80" value={serie.peso_kg}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
+                      <input type="number" step="1" min="1" placeholder="10" value={serie.repeticiones}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'repeticiones', e.target.value)} style={inp} />
+                      <input type="number" step="1" min="0" max="5" placeholder="2" value={serie.rir}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'rir', e.target.value)} style={inp} />
+                    </div>
+                    {notasEj.has(ejIdx) && (
+                      <div style={{ marginTop: '4px', paddingLeft: '34px' }}>
+                        <input
+                          type="text" placeholder={`Nota serie ${sIdx + 1}...`} value={serie.notas}
+                          onChange={e => updateSerie(ejIdx, sIdx, 'notas', e.target.value)}
+                          style={{ ...inp, textAlign: 'left', fontSize: '12px', color: 'var(--text-secondary)' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
+
+                {/* Add/remove serie buttons */}
+                <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
+                  <button
+                    onClick={() => addSerie(ejIdx)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', fontSize: '11px', backgroundColor: 'color-mix(in srgb, var(--accent) 8%, var(--surface-raised))', color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', borderRadius: 'var(--r-sm)', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '500' }}
+                  >
+                    <Plus style={{ width: '10px', height: '10px' }} /> Serie
+                  </button>
+                  {item.series.length > 1 && (
+                    <button
+                      onClick={() => removeSerie(ejIdx)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', fontSize: '11px', backgroundColor: 'transparent', color: 'var(--text-disabled)', border: '1px solid var(--border-faint)', borderRadius: 'var(--r-sm)', cursor: 'pointer', fontFamily: 'inherit' }}
+                    >
+                      <Minus style={{ width: '10px', height: '10px' }} /> Quitar
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -219,6 +385,9 @@ export default function ProgresoPage() {
           </button>
         </div>
       )}
+
+      {/* Rest Timer */}
+      {mostrarTimer && <RestTimer onClose={() => setMostrarTimer(false)} />}
     </div>
   )
 }

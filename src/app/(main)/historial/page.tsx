@@ -1,7 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { ChevronDown, ChevronRight, History, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 interface Sesion { id_sesion: string; fecha: string; nombre_rutina: string; num_ejercicios: number; num_series: number }
 interface DetalleEjercicio {
@@ -17,11 +18,13 @@ function fmtMes(s: string) {
 }
 
 export default function HistorialPage() {
+  const router = useRouter()
   const [sesiones, setSesiones]       = useState<Sesion[]>([])
   const [loading, setLoading]         = useState(true)
   const [expandida, setExpandida]     = useState<string | null>(null)
   const [detalles, setDetalles]       = useState<Record<string, DetalleEjercicio[]>>({})
   const [cargandoDet, setCargandoDet] = useState<string | null>(null)
+  const [busqueda, setBusqueda]       = useState('')
 
   const cargar = () => {
     setLoading(true)
@@ -50,8 +53,14 @@ export default function HistorialPage() {
     if (expandida === id) setExpandida(null)
   }
 
+  const sesionesFiltered = sesiones.filter(s =>
+    busqueda === '' ||
+    s.nombre_rutina.toLowerCase().includes(busqueda.toLowerCase()) ||
+    fmtFecha(s.fecha).toLowerCase().includes(busqueda.toLowerCase())
+  )
+
   const porMes: Record<string, Sesion[]> = {}
-  for (const s of sesiones) {
+  for (const s of sesionesFiltered) {
     const mes = s.fecha.substring(0, 7)
     if (!porMes[mes]) porMes[mes] = []
     porMes[mes].push(s)
@@ -59,12 +68,30 @@ export default function HistorialPage() {
 
   return (
     <div className="page-enter">
-      <div style={{ marginBottom: '28px' }}>
+      <div style={{ marginBottom: '20px' }}>
         <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Historial</h1>
         <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
           {!loading && `${sesiones.length} sesión${sesiones.length !== 1 ? 'es' : ''} registrada${sesiones.length !== 1 ? 's' : ''}`}
         </p>
       </div>
+
+      {/* Buscador */}
+      {!loading && sesiones.length > 0 && (
+        <div style={{ position: 'relative', marginBottom: '20px' }}>
+          <Search style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
+          <input
+            type="text" placeholder="Buscar por rutina o fecha..." value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 32px 8px 32px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+          />
+          {busqueda && (
+            <button onClick={() => setBusqueda('')}
+              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', padding: '2px' }}>
+              <X style={{ width: '12px', height: '12px' }} />
+            </button>
+          )}
+        </div>
+      )}
 
       {loading && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -80,9 +107,16 @@ export default function HistorialPage() {
         </div>
       )}
 
+      {!loading && sesiones.length > 0 && sesionesFiltered.length === 0 && (
+        <div className="card empty-state">
+          <Search style={{ width: '26px', height: '26px' }} />
+          <p>Sin resultados para "{busqueda}"</p>
+          <p className="empty-hint">Intenta con otro término de búsqueda</p>
+        </div>
+      )}
+
       {!loading && Object.entries(porMes).map(([mes, sessMes]) => (
         <div key={mes} style={{ marginBottom: '28px' }}>
-          {/* Month header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
             <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-tertiary)', textTransform: 'capitalize', letterSpacing: '0.02em' }}>
               {fmtMes(sessMes[0].fecha)}
@@ -96,7 +130,6 @@ export default function HistorialPage() {
               <div key={sesion.id_sesion}>
                 {idx > 0 && <hr className="divider" />}
 
-                {/* Session row */}
                 <div
                   onClick={() => toggleSesion(sesion.id_sesion)}
                   role="button"
@@ -138,19 +171,29 @@ export default function HistorialPage() {
                         <p className="label" style={{ margin: '1px 0 0' }}>series</p>
                       </div>
                     </div>
-                    <button
-                      onClick={e => eliminarSesion(sesion.id_sesion, e)}
-                      aria-label="Eliminar sesión"
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out), background-color var(--t-sm) var(--ease-out)' }}
-                      onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.backgroundColor = 'var(--error-dim)' }}
-                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-disabled)'; e.currentTarget.style.backgroundColor = 'transparent' }}
-                    >
-                      <Trash2 style={{ width: '13px', height: '13px' }} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '2px' }}>
+                      <button
+                        onClick={e => { e.stopPropagation(); router.push(`/sesiones/${sesion.id_sesion}/editar`) }}
+                        aria-label="Editar sesión"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out)' }}
+                        onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}
+                      >
+                        <Pencil style={{ width: '13px', height: '13px' }} />
+                      </button>
+                      <button
+                        onClick={e => eliminarSesion(sesion.id_sesion, e)}
+                        aria-label="Eliminar sesión"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out), background-color var(--t-sm) var(--ease-out)' }}
+                        onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.backgroundColor = 'var(--error-dim)' }}
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-disabled)'; e.currentTarget.style.backgroundColor = 'transparent' }}
+                      >
+                        <Trash2 style={{ width: '13px', height: '13px' }} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Expanded detail */}
                 {expandida === sesion.id_sesion && (
                   <div style={{ borderTop: '1px solid var(--border-faint)', padding: '16px 20px', backgroundColor: 'var(--surface-raised)' }}>
                     {cargandoDet === sesion.id_sesion ? (

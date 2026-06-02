@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Plus, Dumbbell, Trash2, X, ChevronRight, GripVertical, ChevronDown } from 'lucide-react'
+import { Plus, Dumbbell, Trash2, X, ChevronRight, GripVertical, ChevronDown, Copy } from 'lucide-react'
 
 import {
   DndContext, closestCenter, PointerSensor, TouchSensor,
@@ -25,10 +25,11 @@ interface Rutina {
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-function RutinaCard({ rutina, onNavigate, onEliminar }: {
+function RutinaCard({ rutina, onNavigate, onEliminar, onDuplicar }: {
   rutina: Rutina
   onNavigate: () => void
   onEliminar: (e: React.MouseEvent) => void
+  onDuplicar: (e: React.MouseEvent) => void
 }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: rutina.id_rutina })
   const tags = rutina.grupos ? rutina.grupos.split(',').map(g => g.trim()).filter(Boolean) : []
@@ -78,6 +79,15 @@ function RutinaCard({ rutina, onNavigate, onEliminar }: {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
+          <button
+            onClick={onDuplicar}
+            aria-label={`Duplicar ${rutina.nombre}`}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: 'var(--r-sm)', color: 'var(--text-disabled)', transition: 'color var(--t-sm) var(--ease-out)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}
+          >
+            <Copy style={{ width: '13px', height: '13px' }} />
+          </button>
           <button
             onClick={onEliminar}
             aria-label={`Eliminar ${rutina.nombre}`}
@@ -148,6 +158,15 @@ export default function RutinasPage() {
     const res = await fetch(`/api/rutinas/${rutina.id_rutina}`, { method: 'DELETE' })
     if (!res.ok) { toast.error('Error al eliminar'); return }
     toast.success(`"${rutina.nombre}" eliminada`)
+    cargar()
+  }
+
+  const duplicar = async (rutina: Rutina, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const res = await fetch(`/api/rutinas/${rutina.id_rutina}/duplicar`, { method: 'POST' })
+    const data = await res.json()
+    if (!res.ok) { toast.error('Error al duplicar'); return }
+    toast.success(`"${data.nombre}" creada`)
     cargar()
   }
 
@@ -225,7 +244,9 @@ export default function RutinasPage() {
               {rutinas.map(rutina => (
                 <RutinaCard key={rutina.id_rutina} rutina={rutina}
                   onNavigate={() => router.push(`/rutinas/${rutina.id_rutina}`)}
-                  onEliminar={e => eliminar(rutina, e)} />
+                  onEliminar={e => eliminar(rutina, e)}
+                  onDuplicar={e => duplicar(rutina, e)}
+                />
               ))}
             </div>
           </SortableContext>
