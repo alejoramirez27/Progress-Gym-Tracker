@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     ? await supabase.from('serie').select('fecha').in('id_ejercicio', ids_ejercicios).order('fecha', { ascending: false }).limit(1)
     : { data: [] }
 
-  // Progreso por ejercicio específico
+  // Progreso por ejercicio
   let progreso: { fecha: string; peso_max: number; reps: number }[] = []
   if (id_ejercicio && ids_ejercicios.includes(id_ejercicio)) {
     const { data: series } = await supabase
@@ -57,7 +57,6 @@ export async function GET(request: Request) {
       .eq('id_ejercicio', id_ejercicio)
       .not('peso_kg', 'is', null)
       .order('fecha')
-
     const porFecha: Record<string, { peso_max: number; reps: number }> = {}
     for (const s of series ?? []) {
       if (!porFecha[s.fecha] || (s.peso_kg ?? 0) > porFecha[s.fecha].peso_max) {
@@ -67,8 +66,10 @@ export async function GET(request: Request) {
     progreso = Object.entries(porFecha).map(([fecha, v]) => ({ fecha, ...v }))
   }
 
-  // Volumen total por sesión (peso * reps, agrupado por sesión/fecha)
+  // Volumen total por sesión
   let volumen: { fecha: string; volumen: number; sesiones: number }[] = []
+  let heatmap: { fecha: string; count: number }[] = []
+
   if (ids_ejercicios.length > 0) {
     const { data: todasSeries } = await supabase
       .from('serie')
@@ -85,10 +86,28 @@ export async function GET(request: Request) {
     }
     volumen = Object.entries(porFechaVol)
       .map(([fecha, v]) => ({ fecha, volumen: Math.round(v.vol), sesiones: v.sesiones.size }))
-      .slice(-30) // últimos 30 puntos
+      .slice(-30)
+
+    // Heatmap — últimos 35 días
+    const activeDates = new Set(Object.keys(porFechaVol))
+    const hoy = new Date()
+    heatmap = Array.from({ length: 35 }, (_, i) => {
+      const d = new Date(hoy)
+      d.setDate(hoy.getDate() - (34 - i))
+      const fecha = d.toISOString().split('T')[0]
+      return { fecha, count: activeDates.has(fecha) ? (porFechaVol[fecha]?.sesiones.size ?? 1) : 0 }
+    })
+  } else {
+    // Heatmap vacío
+    const hoy = new Date()
+    heatmap = Array.from({ length: 35 }, (_, i) => {
+      const d = new Date(hoy)
+      d.setDate(hoy.getDate() - (34 - i))
+      return { fecha: d.toISOString().split('T')[0], count: 0 }
+    })
   }
 
-  // Racha de entrenamiento
+  // Racha
   let rachaActual = 0
   let rachaMejor = 0
   if (ids_ejercicios.length > 0) {
@@ -97,25 +116,17 @@ export async function GET(request: Request) {
       .select('fecha')
       .in('id_ejercicio', ids_ejercicios)
       .order('fecha', { ascending: false })
-
     const fechasUnicas = [...new Set((fechasSeries ?? []).map(s => s.fecha))].sort((a, b) => b.localeCompare(a))
-
     if (fechasUnicas.length > 0) {
       const hoy = new Date().toISOString().split('T')[0]
       const ayer = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-
-      let streak = 0
-      let mejorStreak = 0
-      let prev: string | null = null
-
+      let streak = 0; let mejorStreak = 0; let prev: string | null = null
       for (const f of fechasUnicas) {
-        if (prev === null) {
-          if (f === hoy || f === ayer) { streak = 1; mejorStreak = 1 }
-          else { mejorStreak = 1 }
-        } else {
+        if (prev === null) { streak = 1; mejorStreak = 1 }
+        else {
           const diff = (new Date(prev).getTime() - new Date(f).getTime()) / 86400000
           if (diff === 1) { streak++; if (streak > mejorStreak) mejorStreak = streak }
-          else { streak = 1 }
+          else streak = 1
         }
         prev = f
       }
@@ -123,6 +134,22 @@ export async function GET(request: Request) {
       rachaMejor = mejorStreak
     }
   }
+
+  // Sesiones esta semana vs semana anterior
+  const hoyDate = new Date()
+  const lunesEstaSeamana = new Date(hoyDate)
+  lunesEstaSeamana.setDate(hoyDate.getDate() - hoyDate.getDay() + (hoyDate.getDay() === 0 ? -6 : 1))
+  lunesEstaSeamana.setHours(0,0,0,0)
+  const lunesSemanaPasada = new Date(lunesEstaSeamana)
+  lunesSemanaPasada.setDate(lunesEstaSeamana.getDate() - 7)
+
+  const semanaActualFechas = heatmap.filter(d => d.fecha >= lunesEstaSeamana.toISOString().split('T')[0])
+  const semanaPasadaFechas = heatmap.filter(d => {
+    const f = d.fecha
+    return f >= lunesSemanaPasada.toISOString().split('T')[0] && f < lunesEstaSeamana.toISOString().split('T')[0]
+  })
+  const sesionesEstaSemana = semanaActualFechas.filter(d => d.count > 0).length
+  const sesionesSemanaPasada = semanaPasadaFechas.filter(d => d.count > 0).length
 
   return NextResponse.json({
     stats: {
@@ -132,10 +159,13 @@ export async function GET(request: Request) {
       ultimaSesion:    ultimaFecha?.[0]?.fecha ?? null,
       rachaActual,
       rachaMejor,
+      sesionesEstaSemana,
+      sesionesSemanaPasada,
     },
     rutinas:    rutinas    ?? [],
     ejercicios: ejercicios ?? [],
     progreso,
     volumen,
+    heatmap,
   })
 }

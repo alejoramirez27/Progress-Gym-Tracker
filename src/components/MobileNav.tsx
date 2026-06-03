@@ -3,8 +3,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Dumbbell, LayoutDashboard, History, Zap, LogOut, BicepsFlexed, Trophy, User } from 'lucide-react'
 
 const navItems = [
-  { href: '/rutinas',   label: 'Rutinas',   icon: Dumbbell },
   { href: '/progreso',  label: 'Progreso',  icon: BicepsFlexed },
+  { href: '/rutinas',   label: 'Rutinas',   icon: Dumbbell },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/historial', label: 'Historial', icon: History },
   { href: '/records',   label: 'PRs',       icon: Trophy },

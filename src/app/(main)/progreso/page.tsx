@@ -136,8 +136,10 @@ export default function ProgresoPage() {
   const [loadingEj, setLoadingEj]       = useState(false)
   const [guardando, setGuardando]       = useState(false)
   const [guardado, setGuardado]         = useState(false)
-  const [mostrarTimer, setMostrarTimer] = useState(false)
-  const [notasEj, setNotasEj]           = useState<Set<number>>(new Set()) // ejercicios con notas visibles
+  const [mostrarTimer, setMostrarTimer]   = useState(false)
+  const [notasEj, setNotasEj]             = useState<Set<number>>(new Set())
+  const [mostrarModal, setMostrarModal]   = useState(false)
+  const [plantillaUsada, setPlantilla]    = useState(false)
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
 
@@ -149,12 +151,44 @@ export default function ProgresoPage() {
 
   useEffect(() => {
     fetch('/api/rutinas').then(r => r.json()).then(d => {
-      if (Array.isArray(d) && d.length > 0) { setRutinas(d); setRutinaId(d[0].id_rutina) }
+      if (!Array.isArray(d) || d.length === 0) return
+      setRutinas(d)
+
+      // Cargar plantilla de "repetir sesión" si existe
+      const raw = localStorage.getItem('repeat_session')
+      if (raw) {
+        try {
+          const plantilla = JSON.parse(raw)
+          localStorage.removeItem('repeat_session')
+          const rutinaMatch = d.find((r: Rutina) => r.id_rutina === plantilla.id_rutina)
+          if (rutinaMatch) {
+            setRutinaId(plantilla.id_rutina)
+            // Los ejercicios los cargamos manualmente desde la plantilla
+            fetch(`/api/ejercicios?id_rutina=${plantilla.id_rutina}`).then(r => r.json()).then((data: Ejercicio[]) => {
+              const lista = Array.isArray(data) ? data : []
+              const merged = lista.map(ej => {
+                const ejPlantilla = plantilla.ejercicios.find((p: { id_ejercicio: string }) => p.id_ejercicio === ej.id_ejercicio)
+                return {
+                  ejercicio: ej,
+                  series: ejPlantilla?.series ?? Array.from({ length: Math.max(ej.num_series ?? 1, 1) }, serieVacia),
+                }
+              })
+              setEjConSeries(merged)
+              setLoadingEj(false)
+              setPlantilla(true)
+              toast.success(`Plantilla cargada: ${plantilla.nombre_rutina}`)
+            })
+            return
+          }
+        } catch { /* ignorar */ }
+      }
+
+      setRutinaId(d[0].id_rutina)
     })
   }, [])
 
   useEffect(() => {
-    if (!rutinaId) return
+    if (!rutinaId || plantillaUsada) return
     setLoadingEj(true); setGuardado(false)
     fetch(`/api/ejercicios?id_rutina=${rutinaId}`).then(r => r.json()).then((data: Ejercicio[]) => {
       const lista = Array.isArray(data) ? data : []
@@ -162,7 +196,7 @@ export default function ProgresoPage() {
       setNotasEj(new Set())
       setLoadingEj(false)
     })
-  }, [rutinaId])
+  }, [rutinaId, plantillaUsada])
 
   const updateSerie = (ejIdx: number, sIdx: number, campo: keyof SerieInput, val: string) => {
     setEjConSeries(prev => {
@@ -384,11 +418,15 @@ export default function ProgresoPage() {
 
           {/* Warning banner */}
           {tieneCambios && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--warning-dim)', border: '1px solid var(--warning-border)', borderRadius: 'var(--r-md)', padding: '10px 14px' }}>
-              <AlertTriangle style={{ width: '13px', height: '13px', color: 'var(--warning)', flexShrink: 0 }} />
-              <p style={{ fontSize: '12px', color: 'var(--warning)', margin: 0 }}>
-                Tienes series sin guardar — guarda la sesión antes de salir
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', backgroundColor: 'var(--warning-dim)', border: '1px solid var(--warning-border)', borderRadius: 'var(--r-md)', padding: '10px 14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertTriangle style={{ width: '13px', height: '13px', color: 'var(--warning)', flexShrink: 0 }} />
+                <p style={{ fontSize: '12px', color: 'var(--warning)', margin: 0 }}>Series sin guardar</p>
+              </div>
+              <button onClick={() => setMostrarModal(true)}
+                style={{ fontSize: '11px', fontWeight: '600', color: 'var(--warning)', background: 'none', border: '1px solid var(--warning-border)', borderRadius: 'var(--r-sm)', padding: '4px 8px', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                ¿Salir?
+              </button>
             </div>
           )}
 
@@ -405,6 +443,35 @@ export default function ProgresoPage() {
 
       {/* Rest Timer */}
       {mostrarTimer && <RestTimer onClose={() => setMostrarTimer(false)} />}
+
+      {/* Modal confirmación salir */}
+      {mostrarModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: '16px', padding: '24px', maxWidth: '360px', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ backgroundColor: 'var(--warning-dim)', borderRadius: '50%', padding: '8px', display: 'flex' }}>
+                <AlertTriangle style={{ width: '18px', height: '18px', color: 'var(--warning)' }} />
+              </div>
+              <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
+                ¿Salir sin guardar?
+              </h3>
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 20px', lineHeight: '1.5' }}>
+              Tienes series registradas que se perderán si sales ahora.
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setMostrarModal(false)}
+                style={{ flex: 1, padding: '10px', backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '500' }}>
+                Quedarse
+              </button>
+              <button onClick={() => router.push('/historial')}
+                style={{ flex: 1, padding: '10px', backgroundColor: 'var(--error)', border: 'none', borderRadius: 'var(--r-md)', fontSize: '13px', color: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '600' }}>
+                Salir igual
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

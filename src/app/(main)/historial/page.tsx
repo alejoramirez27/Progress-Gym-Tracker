@@ -1,14 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil } from 'lucide-react'
+import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil, RotateCcw, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
-interface Sesion { id_sesion: string; fecha: string; nombre_rutina: string; num_ejercicios: number; num_series: number }
-interface DetalleEjercicio {
-  nombre: string
-  series: { id_serie: string; numero_serie: number; peso_kg: number | null; repeticiones: number; rir: number | null; notas: string | null }[]
-}
+interface Sesion { id_sesion: string; id_rutina: string; fecha: string; nombre_rutina: string; num_ejercicios: number; num_series: number }
+interface SerieDet { id_serie: string; numero_serie: number; peso_kg: number | null; repeticiones: number; rir: number | null; notas: string | null }
+interface EjDet { nombre: string; id_ejercicio: string; series: SerieDet[] }
+interface EjAnterior { id_ejercicio: string; peso_max: number; fecha: string }
 
 function fmtFecha(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
@@ -22,7 +21,7 @@ export default function HistorialPage() {
   const [sesiones, setSesiones]       = useState<Sesion[]>([])
   const [loading, setLoading]         = useState(true)
   const [expandida, setExpandida]     = useState<string | null>(null)
-  const [detalles, setDetalles]       = useState<Record<string, DetalleEjercicio[]>>({})
+  const [detalles, setDetalles]       = useState<Record<string, { current: EjDet[]; anterior: EjAnterior[] }>>({})
   const [cargandoDet, setCargandoDet] = useState<string | null>(null)
   const [busqueda, setBusqueda]       = useState('')
 
@@ -38,7 +37,7 @@ export default function HistorialPage() {
     if (!detalles[id]) {
       setCargandoDet(id)
       const d = await fetch(`/api/historial?id_sesion=${id}`).then(r => r.json())
-      setDetalles(p => ({ ...p, [id]: Array.isArray(d) ? d : [] }))
+      setDetalles(p => ({ ...p, [id]: d }))
       setCargandoDet(null)
     }
   }
@@ -51,6 +50,35 @@ export default function HistorialPage() {
     toast.success('Sesión eliminada')
     setSesiones(prev => prev.filter(s => s.id_sesion !== id))
     if (expandida === id) setExpandida(null)
+  }
+
+  const repetirSesion = async (sesion: Sesion, e: React.MouseEvent) => {
+    e.stopPropagation()
+    // Cargar detalle si no está
+    let det = detalles[sesion.id_sesion]
+    if (!det) {
+      const d = await fetch(`/api/historial?id_sesion=${sesion.id_sesion}`).then(r => r.json())
+      det = d
+      setDetalles(p => ({ ...p, [sesion.id_sesion]: d }))
+    }
+    // Guardar en localStorage como plantilla
+    const plantilla = {
+      id_rutina: sesion.id_rutina,
+      nombre_rutina: sesion.nombre_rutina,
+      ejercicios: (det.current ?? []).map((ej: EjDet) => ({
+        id_ejercicio: ej.id_ejercicio,
+        nombre: ej.nombre,
+        series: ej.series.map((s: SerieDet) => ({
+          peso_kg: s.peso_kg != null ? String(s.peso_kg) : '',
+          repeticiones: String(s.repeticiones),
+          rir: s.rir != null ? String(s.rir) : '',
+          notas: '',
+        }))
+      }))
+    }
+    localStorage.setItem('repeat_session', JSON.stringify(plantilla))
+    toast.success(`Cargando plantilla de "${sesion.nombre_rutina}"`)
+    router.push('/progreso')
   }
 
   const sesionesFiltered = sesiones.filter(s =>
@@ -75,18 +103,13 @@ export default function HistorialPage() {
         </p>
       </div>
 
-      {/* Buscador */}
       {!loading && sesiones.length > 0 && (
         <div style={{ position: 'relative', marginBottom: '20px' }}>
           <Search style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-          <input
-            type="text" placeholder="Buscar por rutina o fecha..." value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 32px 8px 32px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
-          />
+          <input type="text" placeholder="Buscar por rutina o fecha..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
+            style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 32px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
           {busqueda && (
-            <button onClick={() => setBusqueda('')}
-              style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', padding: '2px' }}>
+            <button onClick={() => setBusqueda('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', padding: '2px' }}>
               <X style={{ width: '12px', height: '12px' }} />
             </button>
           )}
@@ -100,27 +123,16 @@ export default function HistorialPage() {
       )}
 
       {!loading && sesiones.length === 0 && (
-        <div className="card empty-state">
-          <History style={{ width: '26px', height: '26px' }} />
-          <p>Sin sesiones registradas</p>
-          <p className="empty-hint">Empieza registrando una sesión en Progreso</p>
-        </div>
+        <div className="card empty-state"><History style={{ width: '26px', height: '26px' }} /><p>Sin sesiones registradas</p><p className="empty-hint">Empieza registrando una sesión en Progreso</p></div>
       )}
-
       {!loading && sesiones.length > 0 && sesionesFiltered.length === 0 && (
-        <div className="card empty-state">
-          <Search style={{ width: '26px', height: '26px' }} />
-          <p>Sin resultados para "{busqueda}"</p>
-          <p className="empty-hint">Intenta con otro término de búsqueda</p>
-        </div>
+        <div className="card empty-state"><Search style={{ width: '26px', height: '26px' }} /><p>Sin resultados para "{busqueda}"</p></div>
       )}
 
       {!loading && Object.entries(porMes).map(([mes, sessMes]) => (
         <div key={mes} style={{ marginBottom: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-tertiary)', textTransform: 'capitalize', letterSpacing: '0.02em' }}>
-              {fmtMes(sessMes[0].fecha)}
-            </span>
+            <span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-tertiary)', textTransform: 'capitalize', letterSpacing: '0.02em' }}>{fmtMes(sessMes[0].fecha)}</span>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border-faint)' }} />
             <span style={{ fontSize: '11px', color: 'var(--text-disabled)' }}>{sessMes.length} sesión{sessMes.length !== 1 ? 'es' : ''}</span>
           </div>
@@ -129,39 +141,23 @@ export default function HistorialPage() {
             {sessMes.map((sesion, idx) => (
               <div key={sesion.id_sesion}>
                 {idx > 0 && <hr className="divider" />}
-
-                <div
-                  onClick={() => toggleSesion(sesion.id_sesion)}
-                  role="button"
-                  tabIndex={0}
+                <div onClick={() => toggleSesion(sesion.id_sesion)} role="button" tabIndex={0}
                   onKeyDown={e => e.key === 'Enter' && toggleSesion(sesion.id_sesion)}
-                  style={{
-                    padding: '14px 16px', display: 'flex', alignItems: 'center',
-                    justifyContent: 'space-between', cursor: 'pointer',
-                    transition: 'background-color var(--t-sm) var(--ease-out)',
-                    backgroundColor: expandida === sesion.id_sesion ? 'var(--surface-raised)' : 'transparent',
-                  }}
+                  style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', transition: 'background-color var(--t-sm) var(--ease-out)', backgroundColor: expandida === sesion.id_sesion ? 'var(--surface-raised)' : 'transparent' }}
                   onMouseEnter={e => { if (expandida !== sesion.id_sesion) e.currentTarget.style.backgroundColor = 'var(--surface-raised)' }}
                   onMouseLeave={e => { if (expandida !== sesion.id_sesion) e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ color: expandida === sesion.id_sesion ? 'var(--accent)' : 'var(--text-tertiary)', display: 'flex', transition: 'color var(--t-sm) var(--ease-out)' }}>
-                      {expandida === sesion.id_sesion
-                        ? <ChevronDown style={{ width: '14px', height: '14px' }} />
-                        : <ChevronRight style={{ width: '14px', height: '14px' }} />}
+                      {expandida === sesion.id_sesion ? <ChevronDown style={{ width: '14px', height: '14px' }} /> : <ChevronRight style={{ width: '14px', height: '14px' }} />}
                     </span>
                     <div>
-                      <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize', letterSpacing: '-0.01em' }}>
-                        {fmtFecha(sesion.fecha)}
-                      </p>
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
-                        {sesion.nombre_rutina}
-                      </p>
+                      <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize', letterSpacing: '-0.01em' }}>{fmtFecha(sesion.fecha)}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>{sesion.nombre_rutina}</p>
                     </div>
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', gap: '14px' }}>
                       <div style={{ textAlign: 'right' }}>
                         <p className="num" style={{ fontSize: '16px', fontWeight: '500', color: 'var(--accent)', margin: 0 }}>{sesion.num_ejercicios}</p>
                         <p className="label" style={{ margin: '1px 0 0' }}>ejerc.</p>
@@ -172,22 +168,22 @@ export default function HistorialPage() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '2px' }}>
-                      <button
-                        onClick={e => { e.stopPropagation(); router.push(`/sesiones/${sesion.id_sesion}/editar`) }}
-                        aria-label="Editar sesión"
+                      <button onClick={e => repetirSesion(sesion, e)} aria-label="Repetir sesión"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out)' }}
+                        onMouseEnter={e => e.currentTarget.style.color = 'var(--success)'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}>
+                        <RotateCcw style={{ width: '13px', height: '13px' }} />
+                      </button>
+                      <button onClick={e => { e.stopPropagation(); router.push(`/sesiones/${sesion.id_sesion}/editar`) }} aria-label="Editar sesión"
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out)' }}
                         onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}
-                      >
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}>
                         <Pencil style={{ width: '13px', height: '13px' }} />
                       </button>
-                      <button
-                        onClick={e => eliminarSesion(sesion.id_sesion, e)}
-                        aria-label="Eliminar sesión"
+                      <button onClick={e => eliminarSesion(sesion.id_sesion, e)} aria-label="Eliminar sesión"
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out), background-color var(--t-sm) var(--ease-out)' }}
                         onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.backgroundColor = 'var(--error-dim)' }}
-                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-disabled)'; e.currentTarget.style.backgroundColor = 'transparent' }}
-                      >
+                        onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-disabled)'; e.currentTarget.style.backgroundColor = 'transparent' }}>
                         <Trash2 style={{ width: '13px', height: '13px' }} />
                       </button>
                     </div>
@@ -198,28 +194,39 @@ export default function HistorialPage() {
                   <div style={{ borderTop: '1px solid var(--border-faint)', padding: '16px 20px', backgroundColor: 'var(--surface-raised)' }}>
                     {cargandoDet === sesion.id_sesion ? (
                       <div className="skeleton" style={{ height: '60px' }} />
-                    ) : (detalles[sesion.id_sesion] ?? []).map(ej => (
-                      <div key={ej.nombre} style={{ marginBottom: '14px' }}>
-                        <p className="label" style={{ margin: '0 0 6px' }}>{ej.nombre}</p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                          {ej.series.map((s, i) => (
-                            <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '6px 10px', backgroundColor: 'var(--surface-card)', borderRadius: 'var(--r-sm)', flexWrap: 'wrap' }}>
-                              <span style={{ fontSize: '11px', color: 'var(--text-disabled)', minWidth: '22px', fontWeight: '600', fontVariantNumeric: 'tabular-nums' }}>S{s.numero_serie}</span>
-                              {s.peso_kg != null && (
-                                <span className="num" style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' }}>
-                                  {s.peso_kg} <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '300' }}>kg</span>
+                    ) : (() => {
+                      const det = detalles[sesion.id_sesion]
+                      const anteriorMap = Object.fromEntries((det?.anterior ?? []).map(a => [a.id_ejercicio, a.peso_max]))
+                      return (det?.current ?? []).map(ej => {
+                        const pesoMaxActual = Math.max(...ej.series.filter(s => s.peso_kg != null).map(s => Number(s.peso_kg)), 0)
+                        const pesoAnterior = anteriorMap[ej.id_ejercicio]
+                        const diff = pesoAnterior != null && pesoMaxActual > 0 ? pesoMaxActual - pesoAnterior : null
+                        return (
+                          <div key={ej.nombre} style={{ marginBottom: '14px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                              <p className="label" style={{ margin: 0 }}>{ej.nombre}</p>
+                              {diff !== null && (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', fontWeight: '500', color: diff > 0 ? 'var(--success)' : diff < 0 ? 'var(--error)' : 'var(--text-tertiary)' }}>
+                                  {diff > 0 ? <TrendingUp style={{ width: '10px', height: '10px' }} /> : diff < 0 ? <TrendingDown style={{ width: '10px', height: '10px' }} /> : <Minus style={{ width: '10px', height: '10px' }} />}
+                                  {diff > 0 ? `+${diff}` : diff} kg vs anterior
                                 </span>
                               )}
-                              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                                {s.repeticiones} <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: '300' }}>reps</span>
-                              </span>
-                              {s.rir !== null && <span className="tag tag-accent">RIR {s.rir}</span>}
-                              {s.notas && <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>{s.notas}</span>}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                              {ej.series.map((s, i) => (
+                                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '6px 10px', backgroundColor: 'var(--surface-card)', borderRadius: 'var(--r-sm)', flexWrap: 'wrap' }}>
+                                  <span style={{ fontSize: '11px', color: 'var(--text-disabled)', minWidth: '22px', fontWeight: '600', fontVariantNumeric: 'tabular-nums' }}>S{s.numero_serie}</span>
+                                  {s.peso_kg != null && <span className="num" style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' }}>{s.peso_kg} <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '300' }}>kg</span></span>}
+                                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{s.repeticiones} <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: '300' }}>reps</span></span>
+                                  {s.rir !== null && <span className="tag tag-accent">RIR {s.rir}</span>}
+                                  {s.notas && <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>{s.notas}</span>}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })
+                    })()}
                   </div>
                 )}
               </div>

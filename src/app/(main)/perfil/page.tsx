@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { User, Check, LogOut } from 'lucide-react'
+import { User, Check, LogOut, Download } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface Perfil { id_usuario: string; nombre: string; email: string; created_at: string }
@@ -124,6 +124,25 @@ export default function PerfilPage() {
             <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Miembro desde</span>
             <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{perfil?.created_at ? fmtFecha(perfil.created_at) : '—'}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Exportar datos */}
+      <div className="card" style={{ padding: '16px 20px', marginBottom: '12px' }}>
+        <p className="label" style={{ margin: '0 0 10px' }}>Datos</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: '0 0 2px' }}>Exportar historial</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: 0 }}>Descarga CSV con todas tus series</p>
+          </div>
+          <a href="/api/export" download
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-md)', fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'none', fontFamily: 'inherit', fontWeight: '500', transition: 'color var(--t-sm) var(--ease-out)' }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'}
+          >
+            <Download style={{ width: '13px', height: '13px' }} />
+            CSV
+          </a>
         </div>
       </div>
 

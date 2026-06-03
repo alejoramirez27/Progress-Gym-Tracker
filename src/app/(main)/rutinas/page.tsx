@@ -232,10 +232,38 @@ export default function RutinasPage() {
           {[72, 56, 64].map((h, i) => <div key={i} className="skeleton" style={{ height: `${h}px` }} />)}
         </div>
       ) : rutinas.length === 0 ? (
-        <div className="card empty-state">
-          <Dumbbell style={{ width: '26px', height: '26px' }} />
-          <p>Sin rutinas todavía</p>
-          <p className="empty-hint">Crea tu primera rutina con el botón de arriba</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {/* Onboarding guiado */}
+          <div className="card" style={{ padding: '24px', borderColor: 'color-mix(in srgb, var(--accent) 20%, var(--border-faint))' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 12%, var(--surface-raised))', borderRadius: 'var(--r-md)', padding: '8px', display: 'flex' }}>
+                <Dumbbell style={{ width: '16px', height: '16px', color: 'var(--accent)' }} />
+              </div>
+              <div>
+                <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.02em' }}>Bienvenido a VoltTrack</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>Sigue estos pasos para empezar a trackear</p>
+              </div>
+            </div>
+            {[
+              { num: '1', titulo: 'Crea tu primera rutina', desc: 'Usa el botón "Nueva rutina" de arriba', done: false },
+              { num: '2', titulo: 'Agrega ejercicios', desc: 'Entra a la rutina y añade tus ejercicios', done: false },
+              { num: '3', titulo: 'Registra tu primera sesión', desc: 'Ve a Progreso y empieza a registrar', done: false },
+            ].map((paso, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '10px 0', borderTop: i > 0 ? '1px solid var(--border-faint)' : 'none' }}>
+                <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent)' }}>{paso.num}</span>
+                </div>
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: '0 0 2px' }}>{paso.titulo}</p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: 0 }}>{paso.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setForm(true)}
+            style={{ width: '100%', backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-lg)', padding: '13px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <Plus style={{ width: '15px', height: '15px' }} /> Crear mi primera rutina
+          </button>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

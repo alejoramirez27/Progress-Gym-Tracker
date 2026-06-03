@@ -268,7 +268,10 @@ export default function RutinaDetallePage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px auto', gap: '10px', alignItems: 'flex-end' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <label className="label" htmlFor="ej-nombre">Nombre del ejercicio *</label>
-              <input id="ej-nombre" style={inp} value={nombreEj} onChange={e => setNombreEj(e.target.value)} placeholder="Press banca, Sentadilla..." required autoFocus />
+              <input id="ej-nombre" list="banco-list" style={inp} value={nombreEj} onChange={e => setNombreEj(e.target.value)} placeholder="Press banca, Sentadilla..." required autoFocus />
+              <datalist id="banco-list">
+                {Object.values(BANCO_EJERCICIOS).flat().map(ej => <option key={ej} value={ej} />)}
+              </datalist>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <label className="label" htmlFor="ej-series">Series</label>
