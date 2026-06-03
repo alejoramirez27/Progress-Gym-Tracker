@@ -37,11 +37,16 @@ export async function GET() {
     .order('fecha', { ascending: false })
 
   // Calcular PR por ejercicio (máximo peso; en caso de empate, más reps)
+  // También rastrear el primer peso registrado para mostrar evolución
   const prPorEjercicio: Record<string, {
     peso_max: number
     repeticiones: number
     fecha: string
   }> = {}
+
+  // primerPorEjercicio: como series viene DESC, al final del loop cada clave
+  // tendrá el valor del registro más antiguo (última escritura = registro más viejo)
+  const primerPorEjercicio: Record<string, number> = {}
 
   for (const s of series ?? []) {
     const actual = prPorEjercicio[s.id_ejercicio]
@@ -53,6 +58,8 @@ export async function GET() {
         fecha:        s.fecha,
       }
     }
+    // Sobreescribimos siempre (DESC → última escritura = registro más antiguo)
+    primerPorEjercicio[s.id_ejercicio] = peso
   }
 
   // Ordenar rutinas por día de semana
@@ -79,6 +86,7 @@ export async function GET() {
         id_ejercicio: e.id_ejercicio,
         nombre:       e.nombre,
         pr: prPorEjercicio[e.id_ejercicio] ?? null,
+        primer_peso: primerPorEjercicio[e.id_ejercicio] ?? null,
       })),
   })).filter(r => r.ejercicios.length > 0)
 

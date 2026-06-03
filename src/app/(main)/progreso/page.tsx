@@ -140,6 +140,7 @@ export default function ProgresoPage() {
   const [notasEj, setNotasEj]             = useState<Set<number>>(new Set())
   const [mostrarModal, setMostrarModal]   = useState(false)
   const [plantillaUsada, setPlantilla]    = useState(false)
+  const [ultimosPesos, setUltimosPesos]   = useState<Record<string, { peso_kg: number; repeticiones: number }[]>>({})
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
 
@@ -190,9 +191,13 @@ export default function ProgresoPage() {
   useEffect(() => {
     if (!rutinaId || plantillaUsada) return
     setLoadingEj(true); setGuardado(false)
-    fetch(`/api/ejercicios?id_rutina=${rutinaId}`).then(r => r.json()).then((data: Ejercicio[]) => {
-      const lista = Array.isArray(data) ? data : []
+    Promise.all([
+      fetch(`/api/ejercicios?id_rutina=${rutinaId}`).then(r => r.json()),
+      fetch(`/api/progreso/ultimos-pesos?id_rutina=${rutinaId}`).then(r => r.json()),
+    ]).then(([ejData, pesosData]: [Ejercicio[], Record<string, { peso_kg: number; repeticiones: number }[]>]) => {
+      const lista = Array.isArray(ejData) ? ejData : []
       setEjConSeries(lista.map(ej => ({ ejercicio: ej, series: Array.from({ length: Math.max(ej.num_series ?? 1, 1) }, serieVacia) })))
+      setUltimosPesos(pesosData ?? {})
       setNotasEj(new Set())
       setLoadingEj(false)
     })
@@ -248,18 +253,47 @@ export default function ProgresoPage() {
   }
 
   if (guardado) {
+    const confettiItems = ['🟡','🔵','🟢','🔴','🟠','🟣']
     return (
-      <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '14px', textAlign: 'center' }}>
-        <div style={{ backgroundColor: 'var(--success-dim)', border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)', borderRadius: '50%', padding: '16px', display: 'flex' }}>
+      <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '14px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <style>{`
+          @keyframes confetti-fall {
+            0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(-120px) rotate(360deg) scale(0.5); opacity: 0; }
+          }
+          @keyframes pop-in {
+            0%   { transform: scale(0.5); opacity: 0; }
+            60%  { transform: scale(1.2); }
+            100% { transform: scale(1);   opacity: 1; }
+          }
+          @keyframes slide-up {
+            0%   { transform: translateY(16px); opacity: 0; }
+            100% { transform: translateY(0);    opacity: 1; }
+          }
+        `}</style>
+
+        {/* Confetti particles */}
+        {confettiItems.map((c, i) => (
+          <span key={i} style={{
+            position: 'absolute',
+            bottom: '40%',
+            left: `${15 + i * 13}%`,
+            fontSize: '18px',
+            animation: `confetti-fall 1.2s ease-out ${i * 0.08}s both`,
+            pointerEvents: 'none',
+          }}>{c}</span>
+        ))}
+
+        <div style={{ backgroundColor: 'var(--success-dim)', border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)', borderRadius: '50%', padding: '16px', display: 'flex', animation: 'pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
           <CheckCircle2 style={{ width: '36px', height: '36px', color: 'var(--success)' }} />
         </div>
-        <div>
-          <h2 style={{ fontSize: '20px', fontWeight: '500', color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.01em' }}>Sesión guardada</h2>
+        <div style={{ animation: 'slide-up 0.4s ease 0.15s both' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '500', color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.01em' }}>¡Sesión guardada!</h2>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
             {rutinas.find(r => r.id_rutina === rutinaId)?.nombre} · {fmtFechaLarga(fecha)}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', animation: 'slide-up 0.4s ease 0.25s both' }}>
           <button
             onClick={() => { setGuardado(false); setEjConSeries(prev => prev.map(ej => ({ ...ej, series: Array.from({ length: ej.ejercicio.num_series }, serieVacia) }))) }}
             style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '8px 16px', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit' }}
@@ -345,6 +379,11 @@ export default function ProgresoPage() {
                 <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, flex: 1, letterSpacing: '-0.01em' }}>
                   {item.ejercicio.nombre}
                 </p>
+                {ultimosPesos[item.ejercicio.id_ejercicio]?.length > 0 && (
+                  <span style={{ fontSize: '10px', color: 'var(--text-disabled)', backgroundColor: 'var(--surface-high)', borderRadius: '4px', padding: '2px 6px', whiteSpace: 'nowrap' }}>
+                    ↩ {ultimosPesos[item.ejercicio.id_ejercicio][0].peso_kg} kg
+                  </span>
+                )}
                 <button
                   onClick={() => toggleNotasEj(ejIdx)}
                   style={{ fontSize: '11px', color: notasEj.has(ejIdx) ? 'var(--accent)' : 'var(--text-disabled)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 'var(--r-sm)', fontFamily: 'inherit' }}
@@ -364,13 +403,20 @@ export default function ProgresoPage() {
                   ))}
                 </div>
                 {/* Series rows */}
-                {item.series.map((serie, sIdx) => (
+                {item.series.map((serie, sIdx) => {
+                  const pesosAnt = ultimosPesos[item.ejercicio.id_ejercicio] ?? []
+                  const antSerie = pesosAnt[sIdx] ?? pesosAnt[pesosAnt.length - 1] ?? null
+                  return (
                   <div key={sIdx} style={{ marginBottom: notasEj.has(ejIdx) ? '8px' : '5px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
-                      <input type="number" step="0.5" min="0" placeholder="80" value={serie.peso_kg}
+                      <input type="number" step="0.5" min="0"
+                        placeholder={antSerie && antSerie.peso_kg > 0 ? String(antSerie.peso_kg) : '80'}
+                        value={serie.peso_kg}
                         onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
-                      <input type="number" step="1" min="1" placeholder="10" value={serie.repeticiones}
+                      <input type="number" step="1" min="1"
+                        placeholder={antSerie && antSerie.repeticiones > 0 ? String(antSerie.repeticiones) : '10'}
+                        value={serie.repeticiones}
                         onChange={e => updateSerie(ejIdx, sIdx, 'repeticiones', e.target.value)} style={inp} />
                       <input type="number" step="1" min="0" max="5" placeholder="2" value={serie.rir}
                         onChange={e => updateSerie(ejIdx, sIdx, 'rir', e.target.value)} style={inp} />
@@ -385,7 +431,8 @@ export default function ProgresoPage() {
                       </div>
                     )}
                   </div>
-                ))}
+                  )
+                })}
 
                 {/* Add/remove serie buttons */}
                 <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Dumbbell, TrendingUp, Layers, Calendar, ChevronDown, Info, Flame, BarChart2, StickyNote } from 'lucide-react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -26,6 +27,7 @@ const sel: React.CSSProperties = {
 const DIAS_SEMANA = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [stats, setStats]           = useState<Stats | null>(null)
   const [rutinas, setRutinas]       = useState<Rutina[]>([])
   const [ejercicios, setEjercicios] = useState<Ejercicio[]>([])
@@ -131,13 +133,20 @@ export default function DashboardPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px' }}>
           {metricCards.map(c => {
             const Icon = c.icon
+            const isDate = c.label === 'Última sesión'
             return (
               <div key={c.label} style={{ backgroundColor: 'var(--surface-deep)', padding: '16px 18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <span className="label">{c.label}</span>
                   <Icon style={{ width: '13px', height: '13px', color: c.color, opacity: 0.5 }} />
                 </div>
-                <p className="num" style={{ fontSize: '28px', fontWeight: '700', color: c.color, margin: 0, letterSpacing: '-0.04em' }}>{c.value}</p>
+                {isDate ? (
+                  <p style={{ fontSize: '15px', fontWeight: '600', color: c.color, margin: 0, letterSpacing: '-0.01em', lineHeight: 1.3 }}>
+                    {String(c.value) === '—' ? '—' : String(c.value)}
+                  </p>
+                ) : (
+                  <p className="num" style={{ fontSize: '28px', fontWeight: '700', color: c.color, margin: 0, letterSpacing: '-0.04em' }}>{c.value}</p>
+                )}
               </div>
             )
           })}
@@ -186,6 +195,60 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      {/* Resumen semanal — dots L M X J V S D */}
+      {!loading && stats && heatmap.length > 0 && (() => {
+        const hoyStr = hoy()
+        const d = new Date(hoyStr)
+        const lunesOffset = d.getDay() === 0 ? 6 : d.getDay() - 1
+        const lunesStr = new Date(d.getFullYear(), d.getMonth(), d.getDate() - lunesOffset).toISOString().split('T')[0]
+        const diasSemana = DIAS_SEMANA.map((nombre, i) => {
+          const dia = new Date(d.getFullYear(), d.getMonth(), d.getDate() - lunesOffset + i)
+          const fechaStr = dia.toISOString().split('T')[0]
+          const isFuture = fechaStr > hoyStr
+          const count = heatmap.find(h => h.fecha === fechaStr)?.count ?? 0
+          const entreno = !isFuture && count > 0
+          return { nombre, fechaStr, isFuture, entreno }
+        })
+        const diasEntrenados = diasSemana.filter(d => d.entreno).length
+        return (
+          <div className="card" style={{ padding: '14px 18px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Esta semana</p>
+              <span style={{ fontSize: '11px', color: diasEntrenados > 0 ? 'var(--success)' : 'var(--text-disabled)' }}>
+                {diasEntrenados} de 7 días
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              {diasSemana.map(dia => (
+                <div key={dia.nombre} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                  <span style={{ fontSize: '9px', color: 'var(--text-disabled)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{dia.nombre}</span>
+                  <div style={{
+                    width: '28px', height: '28px', borderRadius: '50%',
+                    backgroundColor: dia.entreno
+                      ? 'color-mix(in srgb, var(--accent) 20%, var(--surface-raised))'
+                      : dia.isFuture
+                        ? 'transparent'
+                        : 'var(--surface-high)',
+                    border: dia.fechaStr === hoyStr
+                      ? '2px solid var(--accent)'
+                      : dia.entreno
+                        ? '2px solid color-mix(in srgb, var(--accent) 50%, transparent)'
+                        : '2px solid transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s',
+                    boxSizing: 'border-box',
+                  }}>
+                    {dia.entreno && (
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent)' }} />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Heatmap 365 días estilo GitHub */}
       {!loading && heatmap.length > 0 && (
@@ -246,14 +309,17 @@ export default function DashboardPage() {
                         const titulo = `${d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}${dia.count > 0 ? ` — ${dia.count} sesión${dia.count > 1 ? 'es' : ''}` : ''}`
                         return (
                           <div key={di} title={titulo}
+                            onClick={() => dia.count > 0 && router.push('/historial')}
                             style={{
                               width: '13px', height: '13px', borderRadius: '3px',
                               backgroundColor: bg,
                               border: isToday ? '1.5px solid var(--accent)' : '1px solid transparent',
                               boxSizing: 'border-box',
-                              transition: 'background-color 0.1s',
+                              transition: 'background-color 0.1s, transform 0.1s',
                               cursor: dia.count > 0 ? 'pointer' : 'default',
                             }}
+                            onMouseEnter={e => { if (dia.count > 0) e.currentTarget.style.transform = 'scale(1.3)' }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
                           />
                         )
                       })}
@@ -278,25 +344,6 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-
-      {/* Nota del día */}
-      <div className="card" style={{ padding: '16px 18px', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
-          <StickyNote style={{ width: '13px', height: '13px', color: 'var(--text-tertiary)' }} />
-          <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Nota del día</p>
-        </div>
-        <textarea
-          value={nota} onChange={e => { setNota(e.target.value); setNotaGuardada(false) }}
-          placeholder="¿Cómo te sientes hoy? ¿Dormiste bien? ¿Energía alta o baja?..." rows={2}
-          style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '9px 11px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box', marginBottom: '8px' }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={guardarNota}
-            style={{ padding: '5px 14px', fontSize: '12px', fontFamily: 'inherit', cursor: 'pointer', borderRadius: 'var(--r-sm)', border: 'none', backgroundColor: notaGuardada ? 'var(--success-dim)' : 'var(--accent)', color: notaGuardada ? 'var(--success)' : '#0c0e12', fontWeight: '500', transition: 'all 0.14s' }}>
-            {notaGuardada ? '✓ Guardada' : 'Guardar nota'}
-          </button>
-        </div>
-      </div>
 
       {/* Chart */}
       <div className="card" style={{ padding: '24px' }}>
@@ -386,6 +433,26 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           )
         )}
+      </div>
+
+      {/* Nota del día — al final para no interrumpir el flujo de métricas */}
+      <div className="card" style={{ padding: '16px 18px', marginTop: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+          <StickyNote style={{ width: '13px', height: '13px', color: 'var(--text-tertiary)' }} />
+          <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Nota del día</p>
+          {nota && <span style={{ fontSize: '10px', color: 'var(--text-disabled)', marginLeft: 'auto' }}>guardada en local</span>}
+        </div>
+        <textarea
+          value={nota} onChange={e => { setNota(e.target.value); setNotaGuardada(false) }}
+          placeholder="¿Cómo te sientes hoy? ¿Dormiste bien? ¿Energía alta o baja?..." rows={2}
+          style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '9px 11px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box', marginBottom: '8px' }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button onClick={guardarNota}
+            style={{ padding: '5px 14px', fontSize: '12px', fontFamily: 'inherit', borderRadius: 'var(--r-sm)', backgroundColor: notaGuardada ? 'var(--success-dim)' : 'var(--surface-raised)', color: notaGuardada ? 'var(--success)' : 'var(--text-secondary)', border: `1px solid ${notaGuardada ? 'color-mix(in srgb, var(--success) 30%, transparent)' : 'var(--border-subtle)'}`, fontWeight: '500', transition: 'all 0.14s', cursor: 'pointer' }}>
+            {notaGuardada ? '✓ Guardada' : 'Guardar nota'}
+          </button>
+        </div>
       </div>
     </div>
   )

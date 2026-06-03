@@ -4,7 +4,7 @@ import { Trophy, ChevronDown, ChevronRight, Dumbbell, Share2, Search, X } from '
 import { toast } from 'sonner'
 
 interface PR { peso_max: number; repeticiones: number; fecha: string }
-interface Ejercicio { id_ejercicio: string; nombre: string; pr: PR | null }
+interface Ejercicio { id_ejercicio: string; nombre: string; pr: PR | null; primer_peso: number | null }
 interface Rutina { id_rutina: string; nombre: string; dia_semana: string | null; ejercicios: Ejercicio[] }
 
 function fmtFecha(s: string) {
@@ -225,6 +225,11 @@ export default function RecordsPage() {
                                   <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: '500' }}>
                                     1RM ~{calc1RM(ej.pr.peso_max, ej.pr.repeticiones)} kg
                                   </span>
+                                  {ej.primer_peso !== null && ej.pr.peso_max > ej.primer_peso && (
+                                    <span style={{ fontSize: '10px', color: 'var(--success)', fontWeight: '500', backgroundColor: 'var(--success-dim)', borderRadius: '4px', padding: '1px 5px' }}>
+                                      +{Math.round((ej.pr.peso_max - ej.primer_peso) * 10) / 10} kg
+                                    </span>
+                                  )}
                                   <span style={{ fontSize: '11px', color: 'var(--text-disabled)' }}>{fmtFecha(ej.pr.fecha)}</span>
                                 </div>
                               </div>
