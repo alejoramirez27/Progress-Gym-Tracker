@@ -19,7 +19,7 @@ export default function RecordsPage() {
     fetch('/api/records').then(r => r.json()).then(d => {
       const lista: Rutina[] = Array.isArray(d) ? d : []
       setRutinas(lista)
-      setExpanded(new Set(lista.map(r => r.id_rutina)))
+      setExpanded(new Set())
       setLoading(false)
     })
   }, [])

@@ -19,8 +19,8 @@ const TIMER_OPCIONES = [60, 90, 120, 180]
 
 function RestTimer({ onClose }: { onClose: () => void }) {
   const [duracion, setDuracion] = useState(90)
-  const [restante, setRestante] = useState<number | null>(null)
-  const [activo, setActivo] = useState(false)
+  const [restante, setRestante] = useState(90)
+  const [activo, setActivo] = useState(true)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const iniciar = useCallback((seg: number) => {
@@ -30,7 +30,7 @@ function RestTimer({ onClose }: { onClose: () => void }) {
     if (intervalRef.current) clearInterval(intervalRef.current)
     intervalRef.current = setInterval(() => {
       setRestante(prev => {
-        if (prev === null || prev <= 1) {
+        if (prev <= 1) {
           clearInterval(intervalRef.current!)
           setActivo(false)
           toast.success('¡Descanso terminado!', { duration: 3000 })
@@ -41,11 +41,25 @@ function RestTimer({ onClose }: { onClose: () => void }) {
     }, 1000)
   }, [])
 
-  useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current) }, [])
+  // Arrancar automáticamente con 90s al montar
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setRestante(prev => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current!)
+          setActivo(false)
+          toast.success('¡Descanso terminado!', { duration: 3000 })
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [])
 
-  const pct = restante !== null ? (restante / duracion) * 100 : 100
-  const mins = restante !== null ? Math.floor(restante / 60) : 0
-  const secs = restante !== null ? restante % 60 : 0
+  const pct = (restante / duracion) * 100
+  const mins = Math.floor(restante / 60)
+  const secs = restante % 60
 
   return (
     <div style={{
@@ -84,6 +98,9 @@ function RestTimer({ onClose }: { onClose: () => void }) {
       <div style={{ textAlign: 'center', marginBottom: '10px' }}>
         <p className="num" style={{ fontSize: '36px', fontWeight: '700', color: restante === 0 ? 'var(--success)' : 'var(--text-primary)', margin: 0, letterSpacing: '-0.04em' }}>
           {`${mins}:${String(secs).padStart(2, '0')}`}
+        </p>
+        <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: '4px 0 0' }}>
+          {activo ? 'descansando...' : restante === 0 ? '¡listo!' : 'pausado'}
         </p>
         {/* Progress bar */}
         <div style={{ height: '3px', backgroundColor: 'var(--surface-high)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
