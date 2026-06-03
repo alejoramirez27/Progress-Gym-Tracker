@@ -26,9 +26,6 @@ const IMGS = {
   records:  'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1000&q=80',
   progreso: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=80',
   gym:      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80',
-  barbell:  'https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=800&q=80',
-  deadlift: 'https://images.unsplash.com/photo-1598575912924-1b0a9f4c70ba?auto=format&fit=crop&w=800&q=80',
-  bench:    'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
 }
 
 /* ─── Line reveal ────────────────────────────────────────── */
@@ -238,8 +235,10 @@ function ScrollIndicator() {
 /* ─── Hero ────────────────────────────────────────────────── */
 function Hero() {
   const ref = useRef<HTMLElement>(null)
+  const { scrollY }        = useScroll()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const imgY   = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
+  const imgY         = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
+  const scrollOpacity = useTransform(scrollY, [0, 220], [1, 0])
   const reduce = useReducedMotion()
 
   const [mouse, setMouse] = useState({ x: 50, y: 50 })
@@ -322,6 +321,29 @@ function Hero() {
             </div>
           ))}
         </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          style={{ opacity: scrollOpacity, marginTop: '52px', display: 'flex', alignItems: 'center', gap: '12px' }}
+        >
+          <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
+            <motion.div
+              animate={reduce ? {} : { scale: [1, 1.7, 1], opacity: [0.6, 0, 0.6] }}
+              transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
+              style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(177,201,225,0.35)' }}
+            />
+            <motion.div
+              animate={reduce ? {} : { y: [0, 5, 0] }}
+              transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(177,201,225,0.08)', borderRadius: '50%', border: '1px solid rgba(177,201,225,0.22)' }}
+            >
+              <ChevronDown style={{ width: '15px', height: '15px', color: '#b1c9e1' }} />
+            </motion.div>
+          </div>
+          <span style={{ fontSize: '13px', fontWeight: '500', color: 'rgba(177,201,225,0.45)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Desliza para explorar
+          </span>
+        </motion.div>
       </div>
 
       {/* Right: image + floating cards */}
@@ -360,8 +382,6 @@ function Hero() {
           style={{ bottom: '24%', right: '7%' }}
         />
       </div>
-
-      <ScrollIndicator />
     </section>
   )
 }
@@ -416,21 +436,23 @@ function FeaturesGrid() {
       <div style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(177,201,225,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Header — tight and readable */}
-        <div style={{ marginBottom: '48px' }}>
-          <Reveal>
-            <span style={{ fontSize: '11px', fontWeight: '700', color: '#b1c9e1', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              Todo lo que necesitas
-            </span>
-          </Reveal>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'start' }}>
-            <LineReveal>
-              <h2 style={{ fontSize: 'clamp(30px, 4vw, 52px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.035em', lineHeight: '1.05', margin: 0 }}>
-                Nueve razones<br />para no volver<br />a la libreta.
-              </h2>
-            </LineReveal>
-            <Reveal delay={0.08}>
-              <p style={{ fontSize: '16px', color: '#7a8290', margin: '0', lineHeight: '1.65', fontWeight: '300', paddingTop: '8px' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '52px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
+            <div>
+              <LineReveal>
+                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+                  Todo lo que<br />necesitas.
+                </h2>
+              </LineReveal>
+              <Reveal delay={0.06}>
+                <p style={{ fontSize: '13px', fontWeight: '500', color: '#b1c9e1', letterSpacing: '0.02em', margin: 0 }}>
+                  9 funciones · 0 fricciones
+                </p>
+              </Reveal>
+            </div>
+            <Reveal delay={0.1}>
+              <p style={{ fontSize: '16px', color: '#7a8290', margin: '0', lineHeight: '1.65', fontWeight: '300' }}>
                 Cada función fue diseñada para eliminar una fricción real que los atletas tienen cuando registran su entrenamiento.
               </p>
             </Reveal>
@@ -473,32 +495,6 @@ function FeaturesGrid() {
         </div>
       </div>
     </section>
-  )
-}
-
-/* ─── Photo mosaic ───────────────────────────────────────── */
-function PhotoMosaic() {
-  const photos = [
-    { src: IMGS.barbell,  alt: 'Barra con peso', h: '320px' },
-    { src: IMGS.deadlift, alt: 'Peso muerto',    h: '320px' },
-    { src: IMGS.bench,    alt: 'Banco de press', h: '320px' },
-  ]
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', overflow: 'hidden' }}>
-      {photos.map((p, i) => (
-        <Reveal key={p.alt} delay={i * 0.08}>
-          <motion.div
-            style={{ overflow: 'hidden', height: p.h, position: 'relative' }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.5, ease: E }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.src} alt={p.alt} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.6s ease', display: 'block' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,12,16,0.3)' }} />
-          </motion.div>
-        </Reveal>
-      ))}
-    </div>
   )
 }
 
@@ -635,11 +631,18 @@ function Process() {
   return (
     <section style={{ backgroundColor: '#0a0c10', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-        <Reveal>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: '#b1c9e1', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: '64px' }}>
-            Cómo funciona
-          </span>
-        </Reveal>
+        <div style={{ marginBottom: '64px' }}>
+          <LineReveal>
+            <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+              Cómo funciona.
+            </h2>
+          </LineReveal>
+          <Reveal delay={0.06}>
+            <p style={{ fontSize: '13px', fontWeight: '500', color: '#b1c9e1', letterSpacing: '0.02em', margin: 0 }}>
+              3 pasos · del gym a los datos
+            </p>
+          </Reveal>
+        </div>
         {steps.map((step, i) => (
           <Reveal key={step.n} delay={i * 0.06}>
             <motion.div
@@ -892,7 +895,6 @@ export default function LandingPage() {
         <Hero />
         <MarqueeStrip />
         <FeaturesGrid />
-        <PhotoMosaic />
         <FeatureEditorial />
         <FeatureSplit
           imgSrc={IMGS.records}
