@@ -88,21 +88,35 @@ export async function GET(request: Request) {
       .map(([fecha, v]) => ({ fecha, volumen: Math.round(v.vol), sesiones: v.sesiones.size }))
       .slice(-30)
 
-    // Heatmap — últimos 35 días
+    // Heatmap — últimos 365 días (alineado al lunes de la semana actual)
     const activeDates = new Set(Object.keys(porFechaVol))
-    const hoy = new Date()
-    heatmap = Array.from({ length: 35 }, (_, i) => {
-      const d = new Date(hoy)
-      d.setDate(hoy.getDate() - (34 - i))
+    const hoyD = new Date()
+    // Ir al domingo más lejano que cubra 365 días
+    const diasAtras = 364
+    const inicio = new Date(hoyD)
+    inicio.setDate(hoyD.getDate() - diasAtras)
+    // Retroceder hasta el lunes de esa semana
+    const diaSemana = inicio.getDay() === 0 ? 6 : inicio.getDay() - 1
+    inicio.setDate(inicio.getDate() - diaSemana)
+
+    const totalDias = Math.ceil((hoyD.getTime() - inicio.getTime()) / 86400000) + 1
+    heatmap = Array.from({ length: totalDias }, (_, i) => {
+      const d = new Date(inicio)
+      d.setDate(inicio.getDate() + i)
       const fecha = d.toISOString().split('T')[0]
       return { fecha, count: activeDates.has(fecha) ? (porFechaVol[fecha]?.sesiones.size ?? 1) : 0 }
     })
   } else {
-    // Heatmap vacío
-    const hoy = new Date()
-    heatmap = Array.from({ length: 35 }, (_, i) => {
-      const d = new Date(hoy)
-      d.setDate(hoy.getDate() - (34 - i))
+    // Heatmap vacío — 365 días
+    const hoyD = new Date()
+    const inicio = new Date(hoyD)
+    inicio.setDate(hoyD.getDate() - 364)
+    const diaSemana = inicio.getDay() === 0 ? 6 : inicio.getDay() - 1
+    inicio.setDate(inicio.getDate() - diaSemana)
+    const totalDias = Math.ceil((hoyD.getTime() - inicio.getTime()) / 86400000) + 1
+    heatmap = Array.from({ length: totalDias }, (_, i) => {
+      const d = new Date(inicio)
+      d.setDate(inicio.getDate() + i)
       return { fecha: d.toISOString().split('T')[0], count: 0 }
     })
   }

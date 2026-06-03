@@ -95,9 +95,25 @@ export default function DashboardPage() {
     { label: 'Última sesión',  value: stats.ultimaSesion ? fmtFecha(stats.ultimaSesion) : '—', icon: Calendar, color: '#a07ad4' },
   ] : []
 
-  // Heatmap organizado en semanas (filas) × días (columnas)
+  // Heatmap: columnas = semanas, filas = días (Lun→Dom)
   const semanas: HeatDay[][] = []
   for (let i = 0; i < heatmap.length; i += 7) semanas.push(heatmap.slice(i, i + 7))
+
+  // Etiquetas de meses
+  const mesesLabels: { col: number; label: string }[] = []
+  semanas.forEach((sem, colIdx) => {
+    if (sem[0]) {
+      const d = new Date(sem[0].fecha + 'T12:00:00')
+      if (d.getDate() <= 7) {
+        mesesLabels.push({
+          col: colIdx,
+          label: d.toLocaleDateString('es-CO', { month: 'short' })
+        })
+      }
+    }
+  })
+
+  const totalSesiones365 = heatmap.filter(d => d.count > 0).length
 
   return (
     <div className="page-enter">
@@ -128,72 +144,135 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Racha + sesiones semana */}
+      {/* Racha + sesiones — 3 columnas iguales */}
       {!loading && stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px' }}>
-          <div style={{ backgroundColor: 'var(--surface-deep)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Flame style={{ width: '16px', height: '16px', color: '#e07040', flexShrink: 0 }} />
-            <div>
-              <p style={{ fontSize: '10px', color: 'var(--text-tertiary)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Racha</p>
-              <p className="num" style={{ fontSize: '20px', fontWeight: '700', color: stats.rachaActual > 0 ? '#e07040' : 'var(--text-disabled)', margin: 0, letterSpacing: '-0.03em' }}>
-                {stats.rachaActual}<span style={{ fontSize: '11px', fontWeight: '300', color: 'var(--text-secondary)' }}> días</span>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px' }}>
+          {[
+            {
+              icon: <Flame style={{ width: '15px', height: '15px', color: '#e07040' }} />,
+              label: 'Racha actual',
+              value: stats.rachaActual,
+              unit: 'días',
+              color: stats.rachaActual > 0 ? '#e07040' : 'var(--text-disabled)',
+              sub: stats.rachaActual > 0 ? '🔥 en racha' : 'Entrena hoy',
+            },
+            {
+              icon: <Flame style={{ width: '15px', height: '15px', color: '#d4a07a' }} />,
+              label: 'Mejor racha',
+              value: stats.rachaMejor,
+              unit: 'días',
+              color: '#d4a07a',
+              sub: 'récord personal',
+            },
+            {
+              icon: <Calendar style={{ width: '15px', height: '15px', color: 'var(--success)' }} />,
+              label: 'Esta semana',
+              value: stats.sesionesEstaSemana,
+              unit: 'sesiones',
+              color: 'var(--success)',
+              sub: stats.sesionesSemanaPasada > 0 ? `${stats.sesionesSemanaPasada} la semana pasada` : `${totalSesiones365} en el año`,
+            },
+          ].map(c => (
+            <div key={c.label} style={{ backgroundColor: 'var(--surface-deep)', padding: '16px 20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c.label}</span>
+                {c.icon}
+              </div>
+              <p className="num" style={{ fontSize: '28px', fontWeight: '700', color: c.color, margin: '0 0 4px', letterSpacing: '-0.04em' }}>
+                {c.value}<span style={{ fontSize: '12px', fontWeight: '300', color: 'var(--text-secondary)', marginLeft: '4px' }}>{c.unit}</span>
               </p>
+              <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0 }}>{c.sub}</p>
             </div>
-          </div>
-          <div style={{ backgroundColor: 'var(--surface-deep)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Flame style={{ width: '16px', height: '16px', color: '#d4a07a', flexShrink: 0 }} />
-            <div>
-              <p style={{ fontSize: '10px', color: 'var(--text-tertiary)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Mejor racha</p>
-              <p className="num" style={{ fontSize: '20px', fontWeight: '700', color: '#d4a07a', margin: 0, letterSpacing: '-0.03em' }}>
-                {stats.rachaMejor}<span style={{ fontSize: '11px', fontWeight: '300', color: 'var(--text-secondary)' }}> días</span>
-              </p>
-            </div>
-          </div>
-          <div style={{ backgroundColor: 'var(--surface-deep)', padding: '14px 18px', gridColumn: 'span 2' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-              <p style={{ fontSize: '10px', color: 'var(--text-tertiary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Esta semana</p>
-              <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>
-                {stats.sesionesSemanaPasada > 0 ? `vs ${stats.sesionesSemanaPasada} la anterior` : ''}
-              </span>
-            </div>
-            <p className="num" style={{ fontSize: '20px', fontWeight: '700', color: 'var(--success)', margin: '0 0 4px', letterSpacing: '-0.03em' }}>
-              {stats.sesionesEstaSemana}<span style={{ fontSize: '11px', fontWeight: '300', color: 'var(--text-secondary)' }}> sesiones</span>
-            </p>
-          </div>
+          ))}
         </div>
       )}
 
-      {/* Heatmap */}
+      {/* Heatmap 365 días estilo GitHub */}
       {!loading && heatmap.length > 0 && (
         <div className="card" style={{ padding: '18px 20px', marginBottom: '16px' }}>
-          <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Actividad — últimas 5 semanas</p>
-          <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginRight: '4px', paddingTop: '2px' }}>
-              {DIAS_SEMANA.map(d => (
-                <span key={d} style={{ fontSize: '9px', color: 'var(--text-disabled)', height: '14px', display: 'flex', alignItems: 'center', letterSpacing: '0.04em' }}>{d}</span>
-              ))}
-            </div>
-            {semanas.map((semana, si) => (
-              <div key={si} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                {semana.map(dia => {
-                  const isToday = dia.fecha === hoy()
-                  const bg = dia.count === 0
-                    ? 'var(--surface-raised)'
-                    : dia.count === 1 ? 'color-mix(in srgb, var(--accent) 40%, var(--surface-raised))'
-                    : 'color-mix(in srgb, var(--accent) 80%, var(--surface-raised))'
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Actividad — últimos 12 meses
+            </p>
+            <span style={{ fontSize: '11px', color: 'var(--text-disabled)' }}>
+              {totalSesiones365} sesión{totalSesiones365 !== 1 ? 'es' : ''} en el año
+            </span>
+          </div>
+
+          <div style={{ overflowX: 'auto', overflowY: 'hidden' }}>
+            <div style={{ display: 'inline-flex', flexDirection: 'column', minWidth: 'max-content' }}>
+              {/* Etiquetas de meses */}
+              <div style={{ display: 'flex', marginBottom: '4px', paddingLeft: '24px' }}>
+                {semanas.map((_, si) => {
+                  const mesLabel = mesesLabels.find(m => m.col === si)
                   return (
-                    <div key={dia.fecha} title={`${dia.fecha}${dia.count > 0 ? ` — ${dia.count} sesión${dia.count > 1 ? 'es' : ''}` : ''}`}
-                      style={{ width: '14px', height: '14px', borderRadius: '3px', backgroundColor: bg, border: isToday ? '1px solid var(--accent)' : '1px solid transparent', boxSizing: 'border-box' }}
-                    />
+                    <div key={si} style={{ width: '13px', marginRight: '2px', flexShrink: 0 }}>
+                      {mesLabel && (
+                        <span style={{ fontSize: '9px', color: 'var(--text-disabled)', textTransform: 'capitalize', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}>
+                          {mesLabel.label}
+                        </span>
+                      )}
+                    </div>
                   )
                 })}
               </div>
-            ))}
+
+              {/* Grid días × semanas */}
+              <div style={{ display: 'flex', gap: '0' }}>
+                {/* Etiquetas días */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginRight: '4px', paddingTop: '1px', width: '20px', flexShrink: 0 }}>
+                  {DIAS_SEMANA.map((d, i) => (
+                    <div key={d} style={{ height: '13px', display: 'flex', alignItems: 'center' }}>
+                      {i % 2 === 0 && <span style={{ fontSize: '9px', color: 'var(--text-disabled)', letterSpacing: '0.04em' }}>{d}</span>}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Columnas = semanas */}
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  {semanas.map((semana, si) => (
+                    <div key={si} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {semana.map((dia, di) => {
+                        const isToday = dia.fecha === hoy()
+                        const isFuture = dia.fecha > hoy()
+                        const bg = isFuture
+                          ? 'transparent'
+                          : dia.count === 0
+                            ? 'var(--surface-raised)'
+                            : dia.count === 1
+                              ? 'color-mix(in srgb, var(--accent) 35%, var(--surface-raised))'
+                              : 'color-mix(in srgb, var(--accent) 75%, var(--surface-raised))'
+                        const d = new Date(dia.fecha + 'T12:00:00')
+                        const titulo = `${d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}${dia.count > 0 ? ` — ${dia.count} sesión${dia.count > 1 ? 'es' : ''}` : ''}`
+                        return (
+                          <div key={di} title={titulo}
+                            style={{
+                              width: '13px', height: '13px', borderRadius: '3px',
+                              backgroundColor: bg,
+                              border: isToday ? '1.5px solid var(--accent)' : '1px solid transparent',
+                              boxSizing: 'border-box',
+                              transition: 'background-color 0.1s',
+                              cursor: dia.count > 0 ? 'pointer' : 'default',
+                            }}
+                          />
+                        )
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+
+          {/* Leyenda */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '12px', justifyContent: 'flex-end' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>Menos</span>
-            {[0, 0.4, 0.8].map(op => (
-              <div key={op} style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: op === 0 ? 'var(--surface-raised)' : `color-mix(in srgb, var(--accent) ${op * 100}%, var(--surface-raised))` }} />
+            {[
+              'var(--surface-raised)',
+              'color-mix(in srgb, var(--accent) 35%, var(--surface-raised))',
+              'color-mix(in srgb, var(--accent) 75%, var(--surface-raised))',
+            ].map((bg, i) => (
+              <div key={i} style={{ width: '11px', height: '11px', borderRadius: '2px', backgroundColor: bg }} />
             ))}
             <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>Más</span>
           </div>
