@@ -38,7 +38,7 @@ export default function PerfilPage() {
 
   const cerrarSesion = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/login')
+    window.location.href = '/'
   }
 
   if (loading) return (

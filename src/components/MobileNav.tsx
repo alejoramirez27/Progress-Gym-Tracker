@@ -17,7 +17,7 @@ export default function MobileNav() {
 
   const cerrarSesion = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/login')
+    window.location.href = '/'
   }
 
   return (

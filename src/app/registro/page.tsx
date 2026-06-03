@@ -23,7 +23,7 @@ export default function RegistroPage() {
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Error al crear la cuenta'); setLoading(false); return }
     toast.success(`Bienvenido, ${data.nombre}`)
-    router.push('/rutinas')
+    window.location.href = '/rutinas'
   }
 
   return (

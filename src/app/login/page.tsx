@@ -19,7 +19,7 @@ export default function LoginPage() {
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Credenciales incorrectas'); setLoading(false); return }
     toast.success(`Bienvenido, ${data.nombre}`)
-    router.push('/rutinas')
+    window.location.href = '/rutinas'
   }
 
   return (
