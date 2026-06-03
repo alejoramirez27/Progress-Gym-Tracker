@@ -264,7 +264,7 @@ function Hero() {
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: E }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.18)', borderRadius: '99px', padding: '5px 12px', marginBottom: '28px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.18)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px' }}
         >
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#b1c9e1' }} />
           <span style={{ fontSize: '11px', fontWeight: '600', color: '#b1c9e1', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
@@ -275,7 +275,7 @@ function Hero() {
             Entrena con
           </motion.h1>
         </div>
-        <div style={{ overflow: 'hidden', marginBottom: '28px', paddingBottom: '6px' }}>
+        <div style={{ overflow: 'hidden', marginBottom: '20px', paddingBottom: '6px' }}>
           <motion.h1 className="land-h1" style={{ color: '#b1c9e1' }} initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.22, ease: E }}>
             intención.
           </motion.h1>
@@ -294,7 +294,7 @@ function Hero() {
           initial={reduce ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.64, ease: E }}
-          style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '40px' }}
+          style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}
         >
           <MagneticCTA href="/registro" primary>
             Crear cuenta gratis <ArrowRight style={{ width: '16px', height: '16px' }} />
@@ -324,7 +324,7 @@ function Hero() {
 
         {/* Scroll indicator */}
         <motion.div
-          style={{ opacity: scrollOpacity, marginTop: '52px', display: 'flex', alignItems: 'center', gap: '12px' }}
+          style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}
         >
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
             <motion.div
@@ -674,52 +674,92 @@ function Process() {
 /* ─── Why VoltTrack ───────────────────────────────────────── */
 function WhySection() {
   const reasons = [
-    { icon: ShieldCheck, title: 'Sin suscripción',  body: 'Completamente gratuito. No hay plan premium, no hay funciones bloqueadas.' },
-    { icon: Target,      title: 'Sin ruido',        body: 'No hay feed social ni notificaciones. Entras, registras, sales. Eso es todo.' },
-    { icon: Dumbbell,    title: 'Hecho para el gym', body: 'Construido por alguien que entrena, para personas que quieren ver sus números crecer.' },
+    {
+      icon: ShieldCheck,
+      title: 'Gratis para siempre',
+      body: 'No hay plan premium, no hay funciones bloqueadas, no hay trampas. Todo lo que ves es todo lo que hay — sin costo.',
+    },
+    {
+      icon: Target,
+      title: 'Cero distracciones',
+      body: 'Sin feed social, sin stories, sin notificaciones innecesarias. Entras al gym, registras tu sesión, sales. Así de simple.',
+    },
+    {
+      icon: Dumbbell,
+      title: 'Hecho por alguien que entrena',
+      body: 'Cada función surgió de un problema real en el gym. No es teoría — es la app que el creador quería tener.',
+    },
+    {
+      icon: Download,
+      title: 'Tus datos son tuyos',
+      body: 'Exporta todo tu historial en CSV en cualquier momento. Sin bloqueos, sin suscripción requerida para acceder.',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Progreso real, no estimado',
+      body: 'Registras exactamente lo que levantaste. El sistema calcula tus PRs y 1RM a partir de datos reales, no suposiciones.',
+    },
+    {
+      icon: Smartphone,
+      title: 'Rápido desde el celular',
+      body: 'Carga en menos de un segundo. Interfaz táctil optimizada para usarla parado frente a la barra, no sentado en un escritorio.',
+    },
   ]
   return (
     <section style={{ backgroundColor: '#0d0f14', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '64px', alignItems: 'start', marginBottom: '64px' }}>
-          <div>
-            <Reveal>
-              <span style={{ fontSize: '11px', fontWeight: '700', color: '#b1c9e1', letterSpacing: '0.12em', textTransform: 'uppercase', display: 'block', marginBottom: '16px' }}>
-                Por qué VoltTrack
-              </span>
+
+        {/* Header — mismo patrón que FeaturesGrid y Process */}
+        <div style={{ marginBottom: '52px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
+            <div>
+              <LineReveal>
+                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+                  Por qué VoltTrack.
+                </h2>
+              </LineReveal>
+              <Reveal delay={0.06}>
+                <p style={{ fontSize: '13px', fontWeight: '500', color: '#b1c9e1', letterSpacing: '0.02em', margin: 0 }}>
+                  6 razones · ninguna es marketing
+                </p>
+              </Reveal>
+            </div>
+            <Reveal delay={0.1}>
+              <p style={{ fontSize: '16px', color: '#7a8290', margin: 0, lineHeight: '1.65', fontWeight: '300' }}>
+                La mayoría de apps de gym fallan porque son demasiado complicadas, lentas o te muestran anuncios mientras intentas concentrarte. VoltTrack no hace ninguna de esas cosas.
+              </p>
             </Reveal>
-            <LineReveal>
-              <h2 style={{ fontSize: 'clamp(28px, 3.8vw, 48px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.035em', lineHeight: '1.08', margin: 0 }}>
-                Todas las apps de gym fallan en lo mismo.
-              </h2>
-            </LineReveal>
           </div>
-          <Reveal delay={0.1}>
-            <p style={{ fontSize: '17px', color: '#5a6270', lineHeight: '1.7', fontWeight: '300', margin: 0, paddingTop: '32px' }}>
-              La mayoría son demasiado complicadas, demasiado lentas, o te muestran anuncios mientras intentas concentrarte. VoltTrack no hace ninguna de esas cosas.
-            </p>
-          </Reveal>
         </div>
 
+        {/* 3×2 grid de razones */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '14px', overflow: 'hidden' }}>
           {reasons.map((r, i) => {
             const Icon = r.icon
             return (
-              <Reveal key={r.title} delay={i * 0.07}>
+              <Reveal key={r.title} delay={Math.floor(i / 3) * 0.06 + (i % 3) * 0.04}>
                 <motion.div
                   whileHover={{ backgroundColor: 'rgba(177,201,225,0.025)' }}
                   transition={{ duration: 0.18 }}
-                  style={{ backgroundColor: '#0d0f14', padding: 'clamp(36px,4.5vw,56px) clamp(28px,3.5vw,44px)', height: '100%', boxSizing: 'border-box' }}
+                  style={{ backgroundColor: '#0d0f14', padding: 'clamp(28px,3.8vw,44px) clamp(24px,3vw,36px)', height: '100%', boxSizing: 'border-box' }}
                 >
+                  {/* Accent line top */}
                   <motion.div
-                    whileHover={{ rotate: 8, scale: 1.1 }}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: Math.floor(i / 3) * 0.06 + (i % 3) * 0.05 + 0.1, ease: E }}
+                    style={{ height: '1px', backgroundColor: 'rgba(177,201,225,0.15)', marginBottom: '22px', transformOrigin: 'left' }}
+                  />
+                  <motion.div
+                    whileHover={{ rotate: 6, scale: 1.08 }}
                     transition={{ duration: 0.2 }}
-                    style={{ backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.12)', borderRadius: '9px', padding: '10px', display: 'inline-flex', marginBottom: '22px' }}
+                    style={{ backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.12)', borderRadius: '9px', padding: '9px', display: 'inline-flex', marginBottom: '18px' }}
                   >
-                    <Icon style={{ width: '17px', height: '17px', color: '#b1c9e1' }} />
+                    <Icon style={{ width: '16px', height: '16px', color: '#b1c9e1' }} />
                   </motion.div>
-                  <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.025em', margin: '0 0 10px' }}>{r.title}</h3>
-                  <p style={{ fontSize: '14px', color: '#5a6270', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
+                  <h3 style={{ fontSize: '17px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.02em', margin: '0 0 9px', lineHeight: '1.25' }}>{r.title}</h3>
+                  <p style={{ fontSize: '13px', color: '#5a6270', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
                 </motion.div>
               </Reveal>
             )
@@ -804,7 +844,7 @@ const css = `
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: clamp(108px,13vw,148px) clamp(24px,5vw,80px) clamp(80px,9vw,110px);
+    padding: clamp(96px,11vw,130px) clamp(24px,5vw,80px) clamp(48px,6vw,72px);
     position: relative; z-index: 1;
   }
   .land-hero-right {
@@ -825,7 +865,7 @@ const css = `
     color: #8a9099;
     line-height: 1.65;
     max-width: 420px;
-    margin: 0 0 36px;
+    margin: 0 0 28px;
     font-weight: 300;
   }
   .land-split {
