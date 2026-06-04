@@ -157,27 +157,22 @@ export default function DashboardPage() {
 
       {/* Stats */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
-          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: '76px' }} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '10px' }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: '80px', borderRadius: 'var(--r-lg)' }} />)}
         </div>
       ) : (
         <div className="metrics-grid">
           {metricCards.map(c => {
             const Icon = c.icon
-            const isDate = c.label === 'Última sesión'
             return (
-              <div key={c.label} style={{ backgroundColor: 'var(--surface-deep)', padding: '16px 18px' }}>
+              <div key={c.label} className="card" style={{ padding: '16px 18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <span className="label">{c.label}</span>
-                  <Icon style={{ width: '13px', height: '13px', color: c.color, opacity: 0.5 }} />
+                  <Icon style={{ width: '13px', height: '13px', color: 'var(--accent)', opacity: 0.6 }} />
                 </div>
-                {isDate ? (
-                  <p style={{ fontSize: '15px', fontWeight: '600', color: c.color, margin: 0, letterSpacing: '-0.01em', lineHeight: 1.3 }}>
-                    {String(c.value) === '—' ? '—' : String(c.value)}
-                  </p>
-                ) : (
-                  <p className="num" style={{ fontSize: '28px', fontWeight: '700', color: c.color, margin: 0, letterSpacing: '-0.04em' }}>{c.value}</p>
-                )}
+                <p className="num" style={{ fontSize: '24px', fontWeight: '700', color: 'var(--accent)', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2 }}>
+                  {c.value}
+                </p>
               </div>
             )
           })}
@@ -213,12 +208,12 @@ export default function DashboardPage() {
               sub: stats.sesionesSemanaPasada > 0 ? `${stats.sesionesSemanaPasada} la semana pasada` : `${totalSesiones365} en el año`,
             },
           ].map(c => (
-            <div key={c.label} className="racha-cell" style={{ backgroundColor: 'var(--surface-deep)', padding: '14px 16px' }}>
+            <div key={c.label} className="card racha-cell" style={{ padding: '14px 16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{c.label}</span>
+                <span className="label">{c.label}</span>
                 {c.icon}
               </div>
-              <p className="num racha-value" style={{ fontSize: '26px', fontWeight: '700', color: c.color, margin: '0 0 3px', letterSpacing: '-0.04em' }}>
+              <p className="num racha-value" style={{ fontSize: '24px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 3px', letterSpacing: '-0.03em' }}>
                 {c.value}<span style={{ fontSize: '11px', fontWeight: '300', color: 'var(--text-secondary)', marginLeft: '3px' }}>{c.unit}</span>
               </p>
               <p className="racha-sub" style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.sub}</p>
