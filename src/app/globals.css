@@ -7,32 +7,32 @@
 
 :root {
   /* ── Surfaces ────────────────────────────────────────── */
-  --surface-deep:    #0c0e12;
-  --surface-base:    #111318;
-  --surface-raised:  #16181d;
-  --surface-card:    #1e2024;
-  --surface-high:    #252830;
-  --surface-input:   #282b30;
+  --surface-deep:    #f0f2f5;
+  --surface-base:    #ffffff;
+  --surface-raised:  #f8f9fb;
+  --surface-card:    #ffffff;
+  --surface-high:    #eef0f3;
+  --surface-input:   #f5f6f8;
 
   /* ── Borders ─────────────────────────────────────────── */
-  --border-faint:    #202328;
-  --border-subtle:   #2a2d33;
-  --border-default:  #34383f;
-  --border-strong:   #484c54;
+  --border-faint:    #eceef2;
+  --border-subtle:   #dde0e6;
+  --border-default:  #c4c9d1;
+  --border-strong:   #9aa0aa;
 
   /* ── Text ────────────────────────────────────────────── */
-  --text-primary:    #e2e2e8;
-  --text-secondary:  #9199a3;
-  --text-tertiary:   #636870;
-  --text-disabled:   #3d4147;
+  --text-primary:    #111318;
+  --text-secondary:  #4a5057;
+  --text-tertiary:   #7a8290;
+  --text-disabled:   #b8bcc4;
 
-  /* ── Accent — Slate Blue ─────────────────────────────── */
-  --accent:          #b1c9e1;
-  --accent-hover:    #c4d6ea;
-  --accent-dim:      #1a2f3a;
-  --accent-muted:    #7ab8d4;
-  --accent-faint:    color-mix(in srgb, #b1c9e1 10%, transparent);
-  --accent-day:      color-mix(in srgb, #b1c9e1 15%, #111318);
+  /* ── Accent — Steel Blue ─────────────────────────────── */
+  --accent:          #2d7fad;
+  --accent-hover:    #246a94;
+  --accent-dim:      #e8f3fb;
+  --accent-muted:    #4a90b8;
+  --accent-faint:    color-mix(in srgb, #2d7fad 8%, transparent);
+  --accent-day:      color-mix(in srgb, #2d7fad 10%, #ffffff);
 
   /* ── Semantic ────────────────────────────────────────── */
   --success:         #6dba8e;
@@ -87,6 +87,7 @@ body {
   font-size: 14px;
   line-height: 1.55;
   margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── Focus ───────────────────────────────────────────────── */
@@ -347,9 +348,9 @@ button:disabled:active { transform: none; }
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--surface-card) 25%,
-    var(--surface-high) 50%,
-    var(--surface-card) 75%
+    var(--surface-high) 25%,
+    var(--border-faint) 50%,
+    var(--surface-high) 75%
   );
   background-size: 800px 100%;
   animation: shimmer 1.4s ease-in-out infinite;

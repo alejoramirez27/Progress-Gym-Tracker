@@ -53,7 +53,7 @@ export default function MobileNav() {
             padding: '5px',
             display: 'flex',
           }}>
-            <Zap style={{ width: '12px', height: '12px', color: '#0c0e12' }} />
+            <Zap style={{ width: '12px', height: '12px', color: '#ffffff' }} />
           </div>
           <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
             VoltTrack

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'VoltTrack',
   },
   formatDetection: {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#111318',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -35,9 +35,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={lexend.variable}>
-      <body style={{ backgroundColor: '#111318', color: '#e2e2e8', margin: 0, fontFamily: 'var(--font-lexend), sans-serif' }}>
+      <body style={{ backgroundColor: '#ffffff', color: '#111318', margin: 0, fontFamily: 'var(--font-lexend), sans-serif' }}>
         {children}
-        <Toaster theme="dark" position="top-right" richColors />
+        <Toaster theme="light" position="top-right" richColors />
       </body>
     </html>
   )

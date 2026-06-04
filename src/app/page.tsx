@@ -107,26 +107,28 @@ function MagneticCTA({ href, children, primary = false }: { href: string; childr
       <Link href={href}
         style={primary ? {
           display: 'inline-flex', alignItems: 'center', gap: '8px',
-          backgroundColor: '#b1c9e1', color: '#0c0e12',
+          backgroundColor: '#2d7fad', color: '#ffffff',
           textDecoration: 'none', padding: '14px 26px', borderRadius: '9px',
           fontSize: '15px', fontWeight: '600', letterSpacing: '-0.01em',
           transition: 'background-color 0.14s, box-shadow 0.2s',
-          boxShadow: '0 0 0 0 rgba(177,201,225,0)',
+          boxShadow: '0 0 0 0 rgba(45,127,173,0)',
         } : {
           display: 'inline-flex', alignItems: 'center', gap: '8px',
-          backgroundColor: 'rgba(255,255,255,0.06)', color: '#e2e2e8',
+          backgroundColor: 'transparent', color: '#111318',
           textDecoration: 'none', padding: '14px 24px', borderRadius: '9px',
           fontSize: '15px', fontWeight: '500',
-          border: '1px solid rgba(255,255,255,0.1)',
-          transition: 'background-color 0.14s',
+          border: '1px solid #dde0e6',
+          transition: 'background-color 0.14s, border-color 0.14s',
         }}
         onMouseEnter={e => {
-          e.currentTarget.style.backgroundColor = primary ? '#c4d6ea' : 'rgba(255,255,255,0.1)'
-          if (primary) e.currentTarget.style.boxShadow = '0 0 28px rgba(177,201,225,0.28)'
+          e.currentTarget.style.backgroundColor = primary ? '#246a94' : '#f5f6f8'
+          if (primary) e.currentTarget.style.boxShadow = '0 4px 20px rgba(45,127,173,0.22)'
+          if (!primary) e.currentTarget.style.borderColor = '#c4c9d1'
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.backgroundColor = primary ? '#b1c9e1' : 'rgba(255,255,255,0.06)'
-          if (primary) e.currentTarget.style.boxShadow = '0 0 0 0 rgba(177,201,225,0)'
+          e.currentTarget.style.backgroundColor = primary ? '#2d7fad' : 'transparent'
+          if (primary) e.currentTarget.style.boxShadow = '0 0 0 0 rgba(45,127,173,0)'
+          if (!primary) e.currentTarget.style.borderColor = '#dde0e6'
         }}
       >
         {children}
@@ -138,19 +140,19 @@ function MagneticCTA({ href, children, primary = false }: { href: string; childr
 /* ─── Nav ─────────────────────────────────────────────────── */
 function Nav() {
   const { scrollY } = useScroll()
-  const bg     = useTransform(scrollY, [0, 80], ['rgba(0,0,0,0)', 'rgba(10,12,16,0.96)'])
-  const border = useTransform(scrollY, [0, 80], ['rgba(255,255,255,0)', 'rgba(255,255,255,0.07)'])
+  const bg     = useTransform(scrollY, [0, 80], ['rgba(255,255,255,0)', 'rgba(255,255,255,0.96)'])
+  const border = useTransform(scrollY, [0, 80], ['rgba(0,0,0,0)', 'rgba(0,0,0,0.07)'])
   return (
     <motion.header style={{ backgroundColor: bg, borderBottom: '1px solid', borderColor: border }} className="land-nav">
       <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
         <motion.div
-          style={{ backgroundColor: '#b1c9e1', borderRadius: '7px', padding: '6px', display: 'flex' }}
+          style={{ backgroundColor: '#2d7fad', borderRadius: '7px', padding: '6px', display: 'flex' }}
           whileHover={{ rotate: [0, -10, 10, 0], scale: 1.08 }}
           transition={{ duration: 0.4 }}
         >
-          <Zap style={{ width: '13px', height: '13px', color: '#0c0e12' }} />
+          <Zap style={{ width: '13px', height: '13px', color: '#ffffff' }} />
         </motion.div>
-        <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</span>
+        <span style={{ fontSize: '14px', fontWeight: '600', color: '#111318', letterSpacing: '-0.01em' }}>VoltTrack</span>
       </Link>
       <div />
     </motion.header>
@@ -169,65 +171,24 @@ function AchievementCard({ icon, label, value, delay = 0, style = {} }: {
       transition={{ delay, duration: 0.7, ease: E }}
       style={{
         position: 'absolute',
-        backgroundColor: 'rgba(13,15,20,0.88)',
+        backgroundColor: 'rgba(255,255,255,0.92)',
         backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(177,201,225,0.2)',
+        border: '1px solid rgba(255,255,255,0.9)',
         borderRadius: '12px',
         padding: '12px 16px',
         display: 'flex', alignItems: 'center', gap: '10px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         zIndex: 4,
         ...style,
       }}
     >
-      <div style={{ backgroundColor: 'rgba(177,201,225,0.12)', borderRadius: '8px', padding: '8px', display: 'flex', flexShrink: 0 }}>
+      <div style={{ backgroundColor: 'rgba(45,127,173,0.1)', borderRadius: '8px', padding: '8px', display: 'flex', flexShrink: 0 }}>
         {icon}
       </div>
       <div>
-        <p style={{ fontSize: '10px', color: '#636870', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>{label}</p>
-        <p style={{ fontSize: '14px', fontWeight: '600', color: '#e2e2e8', margin: 0, letterSpacing: '-0.01em' }}>{value}</p>
+        <p style={{ fontSize: '10px', color: '#7a8290', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>{label}</p>
+        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111318', margin: 0, letterSpacing: '-0.01em' }}>{value}</p>
       </div>
-    </motion.div>
-  )
-}
-
-/* ─── Scroll indicator ───────────────────────────────────── */
-function ScrollIndicator() {
-  const { scrollY } = useScroll()
-  const opacity = useTransform(scrollY, [0, 200], [1, 0])
-  const reduce  = useReducedMotion()
-  return (
-    <motion.div
-      style={{
-        opacity,
-        position: 'absolute',
-        bottom: '40px',
-        left: 'clamp(24px,5vw,80px)',  /* alineado con el contenido izquierdo */
-        display: 'flex', alignItems: 'center', gap: '10px',
-        zIndex: 10, pointerEvents: 'none',
-      }}
-    >
-      {/* Pulsing ring */}
-      <div style={{ position: 'relative', width: '32px', height: '32px', flexShrink: 0 }}>
-        <motion.div
-          animate={reduce ? {} : { scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
-          transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
-          style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(177,201,225,0.4)' }}
-        />
-        <motion.div
-          animate={reduce ? {} : { y: [0, 4, 0] }}
-          transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-          style={{
-            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: 'rgba(177,201,225,0.1)', borderRadius: '50%', border: '1px solid rgba(177,201,225,0.25)',
-          }}
-        >
-          <ChevronDown style={{ width: '15px', height: '15px', color: '#b1c9e1' }} />
-        </motion.div>
-      </div>
-      <span style={{ fontSize: '12px', fontWeight: '500', color: 'rgba(177,201,225,0.5)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-        Desliza para explorar
-      </span>
     </motion.div>
   )
 }
@@ -252,7 +213,7 @@ function Hero() {
       {!reduce && (
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-          background: `radial-gradient(700px circle at ${mouse.x}% ${mouse.y}%, rgba(177,201,225,0.05) 0%, transparent 65%)`,
+          background: `radial-gradient(700px circle at ${mouse.x}% ${mouse.y}%, rgba(45,127,173,0.04) 0%, transparent 65%)`,
           transition: 'background 0.06s ease',
         }} />
       )}
@@ -264,10 +225,10 @@ function Hero() {
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: E }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.18)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px' }}
         >
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#b1c9e1' }} />
-          <span style={{ fontSize: '11px', fontWeight: '600', color: '#b1c9e1', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2d7fad' }} />
+          <span style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
         </motion.div>
 
         <div style={{ overflow: 'hidden', paddingBottom: '6px' }}>
@@ -276,7 +237,7 @@ function Hero() {
           </motion.h1>
         </div>
         <div style={{ overflow: 'hidden', marginBottom: '20px', paddingBottom: '6px' }}>
-          <motion.h1 className="land-h1" style={{ color: '#b1c9e1' }} initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.22, ease: E }}>
+          <motion.h1 className="land-h1" style={{ color: '#2d7fad' }} initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.22, ease: E }}>
             intención.
           </motion.h1>
         </div>
@@ -316,8 +277,8 @@ function Hero() {
             { icon: Flame,       text: 'Sin anuncios' },
           ].map(b => (
             <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <b.icon style={{ width: '13px', height: '13px', color: 'rgba(177,201,225,0.45)' }} />
-              <span style={{ fontSize: '12px', color: '#4a5057', fontWeight: '400' }}>{b.text}</span>
+              <b.icon style={{ width: '13px', height: '13px', color: '#2d7fad', opacity: 0.5 }} />
+              <span style={{ fontSize: '12px', color: '#7a8290', fontWeight: '400' }}>{b.text}</span>
             </div>
           ))}
         </motion.div>
@@ -328,19 +289,19 @@ function Hero() {
         >
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
             <motion.div
-              animate={reduce ? {} : { scale: [1, 1.7, 1], opacity: [0.6, 0, 0.6] }}
+              animate={reduce ? {} : { scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-              style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(177,201,225,0.35)' }}
+              style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(45,127,173,0.25)' }}
             />
             <motion.div
               animate={reduce ? {} : { y: [0, 5, 0] }}
               transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(177,201,225,0.08)', borderRadius: '50%', border: '1px solid rgba(177,201,225,0.22)' }}
+              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(45,127,173,0.06)', borderRadius: '50%', border: '1px solid rgba(45,127,173,0.15)' }}
             >
-              <ChevronDown style={{ width: '15px', height: '15px', color: '#b1c9e1' }} />
+              <ChevronDown style={{ width: '15px', height: '15px', color: '#2d7fad' }} />
             </motion.div>
           </div>
-          <span style={{ fontSize: '13px', fontWeight: '500', color: 'rgba(177,201,225,0.45)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '13px', fontWeight: '500', color: 'rgba(45,127,173,0.5)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Desliza para explorar
           </span>
         </motion.div>
@@ -348,7 +309,7 @@ function Hero() {
 
       {/* Right: image + floating cards */}
       <div className="land-hero-right" style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(10,12,16,0.7) 0%, transparent 30%), linear-gradient(to top, rgba(10,12,16,0.7) 0%, transparent 40%)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.5) 0%, transparent 35%)' }} />
         <motion.div
           style={{ position: 'absolute', inset: '-14% 0', y: reduce ? 0 : imgY }}
           initial={reduce ? false : { scale: 1.08, opacity: 0 }}
@@ -361,21 +322,21 @@ function Hero() {
 
         {/* Floating achievement cards */}
         <AchievementCard
-          icon={<Trophy style={{ width: '14px', height: '14px', color: '#d4a07a' }} />}
+          icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />}
           label="Nuevo PR"
           value="Press banca · 130 kg"
           delay={1.1}
           style={{ top: '22%', right: '8%' }}
         />
         <AchievementCard
-          icon={<Flame style={{ width: '14px', height: '14px', color: '#e07040' }} />}
+          icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />}
           label="Racha activa"
           value="18 días seguidos 🔥"
           delay={1.35}
           style={{ top: '44%', right: '14%' }}
         />
         <AchievementCard
-          icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#4caf82' }} />}
+          icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />}
           label="Progreso mensual"
           value="+12 kg en sentadilla"
           delay={1.6}
@@ -400,14 +361,14 @@ function MarqueeStrip() {
     { icon: Share2,       text: 'Comparte tus PRs' },
   ]
   return (
-    <div style={{ backgroundColor: '#080a0e', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden', padding: '14px 0' }}>
+    <div style={{ backgroundColor: '#f8f9fb', borderTop: '1px solid #eceef2', borderBottom: '1px solid #eceef2', overflow: 'hidden', padding: '14px 0' }}>
       <div className="land-marquee">
         {[...items, ...items].map((item, i) => {
           const Icon = item.icon
           return (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 36px', flexShrink: 0, whiteSpace: 'nowrap' }}>
-              <Icon style={{ width: '12px', height: '12px', color: '#b1c9e1', opacity: 0.55 }} />
-              <span style={{ fontSize: '11px', color: '#4a5057', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{item.text}</span>
+              <Icon style={{ width: '12px', height: '12px', color: '#2d7fad', opacity: 0.5 }} />
+              <span style={{ fontSize: '11px', color: '#9aa0a8', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{item.text}</span>
             </div>
           )
         })}
@@ -431,9 +392,8 @@ function FeaturesGrid() {
   ]
 
   return (
-    <section style={{ position: 'relative', backgroundColor: '#0a0c10', padding: 'clamp(64px,8vw,100px) clamp(24px,5vw,80px)', overflow: 'hidden' }}>
-      {/* Gradient mesh background */}
-      <div style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(177,201,225,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
+    <section style={{ position: 'relative', backgroundColor: '#f8f9fb', padding: 'clamp(64px,8vw,100px) clamp(24px,5vw,80px)', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto' }}>
 
         {/* Header */}
@@ -441,12 +401,12 @@ function FeaturesGrid() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
             <div>
               <LineReveal>
-                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
                   Todo lo que<br />necesitas.
                 </h2>
               </LineReveal>
               <Reveal delay={0.06}>
-                <p style={{ fontSize: '13px', fontWeight: '500', color: '#b1c9e1', letterSpacing: '0.02em', margin: 0 }}>
+                <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
                   9 funciones · 0 fricciones
                 </p>
               </Reveal>
@@ -467,7 +427,7 @@ function FeaturesGrid() {
               <Reveal key={f.title} delay={Math.floor(i / 3) * 0.05 + (i % 3) * 0.03}>
                 <motion.div
                   className="land-feature-card"
-                  whileHover={{ y: -4, borderColor: 'rgba(177,201,225,0.22)' }}
+                  whileHover={{ y: -3, borderColor: '#dde0e6' }}
                   transition={{ duration: 0.2, ease: E }}
                 >
                   {/* Top accent line */}
@@ -476,18 +436,18 @@ function FeaturesGrid() {
                     whileInView={{ scaleX: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: Math.floor(i / 3) * 0.05 + (i % 3) * 0.04 + 0.1, ease: E }}
-                    style={{ height: '1px', backgroundColor: 'rgba(177,201,225,0.2)', marginBottom: '24px', transformOrigin: 'left' }}
+                    style={{ height: '1px', backgroundColor: '#dde0e6', marginBottom: '24px', transformOrigin: 'left' }}
                   />
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '14px' }}>
-                    <div style={{ backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.12)', borderRadius: '9px', padding: '9px', display: 'flex', flexShrink: 0 }}>
-                      <Icon style={{ width: '15px', height: '15px', color: '#b1c9e1' }} />
+                    <div style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '9px', padding: '9px', display: 'flex', flexShrink: 0 }}>
+                      <Icon style={{ width: '15px', height: '15px', color: '#2d7fad' }} />
                     </div>
-                    <span style={{ fontSize: '10px', color: '#3a4047', fontWeight: '600', fontVariantNumeric: 'tabular-nums', paddingTop: '2px' }}>
+                    <span style={{ fontSize: '10px', color: '#c4c9d1', fontWeight: '600', fontVariantNumeric: 'tabular-nums', paddingTop: '2px' }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
                   </div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.02em', margin: '0 0 8px' }}>{f.title}</h3>
-                  <p style={{ fontSize: '13px', color: '#5a6270', margin: 0, lineHeight: '1.65', fontWeight: '300' }}>{f.body}</p>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#111318', letterSpacing: '-0.02em', margin: '0 0 8px' }}>{f.title}</h3>
+                  <p style={{ fontSize: '13px', color: '#7a8290', margin: 0, lineHeight: '1.65', fontWeight: '300' }}>{f.body}</p>
                 </motion.div>
               </Reveal>
             )
@@ -504,11 +464,11 @@ function FeatureEditorial() {
     <section style={{ position: 'relative', minHeight: '75vh', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={IMGS.registro} alt="Atleta realizando ejercicio" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,16,1) 0%, rgba(10,12,16,0.6) 40%, rgba(10,12,16,0.1) 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,16,1) 0%, rgba(10,12,16,0.55) 40%, rgba(10,12,16,0.08) 100%)' }} />
       <div style={{ position: 'relative', padding: 'clamp(52px,6vw,88px) clamp(24px,5vw,80px)', maxWidth: '720px' }}>
         <Reveal>
-          <div style={{ backgroundColor: 'rgba(177,201,225,0.1)', border: '1px solid rgba(177,201,225,0.15)', borderRadius: '8px', padding: '8px', display: 'inline-flex', marginBottom: '24px' }}>
-            <BicepsFlexed style={{ width: '16px', height: '16px', color: '#b1c9e1' }} />
+          <div style={{ backgroundColor: 'rgba(45,127,173,0.15)', border: '1px solid rgba(45,127,173,0.25)', borderRadius: '8px', padding: '8px', display: 'inline-flex', marginBottom: '24px' }}>
+            <BicepsFlexed style={{ width: '16px', height: '16px', color: '#7ab8d4' }} />
           </div>
         </Reveal>
         <LineReveal delay={0.04}>
@@ -517,7 +477,7 @@ function FeatureEditorial() {
           </h2>
         </LineReveal>
         <Reveal delay={0.1}>
-          <p style={{ fontSize: '16px', color: '#8a9099', margin: '0 0 24px', lineHeight: '1.7', fontWeight: '300', maxWidth: '500px' }}>
+          <p style={{ fontSize: '16px', color: '#9aa0a8', margin: '0 0 24px', lineHeight: '1.7', fontWeight: '300', maxWidth: '500px' }}>
             Selecciona la rutina del día, y los pesos de tu última sesión aparecen como referencia automáticamente. Actualiza lo que cambió y guarda en un clic.
           </p>
         </Reveal>
@@ -525,8 +485,8 @@ function FeatureEditorial() {
           <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap' }}>
             {['Series +/– en tiempo real', 'Notas por serie', 'Timer de descanso integrado'].map(item => (
               <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle2 style={{ width: '14px', height: '14px', color: '#b1c9e1', flexShrink: 0 }} />
-                <span style={{ fontSize: '14px', color: '#8a9099', fontWeight: '300' }}>{item}</span>
+                <CheckCircle2 style={{ width: '14px', height: '14px', color: '#7ab8d4', flexShrink: 0 }} />
+                <span style={{ fontSize: '14px', color: '#9aa0a8', fontWeight: '300' }}>{item}</span>
               </div>
             ))}
           </div>
@@ -553,16 +513,16 @@ function FeatureSplit({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={imgSrc} alt={imgAlt} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
-        <div style={{ position: 'absolute', inset: 0, background: imgRight ? 'linear-gradient(to left, rgba(13,15,20,0.5) 0%, transparent 55%)' : 'linear-gradient(to right, rgba(13,15,20,0.5) 0%, transparent 55%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: imgRight ? 'linear-gradient(to left, rgba(248,249,251,0.65) 0%, transparent 50%)' : 'linear-gradient(to right, rgba(248,249,251,0.65) 0%, transparent 50%)' }} />
       </motion.div>
-      <div style={{ backgroundColor: '#0d0f14', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(52px,7vw,100px) clamp(32px,5vw,72px)' }}>
+      <div style={{ backgroundColor: '#f8f9fb', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(52px,7vw,100px) clamp(32px,5vw,72px)' }}>
         <Reveal>
-          <div style={{ backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.14)', borderRadius: '8px', padding: '8px', display: 'inline-flex', marginBottom: '24px' }}>
-            <Icon style={{ width: '16px', height: '16px', color: '#b1c9e1' }} />
+          <div style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '8px', padding: '8px', display: 'inline-flex', marginBottom: '24px' }}>
+            <Icon style={{ width: '16px', height: '16px', color: '#2d7fad' }} />
           </div>
         </Reveal>
         <LineReveal delay={0.04}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.8vw, 50px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.035em', lineHeight: '1.08', margin: '0 0 18px' }}>
+          <h2 style={{ fontSize: 'clamp(28px, 3.8vw, 50px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.035em', lineHeight: '1.08', margin: '0 0 18px' }}>
             {title}
           </h2>
         </LineReveal>
@@ -576,7 +536,7 @@ function FeatureSplit({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {bullets.map(b => (
                 <div key={b} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#b1c9e1', flexShrink: 0 }} />
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#2d7fad', flexShrink: 0 }} />
                   <span style={{ fontSize: '14px', color: '#7a8290', fontWeight: '300' }}>{b}</span>
                 </div>
               ))}
@@ -591,27 +551,27 @@ function FeatureSplit({
 /* ─── Stats ───────────────────────────────────────────────── */
 function Stats() {
   return (
-    <section style={{ position: 'relative', backgroundColor: '#060809', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '900px', height: '400px', background: 'radial-gradient(ellipse, rgba(177,201,225,0.035) 0%, transparent 70%)', pointerEvents: 'none' }} />
+    <section style={{ position: 'relative', backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', overflow: 'hidden', borderTop: '1px solid #eceef2' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '900px', height: '400px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative' }}>
         <Reveal>
-          <h2 style={{ fontSize: 'clamp(24px, 3.2vw, 40px)', fontWeight: '700', color: '#e2e2e8', letterSpacing: '-0.03em', margin: '0 0 72px', lineHeight: '1.15', maxWidth: '520px', textWrap: 'balance' } as React.CSSProperties}>
+          <h2 style={{ fontSize: 'clamp(24px, 3.2vw, 40px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 72px', lineHeight: '1.15', maxWidth: '520px', textWrap: 'balance' } as React.CSSProperties}>
             Diseñado para la sesión,<br />no para la galería.
           </h2>
         </Reveal>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0', borderTop: '1px solid #eceef2' }}>
           {[
-            { to: 100,  suffix: '%', label: 'Privado',        sub: 'Solo tú ves tus datos',          color: '#b1c9e1' },
-            { to: 5,    suffix: '×', label: 'Días / semana',  sub: 'Rutinas ordenadas por día',       color: '#a0d4b8' },
-            { to: 0,    suffix: '',  label: 'Distracciones',  sub: 'Interfaz solo para entrenar',     color: '#d4b0a0' },
+            { to: 100,  suffix: '%', label: 'Privado',        sub: 'Solo tú ves tus datos',          color: '#2d7fad' },
+            { to: 5,    suffix: '×', label: 'Días / semana',  sub: 'Rutinas ordenadas por día',       color: '#2e9a60' },
+            { to: 0,    suffix: '',  label: 'Distracciones',  sub: 'Interfaz solo para entrenar',     color: '#c07040' },
           ].map((m, i) => (
             <Reveal key={m.label} delay={i * 0.1}>
               <div style={{ padding: 'clamp(36px,4.5vw,56px) 0', paddingRight: 'clamp(16px,3vw,40px)' }}>
                 <p style={{ fontSize: 'clamp(56px, 8vw, 96px)', fontWeight: '700', color: m.color, letterSpacing: '-0.05em', margin: '0 0 10px', lineHeight: '0.92', fontVariantNumeric: 'tabular-nums' }}>
                   <CountUp to={m.to} suffix={m.suffix} />
                 </p>
-                <p style={{ fontSize: '15px', fontWeight: '600', color: '#c8cdd4', margin: '0 0 5px', letterSpacing: '-0.01em' }}>{m.label}</p>
-                <p style={{ fontSize: '13px', color: '#4a5057', margin: 0, fontWeight: '300' }}>{m.sub}</p>
+                <p style={{ fontSize: '15px', fontWeight: '600', color: '#111318', margin: '0 0 5px', letterSpacing: '-0.01em' }}>{m.label}</p>
+                <p style={{ fontSize: '13px', color: '#9aa0a8', margin: 0, fontWeight: '300' }}>{m.sub}</p>
               </div>
             </Reveal>
           ))}
@@ -629,16 +589,16 @@ function Process() {
     { n: '03', title: 'Analiza tu progreso', body: 'Dashboard con heatmap de 365 días, curva de fuerza por ejercicio y racha de días. Tus PRs se actualizan solos.' },
   ]
   return (
-    <section style={{ backgroundColor: '#0a0c10', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)' }}>
+    <section style={{ backgroundColor: '#f8f9fb', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
         <div style={{ marginBottom: '64px' }}>
           <LineReveal>
-            <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+            <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
               Cómo funciona.
             </h2>
           </LineReveal>
           <Reveal delay={0.06}>
-            <p style={{ fontSize: '13px', fontWeight: '500', color: '#b1c9e1', letterSpacing: '0.02em', margin: 0 }}>
+            <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
               3 pasos · del gym a los datos
             </p>
           </Reveal>
@@ -648,18 +608,18 @@ function Process() {
             <motion.div
               whileHover={{ x: 4 }}
               transition={{ duration: 0.22, ease: E }}
-              style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '0 28px', padding: 'clamp(32px,4.5vw,52px) 0', borderTop: '1px solid rgba(255,255,255,0.05)', alignItems: 'start' }}
+              style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '0 28px', padding: 'clamp(32px,4.5vw,52px) 0', borderTop: '1px solid #eceef2', alignItems: 'start' }}
             >
               <div>
-                <span style={{ fontSize: 'clamp(48px, 6vw, 72px)', fontWeight: '700', color: 'rgba(177,201,225,0.13)', letterSpacing: '-0.05em', lineHeight: '1', fontVariantNumeric: 'tabular-nums', display: 'block' }}>
+                <span style={{ fontSize: 'clamp(48px, 6vw, 72px)', fontWeight: '700', color: 'rgba(45,127,173,0.12)', letterSpacing: '-0.05em', lineHeight: '1', fontVariantNumeric: 'tabular-nums', display: 'block' }}>
                   {step.n}
                 </span>
               </div>
               <div style={{ paddingTop: '8px' }}>
-                <h3 style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.025em', margin: '0 0 12px', lineHeight: '1.15' }}>
+                <h3 style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: '600', color: '#111318', letterSpacing: '-0.025em', margin: '0 0 12px', lineHeight: '1.15' }}>
                   {step.title}
                 </h3>
-                <p style={{ fontSize: '15px', color: '#5a6270', margin: 0, lineHeight: '1.7', maxWidth: '560px', fontWeight: '300' }}>
+                <p style={{ fontSize: '15px', color: '#7a8290', margin: 0, lineHeight: '1.7', maxWidth: '560px', fontWeight: '300' }}>
                   {step.body}
                 </p>
               </div>
@@ -706,20 +666,19 @@ function WhySection() {
     },
   ]
   return (
-    <section style={{ backgroundColor: '#0d0f14', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+    <section style={{ backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Header — mismo patrón que FeaturesGrid y Process */}
         <div style={{ marginBottom: '52px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
             <div>
               <LineReveal>
-                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
                   Por qué VoltTrack.
                 </h2>
               </LineReveal>
               <Reveal delay={0.06}>
-                <p style={{ fontSize: '13px', fontWeight: '500', color: '#b1c9e1', letterSpacing: '0.02em', margin: 0 }}>
+                <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
                   6 razones · ninguna es marketing
                 </p>
               </Reveal>
@@ -732,34 +691,32 @@ function WhySection() {
           </div>
         </div>
 
-        {/* 3×2 grid de razones */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '14px', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#eceef2', borderRadius: '14px', overflow: 'hidden' }}>
           {reasons.map((r, i) => {
             const Icon = r.icon
             return (
               <Reveal key={r.title} delay={Math.floor(i / 3) * 0.06 + (i % 3) * 0.04}>
                 <motion.div
-                  whileHover={{ backgroundColor: 'rgba(177,201,225,0.025)' }}
+                  whileHover={{ backgroundColor: '#f3f7fb' }}
                   transition={{ duration: 0.18 }}
-                  style={{ backgroundColor: '#0d0f14', padding: 'clamp(28px,3.8vw,44px) clamp(24px,3vw,36px)', height: '100%', boxSizing: 'border-box' }}
+                  style={{ backgroundColor: '#ffffff', padding: 'clamp(28px,3.8vw,44px) clamp(24px,3vw,36px)', height: '100%', boxSizing: 'border-box' }}
                 >
-                  {/* Accent line top */}
                   <motion.div
                     initial={{ scaleX: 0 }}
                     whileInView={{ scaleX: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: Math.floor(i / 3) * 0.06 + (i % 3) * 0.05 + 0.1, ease: E }}
-                    style={{ height: '1px', backgroundColor: 'rgba(177,201,225,0.15)', marginBottom: '22px', transformOrigin: 'left' }}
+                    style={{ height: '1px', backgroundColor: '#dde0e6', marginBottom: '22px', transformOrigin: 'left' }}
                   />
                   <motion.div
                     whileHover={{ rotate: 6, scale: 1.08 }}
                     transition={{ duration: 0.2 }}
-                    style={{ backgroundColor: 'rgba(177,201,225,0.08)', border: '1px solid rgba(177,201,225,0.12)', borderRadius: '9px', padding: '9px', display: 'inline-flex', marginBottom: '18px' }}
+                    style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '9px', padding: '9px', display: 'inline-flex', marginBottom: '18px' }}
                   >
-                    <Icon style={{ width: '16px', height: '16px', color: '#b1c9e1' }} />
+                    <Icon style={{ width: '16px', height: '16px', color: '#2d7fad' }} />
                   </motion.div>
-                  <h3 style={{ fontSize: '17px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.02em', margin: '0 0 9px', lineHeight: '1.25' }}>{r.title}</h3>
-                  <p style={{ fontSize: '13px', color: '#5a6270', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
+                  <h3 style={{ fontSize: '17px', fontWeight: '600', color: '#111318', letterSpacing: '-0.02em', margin: '0 0 9px', lineHeight: '1.25' }}>{r.title}</h3>
+                  <p style={{ fontSize: '13px', color: '#7a8290', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
                 </motion.div>
               </Reveal>
             )
@@ -775,9 +732,9 @@ function FinalCTA() {
   return (
     <section style={{ position: 'relative', overflow: 'hidden', minHeight: '68vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={IMGS.gym} alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', opacity: 0.18 }} />
+      <img src={IMGS.gym} alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', opacity: 0.22 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(8,10,14,0.97) 0%, rgba(12,16,22,0.93) 100%)' }} />
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(177,201,225,0.06) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', textAlign: 'center', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', maxWidth: '760px' }}>
         <LineReveal>
           <h2 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.04em', lineHeight: '1.02', margin: '0 0 16px', textWrap: 'balance' } as React.CSSProperties}>
@@ -785,23 +742,33 @@ function FinalCTA() {
           </h2>
         </LineReveal>
         <LineReveal delay={0.08}>
-          <h2 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: '700', color: '#b1c9e1', letterSpacing: '-0.04em', lineHeight: '1.02', margin: '0 0 24px', textWrap: 'balance' } as React.CSSProperties}>
+          <h2 style={{ fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: '700', color: '#7ab8d4', letterSpacing: '-0.04em', lineHeight: '1.02', margin: '0 0 24px', textWrap: 'balance' } as React.CSSProperties}>
             empieza hoy.
           </h2>
         </LineReveal>
         <Reveal delay={0.15}>
-          <p style={{ fontSize: '16px', color: '#4a5057', margin: '0 0 44px', fontWeight: '300', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '16px', color: '#6a7280', margin: '0 0 44px', fontWeight: '300', lineHeight: '1.6' }}>
             Gratis. Sin tarjeta. Sin límites de rutinas. Sin excusas.
           </p>
         </Reveal>
         <Reveal delay={0.24}>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <MagneticCTA href="/registro" primary>
-              Crear cuenta gratis <ArrowRight style={{ width: '16px', height: '16px' }} />
-            </MagneticCTA>
-            <MagneticCTA href="/login">
-              Ya tengo cuenta
-            </MagneticCTA>
+            <motion.div whileTap={{ scale: 0.97 }}>
+              <Link href="/registro" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: '#2d7fad', color: '#ffffff', textDecoration: 'none', padding: '14px 26px', borderRadius: '9px', fontSize: '15px', fontWeight: '600', letterSpacing: '-0.01em', transition: 'background-color 0.14s' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#246a94')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#2d7fad')}
+              >
+                Crear cuenta gratis <ArrowRight style={{ width: '16px', height: '16px' }} />
+              </Link>
+            </motion.div>
+            <motion.div whileTap={{ scale: 0.97 }}>
+              <Link href="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,255,255,0.07)', color: '#e2e2e8', textDecoration: 'none', padding: '14px 24px', borderRadius: '9px', fontSize: '15px', fontWeight: '500', border: '1px solid rgba(255,255,255,0.12)', transition: 'background-color 0.14s' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.11)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.07)')}
+              >
+                Ya tengo cuenta
+              </Link>
+            </motion.div>
           </div>
         </Reveal>
       </div>
@@ -812,14 +779,14 @@ function FinalCTA() {
 /* ─── Footer ──────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer style={{ padding: '28px clamp(24px,5vw,80px)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', backgroundColor: '#080a0e' }}>
+    <footer style={{ padding: '28px clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', backgroundColor: '#f8f9fb' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ backgroundColor: '#b1c9e1', borderRadius: '6px', padding: '4px', display: 'flex' }}>
-          <Zap style={{ width: '11px', height: '11px', color: '#0c0e12' }} />
+        <div style={{ backgroundColor: '#2d7fad', borderRadius: '6px', padding: '4px', display: 'flex' }}>
+          <Zap style={{ width: '11px', height: '11px', color: '#ffffff' }} />
         </div>
-        <span style={{ fontSize: '12px', color: '#2e3337', fontWeight: '600', letterSpacing: '-0.01em' }}>VoltTrack</span>
+        <span style={{ fontSize: '12px', color: '#9aa0a8', fontWeight: '600', letterSpacing: '-0.01em' }}>VoltTrack</span>
       </div>
-      <p style={{ fontSize: '12px', color: '#2e3337', margin: 0 }}>Performance Gym Tracker · Gratis para siempre</p>
+      <p style={{ fontSize: '12px', color: '#c4c9d1', margin: 0 }}>Performance Gym Tracker · Gratis para siempre</p>
     </footer>
   )
 }
@@ -836,7 +803,7 @@ const css = `
     display: grid;
     grid-template-columns: 52% 48%;
     min-height: 100dvh;
-    background: #0a0c10;
+    background: #ffffff;
     overflow: hidden;
     position: relative;
   }
@@ -854,7 +821,7 @@ const css = `
   .land-h1 {
     font-size: clamp(52px, 7.8vw, 90px);
     font-weight: 700;
-    color: #ffffff;
+    color: #111318;
     letter-spacing: -0.035em;
     line-height: 0.94;
     margin: 0;
@@ -862,7 +829,7 @@ const css = `
   }
   .land-sub {
     font-size: clamp(15px, 1.6vw, 17px);
-    color: #8a9099;
+    color: #7a8290;
     line-height: 1.65;
     max-width: 420px;
     margin: 0 0 28px;
@@ -883,19 +850,19 @@ const css = `
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1px;
-    background-color: rgba(255,255,255,0.05);
+    background-color: #e0e3e7;
     border-radius: 14px;
     overflow: hidden;
   }
   .land-feature-card {
-    background-color: #0a0c10;
+    background-color: #ffffff;
     padding: clamp(22px,3vw,32px) clamp(20px,2.5vw,28px);
     border: 1px solid transparent;
     transition: border-color 0.2s ease, background-color 0.2s ease;
     cursor: default;
   }
   .land-feature-card:hover {
-    background-color: rgba(177,201,225,0.02);
+    background-color: #f3f7fb;
   }
   .land-marquee {
     display: flex; width: max-content;
@@ -930,7 +897,7 @@ export default function LandingPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: css }} />
-      <div style={{ backgroundColor: '#0a0c10', color: '#e2e2e8', minHeight: '100dvh', fontFamily: 'var(--font-lexend), system-ui, sans-serif' }}>
+      <div style={{ backgroundColor: '#ffffff', color: '#111318', minHeight: '100dvh', fontFamily: 'var(--font-lexend), system-ui, sans-serif' }}>
         <Nav />
         <Hero />
         <MarqueeStrip />

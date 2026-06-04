@@ -53,7 +53,7 @@ export default function Sidebar() {
           display: 'flex',
           flexShrink: 0,
         }}>
-          <Zap style={{ width: '14px', height: '14px', color: '#0c0e12' }} />
+          <Zap style={{ width: '14px', height: '14px', color: '#ffffff' }} />
         </div>
         <div>
           <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>

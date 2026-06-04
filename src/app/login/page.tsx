@@ -23,22 +23,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', backgroundColor: '#0a0c10' }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', backgroundColor: '#ffffff' }}>
 
       {/* Left: editorial image panel */}
       <div className="auth-img-panel" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={IMG} alt="Atleta entrenando" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
         {/* Right-edge fade into form panel */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 45%, rgba(10,12,16,0.97) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 45%, rgba(255,255,255,0.97) 100%)' }} />
         {/* Bottom fade for text legibility */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,16,0.97) 0%, rgba(10,12,16,0.35) 50%, transparent 75%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,16,0.95) 0%, rgba(10,12,16,0.3) 50%, transparent 75%)' }} />
 
         {/* Editorial text at bottom-left */}
         <div style={{ position: 'absolute', bottom: 0, left: 0, padding: 'clamp(32px,4vw,52px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '22px' }}>
-            <div style={{ backgroundColor: '#b1c9e1', borderRadius: '7px', padding: '6px', display: 'flex' }}>
-              <Zap style={{ width: '13px', height: '13px', color: '#0c0e12' }} />
+            <div style={{ backgroundColor: '#2d7fad', borderRadius: '7px', padding: '6px', display: 'flex' }}>
+              <Zap style={{ width: '13px', height: '13px', color: '#ffffff' }} />
             </div>
             <span style={{ fontSize: '14px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</span>
           </div>
@@ -52,19 +52,19 @@ export default function LoginPage() {
       </div>
 
       {/* Right: form panel */}
-      <div className="auth-form-panel" style={{ width: '420px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '52px 44px', backgroundColor: '#0a0c10' }}>
+      <div className="auth-form-panel" style={{ width: '420px', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '52px 44px', backgroundColor: '#ffffff' }}>
 
         {/* Mobile logo */}
         <div className="auth-mobile-logo" style={{ display: 'none', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '36px' }}>
-          <div style={{ backgroundColor: '#b1c9e1', borderRadius: '7px', padding: '6px', display: 'flex' }}>
-            <Zap style={{ width: '14px', height: '14px', color: '#0c0e12' }} />
+          <div style={{ backgroundColor: '#2d7fad', borderRadius: '7px', padding: '6px', display: 'flex' }}>
+            <Zap style={{ width: '14px', height: '14px', color: '#ffffff' }} />
           </div>
-          <span style={{ fontSize: '16px', fontWeight: '600', color: '#e2e2e8', letterSpacing: '-0.01em' }}>VoltTrack</span>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: '#111318', letterSpacing: '-0.01em' }}>VoltTrack</span>
         </div>
 
         <div style={{ marginBottom: '28px' }}>
-          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#e2e2e8', letterSpacing: '-0.03em', margin: '0 0 6px' }}>Bienvenido</h1>
-          <p style={{ fontSize: '13px', color: '#9199a3', margin: 0 }}>Introduce tus credenciales para continuar</p>
+          <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 6px' }}>Bienvenido</h1>
+          <p style={{ fontSize: '13px', color: '#7a8290', margin: 0 }}>Introduce tus credenciales para continuar</p>
         </div>
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -91,29 +91,29 @@ export default function LoginPage() {
           {error && (
             <div style={{ backgroundColor: 'var(--error-dim)', border: '1px solid var(--error-border)', borderRadius: 'var(--r-md)', padding: '9px 12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: 'var(--error)', flexShrink: 0 }} />
-              <p style={{ fontSize: '13px', color: 'color-mix(in srgb, var(--error) 80%, white)', margin: 0 }}>{error}</p>
+              <p style={{ fontSize: '13px', color: 'var(--error)', margin: 0 }}>{error}</p>
             </div>
           )}
 
           <button type="submit" disabled={loading}
-            style={{ marginTop: '4px', backgroundColor: '#b1c9e1', color: '#0c0e12', border: 'none', borderRadius: '8px', padding: '11px', fontSize: '14px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'background-color 0.14s, transform 0.1s', opacity: loading ? 0.7 : 1 }}
-            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.backgroundColor = '#c4d6ea' }}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#b1c9e1'}
+            style={{ marginTop: '4px', backgroundColor: '#2d7fad', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '11px', fontSize: '14px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'background-color 0.14s', opacity: loading ? 0.7 : 1 }}
+            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.backgroundColor = '#246a94' }}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#2d7fad'}
           >
             {loading ? 'Iniciando sesión...' : <><span>Iniciar sesión</span><ArrowRight style={{ width: '14px', height: '14px' }} /></>}
           </button>
         </form>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '18px 0' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
-          <span style={{ fontSize: '11px', fontWeight: '500', color: '#636870', letterSpacing: '0.06em', textTransform: 'uppercase' }}>o</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ flex: 1, height: '1px', backgroundColor: '#eceef2' }} />
+          <span style={{ fontSize: '11px', fontWeight: '500', color: '#9aa0a8', letterSpacing: '0.06em', textTransform: 'uppercase' }}>o</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: '#eceef2' }} />
         </div>
 
         <a href="/api/auth/google"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: '#111318', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '11px', fontSize: '14px', color: '#e2e2e8', fontFamily: 'inherit', textDecoration: 'none', transition: 'border-color 0.14s, background-color 0.14s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)'; (e.currentTarget as HTMLElement).style.backgroundColor = '#16181d' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.backgroundColor = '#111318' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: '#f8f9fb', border: '1px solid #dde0e6', borderRadius: '8px', padding: '11px', fontSize: '14px', color: '#111318', fontFamily: 'inherit', textDecoration: 'none', transition: 'border-color 0.14s, background-color 0.14s' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#c4c9d1'; (e.currentTarget as HTMLElement).style.backgroundColor = '#f0f2f5' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#dde0e6'; (e.currentTarget as HTMLElement).style.backgroundColor = '#f8f9fb' }}
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -124,9 +124,9 @@ export default function LoginPage() {
           Continuar con Google
         </a>
 
-        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#636870' }}>
+        <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: '#7a8290' }}>
           No tienes cuenta?{' '}
-          <a href="/registro" style={{ color: '#b1c9e1', textDecoration: 'none', fontWeight: '500' }}>Crear cuenta</a>
+          <a href="/registro" style={{ color: '#2d7fad', textDecoration: 'none', fontWeight: '500' }}>Crear cuenta</a>
         </p>
       </div>
 
