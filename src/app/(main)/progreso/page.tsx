@@ -1,8 +1,8 @@
 'use client'
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { ChevronDown, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle, Plus, Minus, Timer, X } from 'lucide-react'
+import { ChevronDown, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle, Plus, Minus, X } from 'lucide-react'
 
 interface Rutina    { id_rutina: string; nombre: string }
 interface Ejercicio { id_ejercicio: string; nombre: string; num_series: number; orden: number }
@@ -33,112 +33,6 @@ function inputAKg(val: number, u: Unidad): number {
   return val
 }
 
-const TIMER_OPCIONES = [60, 90, 120, 180]
-
-function RestTimer({ onClose }: { onClose: () => void }) {
-  const [duracion, setDuracion] = useState(90)
-  const [restante, setRestante] = useState(90)
-  const [activo, setActivo] = useState(true)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  const iniciar = useCallback((seg: number) => {
-    setDuracion(seg)
-    setRestante(seg)
-    setActivo(true)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      setRestante(prev => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current!)
-          setActivo(false)
-          toast.success('¡Descanso terminado!', { duration: 3000 })
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [])
-
-  // Arrancar automáticamente con 90s al montar
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setRestante(prev => {
-        if (prev <= 1) {
-          clearInterval(intervalRef.current!)
-          setActivo(false)
-          toast.success('¡Descanso terminado!', { duration: 3000 })
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [])
-
-  const pct = (restante / duracion) * 100
-  const mins = Math.floor(restante / 60)
-  const secs = restante % 60
-
-  return (
-    <div style={{
-      position: 'fixed',
-      /* Sit above the bottom nav bar + home-bar safe area on iOS */
-      bottom: 'calc(var(--mobile-bot) + env(safe-area-inset-bottom, 0px) + 12px)',
-      right: 'max(16px, env(safe-area-inset-right, 16px))',
-      zIndex: 100,
-      backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)',
-      borderRadius: '14px', padding: '16px', width: '220px',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Timer style={{ width: '13px', height: '13px', color: 'var(--accent)' }} />
-          <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-primary)' }}>Descanso</span>
-        </div>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '2px', display: 'flex' }}>
-          <X style={{ width: '13px', height: '13px' }} />
-        </button>
-      </div>
-
-      {/* Opciones de tiempo */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '12px' }}>
-        {TIMER_OPCIONES.map(s => (
-          <button key={s} onClick={() => iniciar(s)}
-            style={{
-              flex: 1, padding: '5px 0', fontSize: '11px', fontFamily: 'inherit', cursor: 'pointer', borderRadius: '6px', border: 'none',
-              backgroundColor: duracion === s && activo ? 'var(--accent)' : 'var(--surface-raised)',
-              color: duracion === s && activo ? '#0c0e12' : 'var(--text-secondary)',
-              fontWeight: duracion === s && activo ? '600' : '400',
-            }}
-          >
-            {s >= 60 ? `${s / 60}m` : `${s}s`}
-          </button>
-        ))}
-      </div>
-
-      {/* Display */}
-      <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-        <p className="num" style={{ fontSize: '36px', fontWeight: '700', color: restante === 0 ? 'var(--success)' : 'var(--text-primary)', margin: 0, letterSpacing: '-0.04em' }}>
-          {`${mins}:${String(secs).padStart(2, '0')}`}
-        </p>
-        <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: '4px 0 0' }}>
-          {activo ? 'descansando...' : restante === 0 ? '¡listo!' : 'pausado'}
-        </p>
-        {/* Progress bar */}
-        <div style={{ height: '3px', backgroundColor: 'var(--surface-high)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${pct}%`, backgroundColor: restante === 0 ? 'var(--success)' : 'var(--accent)', borderRadius: '2px', transition: 'width 1s linear' }} />
-        </div>
-      </div>
-
-      {activo && (
-        <button onClick={() => { setActivo(false); if (intervalRef.current) clearInterval(intervalRef.current) }}
-          style={{ width: '100%', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '7px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit' }}>
-          Pausar
-        </button>
-      )}
-    </div>
-  )
-}
 
 const inp: React.CSSProperties = {
   backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)',
@@ -159,25 +53,19 @@ export default function ProgresoPage() {
   const [loadingEj, setLoadingEj]       = useState(false)
   const [guardando, setGuardando]       = useState(false)
   const [guardado, setGuardado]         = useState(false)
-  const [mostrarTimer, setMostrarTimer]   = useState(false)
   const [notasEj, setNotasEj]             = useState<Set<number>>(new Set())
   const [mostrarModal, setMostrarModal]   = useState(false)
   const [plantillaUsada, setPlantilla]    = useState(false)
   const [ultimosPesos, setUltimosPesos]   = useState<Record<string, { peso_kg: number; repeticiones: number }[]>>({})
   // Post-session summary stats
   const [resumen, setResumen] = useState<{ totalSeries: number; volumen: number; nuevosPRs: string[] } | null>(null)
-  // Unidad de peso
-  const [unidad, setUnidad] = useState<Unidad>('kg')
+  // Unidad por ejercicio: { [id_ejercicio]: 'kg' | 'lb' }
+  const [unidades, setUnidades] = useState<Record<string, Unidad>>({})
 
-  useEffect(() => {
-    const saved = localStorage.getItem('peso_unit') as Unidad | null
-    if (saved === 'kg' || saved === 'lb') setUnidad(saved)
-  }, [])
+  const getUnidad = (id: string): Unidad => unidades[id] ?? 'kg'
 
-  const toggleUnidad = () => {
-    const next: Unidad = unidad === 'kg' ? 'lb' : 'kg'
-    setUnidad(next)
-    localStorage.setItem('peso_unit', next)
+  const toggleUnidadEj = (id: string) => {
+    setUnidades(prev => ({ ...prev, [id]: prev[id] === 'lb' ? 'kg' : 'lb' }))
   }
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
@@ -288,12 +176,13 @@ export default function ProgresoPage() {
 
     // Construir datos con pesos siempre en kg para la API
     const ejerciciosParaApi = ejConSeries.map(ej => {
+      const u = getUnidad(ej.ejercicio.id_ejercicio)
       const prevMax = ultimosPesos[ej.ejercicio.id_ejercicio]?.[0]?.peso_kg ?? 0
       let maxEjSesion = 0
       const seriesConvertidas = ej.series.map(s => {
         const pInput = parseFloat(s.peso_kg)
         const r = parseInt(s.repeticiones)
-        const pKg = !isNaN(pInput) ? inputAKg(pInput, unidad) : 0
+        const pKg = !isNaN(pInput) ? inputAKg(pInput, u) : 0
         if (!isNaN(pInput) && !isNaN(r) && r > 0) {
           totalSeries++
           volumen += pKg * r
@@ -367,12 +256,9 @@ export default function ProgresoPage() {
               </div>
               <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
                 <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>
-                  {(() => {
-                    const v = unidad === 'lb' ? Math.round(resumen.volumen * KG_TO_LB) : resumen.volumen
-                    return v >= 1000 ? `${(v/1000).toFixed(1)}t` : `${v}`
-                  })()}
+                  {resumen.volumen >= 1000 ? `${(resumen.volumen / 1000).toFixed(1)}t` : `${resumen.volumen}`}
                 </p>
-                <p className="label" style={{ margin: 0 }}>Volumen {unidad}</p>
+                <p className="label" style={{ margin: 0 }}>Volumen kg</p>
               </div>
             </div>
             {resumen.nuevosPRs.length > 0 && (
@@ -409,50 +295,9 @@ export default function ProgresoPage() {
   return (
     <div className="page-enter">
       {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Registrar Sesión</h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Registra los pesos y reps de hoy</p>
-        </div>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          {/* Toggle kg / lb */}
-          <button
-            onClick={toggleUnidad}
-            style={{
-              display: 'flex', alignItems: 'center', padding: '7px 2px',
-              backgroundColor: 'var(--surface-raised)',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--r-md)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
-              overflow: 'hidden', gap: 0,
-            }}
-            title="Cambiar unidad de peso"
-          >
-            {(['kg', 'lb'] as Unidad[]).map(u => (
-              <span key={u} style={{
-                padding: '0 10px', lineHeight: '1',
-                color: unidad === u ? '#0c0e12' : 'var(--text-disabled)',
-                backgroundColor: unidad === u ? 'var(--accent)' : 'transparent',
-                borderRadius: unidad === u ? '4px' : '0',
-                fontWeight: unidad === u ? '600' : '400',
-                transition: 'all 0.14s',
-              }}>{u}</span>
-            ))}
-          </button>
-
-          <button
-            onClick={() => setMostrarTimer(t => !t)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px',
-              backgroundColor: mostrarTimer ? 'color-mix(in srgb, var(--accent) 12%, var(--surface-card))' : 'var(--surface-raised)',
-              border: `1px solid ${mostrarTimer ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--border-subtle)'}`,
-              borderRadius: 'var(--r-md)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
-              color: mostrarTimer ? 'var(--accent)' : 'var(--text-secondary)',
-            }}
-          >
-            <Timer style={{ width: '12px', height: '12px' }} />
-            Timer
-          </button>
-        </div>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Registrar Sesión</h1>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Registra los pesos y reps de hoy</p>
       </div>
 
       {/* Rutina + fecha */}
@@ -488,28 +333,47 @@ export default function ProgresoPage() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {ejConSeries.map((item, ejIdx) => (
+          {ejConSeries.map((item, ejIdx) => {
+            const u = getUnidad(item.ejercicio.id_ejercicio)
+            return (
             <div key={item.ejercicio.id_ejercicio} className="card" style={{ overflow: 'hidden' }}>
               {/* Exercise header */}
-              <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-faint)', display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'var(--surface-raised)' }}>
+              <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-faint)', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--surface-raised)' }}>
                 <span style={{ fontSize: '11px', color: 'var(--text-disabled)', fontWeight: '600', minWidth: '18px', fontVariantNumeric: 'tabular-nums' }}>
                   {String(item.ejercicio.orden ?? ejIdx + 1).padStart(2, '0')}
                 </span>
-                <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, flex: 1, letterSpacing: '-0.01em' }}>
+                <p style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)', margin: 0, flex: 1, letterSpacing: '-0.01em', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.ejercicio.nombre}
                 </p>
                 {ultimosPesos[item.ejercicio.id_ejercicio]?.length > 0 && (
-                  <span style={{ fontSize: '10px', color: 'var(--text-disabled)', backgroundColor: 'var(--surface-high)', borderRadius: '4px', padding: '2px 6px', whiteSpace: 'nowrap' }}>
-                    ↩ {kgADisplay(ultimosPesos[item.ejercicio.id_ejercicio][0].peso_kg, unidad)} {unidad}
+                  <span style={{ fontSize: '10px', color: 'var(--text-disabled)', backgroundColor: 'var(--surface-high)', borderRadius: '4px', padding: '2px 6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    ↩ {kgADisplay(ultimosPesos[item.ejercicio.id_ejercicio][0].peso_kg, u)} {u}
                   </span>
                 )}
+                {/* Toggle kg/lb por ejercicio */}
+                <button
+                  onClick={() => toggleUnidadEj(item.ejercicio.id_ejercicio)}
+                  title="Cambiar unidad"
+                  style={{ display: 'flex', alignItems: 'center', padding: '2px', backgroundColor: 'var(--surface-high)', border: '1px solid var(--border-subtle)', borderRadius: '6px', cursor: 'pointer', flexShrink: 0, overflow: 'hidden', gap: 0 }}
+                >
+                  {(['kg', 'lb'] as Unidad[]).map(opt => (
+                    <span key={opt} style={{
+                      padding: '2px 7px', fontSize: '10px', lineHeight: '1.4',
+                      color: u === opt ? '#0c0e12' : 'var(--text-disabled)',
+                      backgroundColor: u === opt ? 'var(--accent)' : 'transparent',
+                      borderRadius: u === opt ? '4px' : '0',
+                      fontWeight: u === opt ? '600' : '400',
+                      transition: 'all 0.12s',
+                    }}>{opt}</span>
+                  ))}
+                </button>
                 <button
                   onClick={() => toggleNotasEj(ejIdx)}
-                  style={{ fontSize: '11px', color: notasEj.has(ejIdx) ? 'var(--accent)' : 'var(--text-disabled)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 'var(--r-sm)', fontFamily: 'inherit' }}
+                  style={{ fontSize: '11px', color: notasEj.has(ejIdx) ? 'var(--accent)' : 'var(--text-disabled)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 'var(--r-sm)', fontFamily: 'inherit', flexShrink: 0 }}
                 >
                   notas
                 </button>
-                <span className="tag tag-accent">{item.series.length} series</span>
+                <span className="tag tag-accent" style={{ flexShrink: 0 }}>{item.series.length}s</span>
               </div>
 
               {/* Series table */}
@@ -517,7 +381,7 @@ export default function ProgresoPage() {
                 {/* Column headers */}
                 <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', marginBottom: '6px' }}>
                   <span />
-                  {[`Peso (${unidad})`, 'Reps *', 'RIR'].map(h => (
+                  {[`Peso (${u})`, 'Reps *', 'RIR'].map(h => (
                     <span key={h} className="label" style={{ textAlign: 'center' }}>{h}</span>
                   ))}
                 </div>
@@ -530,8 +394,8 @@ export default function ProgresoPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
                       {/* inputMode="decimal" shows numeric pad WITH decimal key on iOS */}
-                      <input type="number" step={unidad === 'lb' ? '1' : '0.5'} min="0" inputMode="decimal"
-                        placeholder={antSerie && antSerie.peso_kg > 0 ? String(kgADisplay(antSerie.peso_kg, unidad)) : (unidad === 'lb' ? '176' : '80')}
+                      <input type="number" step={u === 'lb' ? '1' : '0.5'} min="0" inputMode="decimal"
+                        placeholder={antSerie && antSerie.peso_kg > 0 ? String(kgADisplay(antSerie.peso_kg, u)) : (u === 'lb' ? '176' : '80')}
                         value={serie.peso_kg}
                         onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
                       <input type="number" step="1" min="1" inputMode="numeric"
@@ -573,7 +437,8 @@ export default function ProgresoPage() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
 
           {/* Notes */}
           <div className="card" style={{ padding: '14px 16px' }}>
@@ -607,9 +472,6 @@ export default function ProgresoPage() {
           </button>
         </div>
       )}
-
-      {/* Rest Timer */}
-      {mostrarTimer && <RestTimer onClose={() => setMostrarTimer(false)} />}
 
       {/* Modal confirmación salir */}
       {mostrarModal && (
