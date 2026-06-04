@@ -118,15 +118,15 @@ export default function ProgresoPage() {
     if (!rutinaId || plantillaUsada) return
     setLoadingEj(true); setGuardado(false)
     Promise.all([
-      fetch(`/api/ejercicios?id_rutina=${rutinaId}`).then(r => r.json()),
-      fetch(`/api/progreso/ultimos-pesos?id_rutina=${rutinaId}`).then(r => r.json()),
+      fetch(`/api/ejercicios?id_rutina=${rutinaId}`).then(r => r.json()).catch(() => []),
+      fetch(`/api/progreso/ultimos-pesos?id_rutina=${rutinaId}`).then(r => r.json()).catch(() => ({})),
     ]).then(([ejData, pesosData]: [Ejercicio[], Record<string, { peso_kg: number; repeticiones: number }[]>]) => {
       const lista = Array.isArray(ejData) ? ejData : []
       setEjConSeries(lista.map(ej => ({ ejercicio: ej, series: Array.from({ length: Math.max(ej.num_series ?? 1, 1) }, serieVacia) })))
       setUltimosPesos(pesosData ?? {})
       setNotasEj(new Set())
       setLoadingEj(false)
-    })
+    }).catch(() => setLoadingEj(false))
   }, [rutinaId, plantillaUsada])
 
   const updateSerie = (ejIdx: number, sIdx: number, campo: keyof SerieInput, val: string) => {
