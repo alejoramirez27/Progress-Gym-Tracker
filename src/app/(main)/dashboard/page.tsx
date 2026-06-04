@@ -130,7 +130,7 @@ export default function DashboardPage() {
           {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: '76px' }} />)}
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px', overflow: 'hidden', marginBottom: '16px' }}>
+        <div className="metrics-grid">
           {metricCards.map(c => {
             const Icon = c.icon
             const isDate = c.label === 'Última sesión'
@@ -155,7 +155,7 @@ export default function DashboardPage() {
 
       {/* Racha + sesiones — 3 columnas iguales */}
       {!loading && stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px' }}>
+        <div className="racha-grid">
           {[
             {
               icon: <Flame style={{ width: '15px', height: '15px', color: '#e07040' }} />,
@@ -182,15 +182,15 @@ export default function DashboardPage() {
               sub: stats.sesionesSemanaPasada > 0 ? `${stats.sesionesSemanaPasada} la semana pasada` : `${totalSesiones365} en el año`,
             },
           ].map(c => (
-            <div key={c.label} style={{ backgroundColor: 'var(--surface-deep)', padding: '16px 20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c.label}</span>
+            <div key={c.label} className="racha-cell" style={{ backgroundColor: 'var(--surface-deep)', padding: '14px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{c.label}</span>
                 {c.icon}
               </div>
-              <p className="num" style={{ fontSize: '28px', fontWeight: '700', color: c.color, margin: '0 0 4px', letterSpacing: '-0.04em' }}>
-                {c.value}<span style={{ fontSize: '12px', fontWeight: '300', color: 'var(--text-secondary)', marginLeft: '4px' }}>{c.unit}</span>
+              <p className="num racha-value" style={{ fontSize: '26px', fontWeight: '700', color: c.color, margin: '0 0 3px', letterSpacing: '-0.04em' }}>
+                {c.value}<span style={{ fontSize: '11px', fontWeight: '300', color: 'var(--text-secondary)', marginLeft: '3px' }}>{c.unit}</span>
               </p>
-              <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0 }}>{c.sub}</p>
+              <p className="racha-sub" style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.sub}</p>
             </div>
           ))}
         </div>

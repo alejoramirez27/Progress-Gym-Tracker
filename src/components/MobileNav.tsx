@@ -22,19 +22,22 @@ export default function MobileNav() {
 
   return (
     <>
-      {/* Top bar */}
+      {/* Top bar — height grows to cover iOS notch / Dynamic Island */}
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0,
-        height: 'var(--mobile-top)',
+        /* base height + safe-area-inset-top so content clears notch */
+        height: 'calc(var(--mobile-top) + env(safe-area-inset-top, 0px))',
         backgroundColor: 'var(--surface-deep)',
         borderBottom: '1px solid var(--border-faint)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',   /* pin content to the bottom of the bar */
         justifyContent: 'space-between',
-        padding: '0 16px',
+        /* horizontal padding respects landscape safe areas */
+        padding: '0 max(16px, env(safe-area-inset-right, 16px)) 0 max(16px, env(safe-area-inset-left, 16px))',
+        paddingBottom: '10px',
         zIndex: 50,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
       }}>
         <button
           onClick={() => router.push('/rutinas')}
@@ -82,9 +85,12 @@ export default function MobileNav() {
           borderTop: '1px solid var(--border-faint)',
           display: 'flex',
           zIndex: 50,
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          /* Respect home-bar safe area on iPhones without clipping it */
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          paddingLeft:  'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
         }}
       >
         {navItems.map(item => {
@@ -99,8 +105,11 @@ export default function MobileNav() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '3px',
-                padding: '10px 0 8px',
+                /* min 48px tall for comfortable touch (Android 48dp / iOS 44pt) */
+                minHeight: '48px',
+                padding: '8px 4px',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -108,19 +117,21 @@ export default function MobileNav() {
                 fontFamily: 'inherit',
                 transition: 'color var(--t-sm) var(--ease-out)',
                 position: 'relative',
+                touchAction: 'manipulation',
               }}
             >
               {active && (
                 <span style={{
                   position: 'absolute',
-                  top: 0, left: '20%', right: '20%',
+                  top: 0, left: '25%', right: '25%',
                   height: '2px',
                   backgroundColor: 'var(--accent)',
                   borderRadius: '0 0 2px 2px',
                 }} />
               )}
-              <Icon style={{ width: '18px', height: '18px' }} />
-              <span style={{ fontSize: '9.5px', fontWeight: active ? '500' : '400', letterSpacing: '0.02em' }}>
+              <Icon style={{ width: '19px', height: '19px' }} />
+              {/* 11px — Apple HIG minimum for legible labels */}
+              <span style={{ fontSize: '11px', fontWeight: active ? '600' : '400', letterSpacing: '0.01em' }}>
                 {item.label}
               </span>
             </button>

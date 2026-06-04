@@ -63,7 +63,11 @@ function RestTimer({ onClose }: { onClose: () => void }) {
 
   return (
     <div style={{
-      position: 'fixed', bottom: '80px', right: '16px', zIndex: 100,
+      position: 'fixed',
+      /* Sit above the bottom nav bar + home-bar safe area on iOS */
+      bottom: 'calc(var(--mobile-bot) + env(safe-area-inset-bottom, 0px) + 12px)',
+      right: 'max(16px, env(safe-area-inset-right, 16px))',
+      zIndex: 100,
       backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)',
       borderRadius: '14px', padding: '16px', width: '220px',
       boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
@@ -121,7 +125,8 @@ function RestTimer({ onClose }: { onClose: () => void }) {
 const inp: React.CSSProperties = {
   backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)',
   color: 'var(--text-primary)', borderRadius: 'var(--r-sm)',
-  padding: '7px 6px', fontSize: '13px', fontFamily: 'inherit',
+  /* padding intentionally compact; mobile font-size override in globals.css */
+  padding: '8px 6px', fontSize: '14px', fontFamily: 'inherit',
   outline: 'none', textAlign: 'center', width: '100%', boxSizing: 'border-box',
 }
 
@@ -410,15 +415,16 @@ export default function ProgresoPage() {
                   <div key={sIdx} style={{ marginBottom: notasEj.has(ejIdx) ? '8px' : '5px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
-                      <input type="number" step="0.5" min="0"
+                      {/* inputMode="decimal" shows numeric pad WITH decimal key on iOS */}
+                      <input type="number" step="0.5" min="0" inputMode="decimal"
                         placeholder={antSerie && antSerie.peso_kg > 0 ? String(antSerie.peso_kg) : '80'}
                         value={serie.peso_kg}
                         onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
-                      <input type="number" step="1" min="1"
+                      <input type="number" step="1" min="1" inputMode="numeric"
                         placeholder={antSerie && antSerie.repeticiones > 0 ? String(antSerie.repeticiones) : '10'}
                         value={serie.repeticiones}
                         onChange={e => updateSerie(ejIdx, sIdx, 'repeticiones', e.target.value)} style={inp} />
-                      <input type="number" step="1" min="0" max="5" placeholder="2" value={serie.rir}
+                      <input type="number" step="1" min="0" max="5" inputMode="numeric" placeholder="2" value={serie.rir}
                         onChange={e => updateSerie(ejIdx, sIdx, 'rir', e.target.value)} style={inp} />
                     </div>
                     {notasEj.has(ejIdx) && (
