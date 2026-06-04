@@ -1,6 +1,6 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
-import { Dumbbell, LayoutDashboard, History, LogOut, Zap, BicepsFlexed, Trophy, User } from 'lucide-react'
+import { Dumbbell, LayoutDashboard, History, LogOut, Zap, BicepsFlexed, Trophy, User, Scale } from 'lucide-react'
 
 const navItems = [
   { href: '/rutinas',   label: 'Rutinas',    icon: Dumbbell },
@@ -8,6 +8,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard',  icon: LayoutDashboard },
   { href: '/historial', label: 'Historial',  icon: History },
   { href: '/records',   label: 'PRs',        icon: Trophy },
+  { href: '/peso',      label: 'Peso',       icon: Scale },
   { href: '/perfil',    label: 'Perfil',     icon: User },
 ]
 

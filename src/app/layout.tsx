@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Lexend } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
@@ -11,7 +11,25 @@ const lexend = Lexend({
 
 export const metadata: Metadata = {
   title: 'VoltTrack',
-  description: 'Tracking de entrenamiento personal',
+  description: 'Tracking de entrenamiento personal — registra pesos, series y récords',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'VoltTrack',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#111318',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

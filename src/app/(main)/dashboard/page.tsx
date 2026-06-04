@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Dumbbell, TrendingUp, Layers, Calendar, ChevronDown, Info, Flame, BarChart2, StickyNote } from 'lucide-react'
+import { Dumbbell, TrendingUp, Layers, Calendar, ChevronDown, Info, Flame, BarChart2, StickyNote, Scale, Plus } from 'lucide-react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface Stats { totalRutinas: number; totalEjercicios: number; totalSeries: number; ultimaSesion: string | null; rachaActual: number; rachaMejor: number; sesionesEstaSemana: number; sesionesSemanaPasada: number }
@@ -10,6 +10,7 @@ interface Ejercicio { id_ejercicio: string; nombre: string; id_rutina: string }
 interface PuntoProgreso { fecha: string; peso_max: number; reps: number }
 interface PuntoVolumen  { fecha: string; volumen: number; sesiones: number }
 interface HeatDay       { fecha: string; count: number }
+interface RegistroPeso  { id: string; fecha: string; peso_kg: number }
 
 function fmtFecha(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
@@ -39,8 +40,11 @@ export default function DashboardPage() {
   const [loading, setLoading]       = useState(true)
   const [loadingChart, setLoadingChart] = useState(false)
   const [tabChart, setTabChart]     = useState<'peso' | 'volumen'>('peso')
-  const [nota, setNota]             = useState('')
-  const [notaGuardada, setNotaGuardada] = useState(false)
+  const [nota, setNota]                   = useState('')
+  const [notaGuardada, setNotaGuardada]   = useState(false)
+  const [pesoHoy, setPesoHoy]             = useState('')
+  const [registrosPeso, setRegistrosPeso] = useState<RegistroPeso[]>([])
+  const [guardandoPeso, setGuardandoPeso] = useState(false)
 
   const todayKey = `nota_dia_${hoy()}`
 
@@ -58,6 +62,33 @@ export default function DashboardPage() {
   const ejerciciosFiltrados = rutinaSeleccionada
     ? ejercicios.filter(e => e.id_rutina === rutinaSeleccionada)
     : ejercicios
+
+  useEffect(() => {
+    fetch('/api/peso-corporal').then(r => r.json()).then(d => {
+      if (Array.isArray(d)) setRegistrosPeso(d.slice(0, 7).reverse())
+    })
+  }, [])
+
+  const hoyStr = hoy()
+  const pesoHoyRegistrado = registrosPeso.find(r => r.fecha === hoyStr)
+
+  const guardarPesoRapido = async () => {
+    if (!pesoHoy || parseFloat(pesoHoy) <= 0) return
+    setGuardandoPeso(true)
+    const res = await fetch('/api/peso-corporal', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fecha: hoyStr, peso_kg: parseFloat(pesoHoy) }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      setRegistrosPeso(prev => {
+        const filtered = prev.filter(r => r.fecha !== hoyStr)
+        return [...filtered, data].sort((a, b) => a.fecha.localeCompare(b.fecha))
+      })
+      setPesoHoy('')
+    }
+    setGuardandoPeso(false)
+  }
 
   useEffect(() => {
     fetch('/api/dashboard').then(r => r.json()).then(d => {
@@ -432,6 +463,70 @@ export default function DashboardPage() {
               </LineChart>
             </ResponsiveContainer>
           )
+        )}
+      </div>
+
+      {/* Widget: Peso corporal */}
+      <div className="card" style={{ padding: '16px 18px', marginTop: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+            <Scale style={{ width: '13px', height: '13px', color: 'var(--text-tertiary)' }} />
+            <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Peso corporal</p>
+          </div>
+          <button onClick={() => router.push('/peso')}
+            style={{ fontSize: '11px', color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', fontFamily: 'inherit' }}>
+            Ver todo →
+          </button>
+        </div>
+
+        {/* Quick register */}
+        {!pesoHoyRegistrado ? (
+          <div style={{ display: 'flex', gap: '8px', marginBottom: registrosPeso.length > 0 ? '12px' : '0' }}>
+            <input
+              type="number" step="0.1" min="20" max="400"
+              placeholder="Peso de hoy (kg)"
+              value={pesoHoy}
+              onChange={e => setPesoHoy(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') guardarPesoRapido() }}
+              inputMode="decimal"
+              style={{ flex: 1, backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 11px', fontSize: '13px', fontFamily: 'inherit', outline: 'none' }}
+            />
+            <button
+              onClick={guardarPesoRapido}
+              disabled={guardandoPeso || !pesoHoy}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: pesoHoy ? 'var(--accent)' : 'var(--surface-raised)', color: pesoHoy ? '#0c0e12' : 'var(--text-disabled)', border: 'none', borderRadius: 'var(--r-md)', padding: '8px 12px', fontSize: '12px', fontWeight: '500', cursor: pesoHoy ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all var(--t-sm) var(--ease-out)', whiteSpace: 'nowrap' }}
+            >
+              <Plus style={{ width: '12px', height: '12px' }} />
+              Registrar
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: registrosPeso.length > 1 ? '12px' : '0', backgroundColor: 'var(--success-dim)', borderRadius: 'var(--r-md)', padding: '8px 12px' }}>
+            <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--success)' }}>{pesoHoyRegistrado.peso_kg} kg</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>registrado hoy ✓</span>
+          </div>
+        )}
+
+        {/* Mini sparkline dots */}
+        {registrosPeso.length >= 2 && (
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '36px' }}>
+            {registrosPeso.map((r, i) => {
+              const vals = registrosPeso.map(x => x.peso_kg)
+              const min = Math.min(...vals); const max = Math.max(...vals)
+              const range = max - min || 1
+              const pct = ((r.peso_kg - min) / range)
+              const h = 8 + pct * 26
+              const isHoy = r.fecha === hoyStr
+              return (
+                <div key={r.id} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                  <div style={{ width: '100%', height: `${h}px`, backgroundColor: isHoy ? 'var(--accent)' : 'var(--surface-high)', borderRadius: '3px', transition: 'height 0.3s ease' }} />
+                  <span style={{ fontSize: '9px', color: isHoy ? 'var(--accent)' : 'var(--text-disabled)', fontWeight: isHoy ? '600' : '400', fontVariantNumeric: 'tabular-nums' }}>
+                    {r.peso_kg}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
 

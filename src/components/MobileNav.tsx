@@ -1,7 +1,8 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
-import { Dumbbell, LayoutDashboard, History, Zap, LogOut, BicepsFlexed, Trophy, User } from 'lucide-react'
+import { Dumbbell, LayoutDashboard, History, Zap, LogOut, BicepsFlexed, Trophy, User, Scale } from 'lucide-react'
 
+// 6 items that fit comfortably in the bottom bar
 const navItems = [
   { href: '/progreso',  label: 'Progreso',  icon: BicepsFlexed },
   { href: '/rutinas',   label: 'Rutinas',   icon: Dumbbell },

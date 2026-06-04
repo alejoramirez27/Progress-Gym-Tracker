@@ -146,6 +146,8 @@ export default function ProgresoPage() {
   const [mostrarModal, setMostrarModal]   = useState(false)
   const [plantillaUsada, setPlantilla]    = useState(false)
   const [ultimosPesos, setUltimosPesos]   = useState<Record<string, { peso_kg: number; repeticiones: number }[]>>({})
+  // Post-session summary stats
+  const [resumen, setResumen] = useState<{ totalSeries: number; volumen: number; nuevosPRs: string[] } | null>(null)
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
 
@@ -247,14 +249,36 @@ export default function ProgresoPage() {
     const hayDatos = ejConSeries.some(ej => ej.series.some(s => s.repeticiones.trim() !== ''))
     if (!hayDatos) { toast.error('Registra al menos una serie con repeticiones'); return }
     setGuardando(true)
+
+    // Calcular resumen antes de guardar
+    let totalSeries = 0
+    let volumen = 0
+    const nuevosPRs: string[] = []
+    for (const ej of ejConSeries) {
+      const prevMax = ultimosPesos[ej.ejercicio.id_ejercicio]?.[0]?.peso_kg ?? 0
+      let maxEjSesion = 0
+      for (const s of ej.series) {
+        const p = parseFloat(s.peso_kg)
+        const r = parseInt(s.repeticiones)
+        if (!isNaN(p) && !isNaN(r) && r > 0) {
+          totalSeries++
+          volumen += p * r
+          if (p > maxEjSesion) maxEjSesion = p
+        }
+      }
+      if (maxEjSesion > 0 && maxEjSesion > prevMax) {
+        nuevosPRs.push(ej.ejercicio.nombre)
+      }
+    }
+
     const res = await fetch('/api/sesiones', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_rutina: rutinaId, fecha, notas: notas.trim() || null, ejercicios_data: ejConSeries.map(ej => ({ id_ejercicio: ej.ejercicio.id_ejercicio, series: ej.series })) }),
     })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error ?? 'Error al guardar'); setGuardando(false); return }
+    setResumen({ totalSeries, volumen: Math.round(volumen), nuevosPRs })
     setGuardado(true); setGuardando(false)
-    toast.success('Sesión registrada')
   }
 
   if (guardado) {
@@ -298,7 +322,32 @@ export default function ProgresoPage() {
             {rutinas.find(r => r.id_rutina === rutinaId)?.nombre} · {fmtFechaLarga(fecha)}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', animation: 'slide-up 0.4s ease 0.25s both' }}>
+
+        {/* Resumen de la sesión */}
+        {resumen && (
+          <div style={{ animation: 'slide-up 0.4s ease 0.3s both', display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '320px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
+                <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>{resumen.totalSeries}</p>
+                <p className="label" style={{ margin: 0 }}>Series</p>
+              </div>
+              <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
+                <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>{resumen.volumen >= 1000 ? `${(resumen.volumen/1000).toFixed(1)}t` : `${resumen.volumen}`}</p>
+                <p className="label" style={{ margin: 0 }}>Volumen kg</p>
+              </div>
+            </div>
+            {resumen.nuevosPRs.length > 0 && (
+              <div style={{ backgroundColor: 'color-mix(in srgb, var(--success) 8%, var(--surface-card))', border: '1px solid color-mix(in srgb, var(--success) 25%, transparent)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
+                <p style={{ fontSize: '11px', fontWeight: '600', color: 'var(--success)', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>🏆 {resumen.nuevosPRs.length} PR{resumen.nuevosPRs.length > 1 ? 's' : ''} nuevo{resumen.nuevosPRs.length > 1 ? 's' : ''}</p>
+                {resumen.nuevosPRs.map(nombre => (
+                  <p key={nombre} style={{ fontSize: '12px', color: 'var(--text-primary)', margin: '2px 0 0' }}>· {nombre}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '8px', animation: 'slide-up 0.4s ease 0.45s both' }}>
           <button
             onClick={() => { setGuardado(false); setEjConSeries(prev => prev.map(ej => ({ ...ej, series: Array.from({ length: ej.ejercicio.num_series }, serieVacia) }))) }}
             style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '8px 16px', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit' }}

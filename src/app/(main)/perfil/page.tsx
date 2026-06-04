@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { User, Check, LogOut, Download } from 'lucide-react'
+import { User, Check, LogOut, Download, Scale, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface Perfil { id_usuario: string; nombre: string; email: string; created_at: string }
@@ -124,6 +124,22 @@ export default function PerfilPage() {
             <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Miembro desde</span>
             <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{perfil?.created_at ? fmtFecha(perfil.created_at) : '—'}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Peso corporal */}
+      <div className="card card-active" style={{ padding: '14px 20px', marginBottom: '12px', cursor: 'pointer' }} onClick={() => router.push('/peso')}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ backgroundColor: 'var(--surface-high)', borderRadius: 'var(--r-md)', padding: '8px', display: 'flex' }}>
+              <Scale style={{ width: '14px', height: '14px', color: 'var(--accent)' }} />
+            </div>
+            <div>
+              <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: '0 0 2px', fontWeight: '500' }}>Peso corporal</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: 0 }}>Registra y sigue tu peso diariamente</p>
+            </div>
+          </div>
+          <ChevronRight style={{ width: '14px', height: '14px', color: 'var(--text-disabled)' }} />
         </div>
       </div>
 
