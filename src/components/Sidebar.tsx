@@ -66,7 +66,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav aria-label="Navegación principal" style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+      <nav aria-label="Navegación principal" style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {navItems.map(item => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/')
           const Icon   = item.icon
@@ -80,44 +80,35 @@ export default function Sidebar() {
                 gap: '8px',
                 padding: '7px 10px',
                 borderRadius: 'var(--r-md)',
-                border: 'none',
+                border: `1px solid ${active ? 'color-mix(in srgb, var(--accent) 22%, var(--border-subtle))' : 'var(--border-faint)'}`,
                 cursor: 'pointer',
                 width: '100%',
                 textAlign: 'left',
-                backgroundColor: active ? 'color-mix(in srgb, var(--accent) 8%, var(--surface-raised))' : 'transparent',
+                backgroundColor: active
+                  ? 'color-mix(in srgb, var(--accent) 7%, var(--surface-raised))'
+                  : 'var(--surface-raised)',
                 color: active ? 'var(--accent)' : 'var(--text-secondary)',
                 fontSize: '13px',
                 fontWeight: active ? '500' : '400',
                 fontFamily: 'inherit',
-                position: 'relative',
-                transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out)',
+                transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out), border-color var(--t-sm) var(--ease-out)',
               }}
               onMouseEnter={e => {
                 if (!active) {
-                  e.currentTarget.style.backgroundColor = 'var(--surface-raised)'
+                  e.currentTarget.style.backgroundColor = 'var(--surface-high)'
+                  e.currentTarget.style.borderColor = 'var(--border-subtle)'
                   e.currentTarget.style.color = 'var(--text-primary)'
                 }
               }}
               onMouseLeave={e => {
                 if (!active) {
-                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.backgroundColor = 'var(--surface-raised)'
+                  e.currentTarget.style.borderColor = 'var(--border-faint)'
                   e.currentTarget.style.color = 'var(--text-secondary)'
                 }
               }}
             >
-              {/* Active indicator */}
-              {active && (
-                <span style={{
-                  position: 'absolute',
-                  left: 0,
-                  top: '20%',
-                  bottom: '20%',
-                  width: '2px',
-                  borderRadius: '0 2px 2px 0',
-                  backgroundColor: 'var(--accent)',
-                }} />
-              )}
-              <Icon style={{ width: '14px', height: '14px', flexShrink: 0 }} />
+              <Icon style={{ width: '14px', height: '14px', flexShrink: 0, opacity: active ? 1 : 0.6 }} />
               {item.label}
             </button>
           )
@@ -125,7 +116,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: '8px 8px 12px', borderTop: '1px solid var(--border-faint)', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+      <div style={{ padding: '8px 8px 12px', borderTop: '1px solid var(--border-faint)' }}>
         <button
           onClick={cerrarSesion}
           style={{
@@ -134,26 +125,28 @@ export default function Sidebar() {
             gap: '8px',
             padding: '7px 10px',
             borderRadius: 'var(--r-md)',
-            border: 'none',
+            border: '1px solid var(--border-faint)',
             cursor: 'pointer',
             width: '100%',
             textAlign: 'left',
-            backgroundColor: 'transparent',
+            backgroundColor: 'var(--surface-raised)',
             color: 'var(--text-tertiary)',
             fontSize: '13px',
             fontFamily: 'inherit',
-            transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out)',
+            transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out), border-color var(--t-sm) var(--ease-out)',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--error) 10%, transparent)'
+            e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--error) 8%, var(--surface-raised))'
+            e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--error) 30%, var(--border-subtle))'
             e.currentTarget.style.color = 'var(--error)'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.backgroundColor = 'var(--surface-raised)'
+            e.currentTarget.style.borderColor = 'var(--border-faint)'
             e.currentTarget.style.color = 'var(--text-tertiary)'
           }}
         >
-          <LogOut style={{ width: '14px', height: '14px' }} />
+          <LogOut style={{ width: '14px', height: '14px', opacity: 0.6 }} />
           Cerrar sesión
         </button>
       </div>
