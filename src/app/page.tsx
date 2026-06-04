@@ -776,17 +776,225 @@ function FinalCTA() {
   )
 }
 
+/* ─── Social icon SVGs ────────────────────────────────────── */
+const SocialInstagram = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+  </svg>
+)
+const SocialX = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+)
+const SocialTikTok = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.27 8.27 0 0 0 4.83 1.54V6.78a4.85 4.85 0 0 1-1.06-.09z"/>
+  </svg>
+)
+const SocialYoutube = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0a0c10"/>
+  </svg>
+)
+const SocialWhatsApp = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+  </svg>
+)
+
+/* ─── Floating buttons ────────────────────────────────────── */
+function FloatingButtons() {
+  const [visible, setVisible] = useState(false)
+  const reduce = useReducedMotion()
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: reduce ? 'instant' : 'smooth' })
+
+  const btnBase: React.CSSProperties = {
+    width: '48px', height: '48px', borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    border: 'none', cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s',
+  }
+
+  return (
+    <div style={{ position: 'fixed', bottom: '28px', right: '24px', display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 90 }}>
+      {/* WhatsApp */}
+      <motion.button
+        initial={false}
+        animate={{ opacity: 1, scale: 1 }}
+        onClick={() => window.open('https://wa.me/', '_blank')}
+        style={{ ...btnBase, backgroundColor: '#25D366', color: '#ffffff', boxShadow: '0 4px 16px rgba(37,211,102,0.35)' }}
+        whileHover={{ scale: 1.1, boxShadow: '0 6px 22px rgba(37,211,102,0.45)' }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Contactar por WhatsApp"
+      >
+        <SocialWhatsApp />
+      </motion.button>
+
+      {/* Scroll to top */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.7 }}
+        animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.7, pointerEvents: visible ? 'auto' : 'none' }}
+        transition={{ duration: 0.22, ease: E }}
+        onClick={scrollTop}
+        style={{ ...btnBase, backgroundColor: '#2d7fad', color: '#ffffff', boxShadow: '0 4px 16px rgba(45,127,173,0.3)' }}
+        whileHover={{ scale: 1.1, boxShadow: '0 6px 22px rgba(45,127,173,0.4)' }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Volver arriba"
+      >
+        <ChevronDown style={{ width: '18px', height: '18px', transform: 'rotate(180deg)' }} />
+      </motion.button>
+    </div>
+  )
+}
+
 /* ─── Footer ──────────────────────────────────────────────── */
 function Footer() {
+  const [email, setEmail] = useState('')
+  const [sent, setSent]   = useState(false)
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+    setSent(true)
+  }
+
+  const col1 = [
+    { label: 'Registrar sesión', href: '/progreso' },
+    { label: 'Mis rutinas',       href: '/rutinas' },
+    { label: 'Dashboard',         href: '/dashboard' },
+    { label: 'Historial',         href: '/historial' },
+    { label: 'Récords (PRs)',     href: '/records' },
+    { label: 'Peso corporal',     href: '/peso' },
+  ]
+  const col2 = [
+    { label: 'Crear cuenta gratis', href: '/registro' },
+    { label: 'Iniciar sesión',       href: '/login' },
+  ]
+
+  const socials = [
+    { label: 'Instagram', href: 'https://instagram.com/', icon: <SocialInstagram /> },
+    { label: 'X',         href: 'https://x.com/',        icon: <SocialX /> },
+    { label: 'TikTok',    href: 'https://tiktok.com/',   icon: <SocialTikTok /> },
+    { label: 'YouTube',   href: 'https://youtube.com/',  icon: <SocialYoutube /> },
+  ]
+
+  const linkStyle: React.CSSProperties = {
+    fontSize: '13px', color: '#6b7280', textDecoration: 'none', fontWeight: '400',
+    transition: 'color 0.14s', display: 'block',
+  }
+
   return (
-    <footer style={{ padding: '28px clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', backgroundColor: '#f8f9fb' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ backgroundColor: '#2d7fad', borderRadius: '6px', padding: '4px', display: 'flex' }}>
-          <Zap style={{ width: '11px', height: '11px', color: '#ffffff' }} />
+    <footer style={{ backgroundColor: '#0d0f14', color: '#e2e2e8' }}>
+      {/* Main grid */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(52px,7vw,80px) clamp(24px,5vw,80px) clamp(40px,5vw,56px)', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.6fr', gap: '40px' }} className="footer-grid">
+
+        {/* Brand column */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+            <div style={{ backgroundColor: '#2d7fad', borderRadius: '7px', padding: '6px', display: 'flex', flexShrink: 0 }}>
+              <Zap style={{ width: '13px', height: '13px', color: '#ffffff' }} />
+            </div>
+            <span style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.02em' }}>VoltTrack</span>
+          </div>
+          <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.7', margin: '0 0 24px', maxWidth: '260px', fontWeight: '300' }}>
+            El tracker de entrenamiento para atletas serios. Registra pesos, sigue tus PRs y visualiza 365 días de progreso.
+          </p>
+          {/* Social icons */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {socials.map(s => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                style={{ width: '36px', height: '36px', borderRadius: '9px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', textDecoration: 'none', transition: 'color 0.14s, border-color 0.14s, background-color 0.14s' }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)' }}
+              >
+                {s.icon}
+              </a>
+            ))}
+          </div>
         </div>
-        <span style={{ fontSize: '12px', color: '#9aa0a8', fontWeight: '600', letterSpacing: '-0.01em' }}>VoltTrack</span>
+
+        {/* App links */}
+        <div>
+          <p style={{ fontSize: '11px', fontWeight: '600', color: '#ffffff', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 18px' }}>App</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+            {col1.map(l => (
+              <a key={l.label} href={l.href} style={linkStyle}
+                onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}
+              >{l.label}</a>
+            ))}
+          </div>
+        </div>
+
+        {/* Cuenta links */}
+        <div>
+          <p style={{ fontSize: '11px', fontWeight: '600', color: '#ffffff', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 18px' }}>Cuenta</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+            {col2.map(l => (
+              <a key={l.label} href={l.href} style={linkStyle}
+                onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}
+              >{l.label}</a>
+            ))}
+          </div>
+        </div>
+
+        {/* Newsletter */}
+        <div>
+          <p style={{ fontSize: '11px', fontWeight: '600', color: '#ffffff', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 10px' }}>Newsletter</p>
+          <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.6', margin: '0 0 16px', fontWeight: '300' }}>
+            Novedades, tips de entrenamiento y actualizaciones de la app.
+          </p>
+          {sent ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 14px', backgroundColor: 'rgba(46,154,96,0.12)', border: '1px solid rgba(46,154,96,0.25)', borderRadius: '9px' }}>
+              <CheckCircle2 style={{ width: '14px', height: '14px', color: '#2e9a60', flexShrink: 0 }} />
+              <span style={{ fontSize: '13px', color: '#2e9a60', fontWeight: '500' }}>Suscrito correctamente</span>
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: '0' }}>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Tu email"
+                required
+                style={{ flex: 1, padding: '10px 14px', fontSize: '13px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRight: 'none', borderRadius: '8px 0 0 8px', color: '#e2e2e8', outline: 'none', fontFamily: 'inherit' }}
+                onFocus={e => { e.currentTarget.style.borderColor = 'rgba(45,127,173,0.5)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.09)' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)' }}
+              />
+              <button type="submit" style={{ padding: '10px 14px', backgroundColor: '#2d7fad', border: '1px solid #2d7fad', borderRadius: '0 8px 8px 0', color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'background-color 0.14s' }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#246a94')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#2d7fad')}
+                aria-label="Suscribirse"
+              >
+                <ArrowRight style={{ width: '15px', height: '15px' }} />
+              </button>
+            </form>
+          )}
+        </div>
       </div>
-      <p style={{ fontSize: '12px', color: '#c4c9d1', margin: 0 }}>Performance Gym Tracker · Gratis para siempre</p>
+
+      {/* Bottom bar */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '18px clamp(24px,5vw,80px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', maxWidth: '1200px', margin: '0 auto' }} className="footer-bottom">
+        <p style={{ fontSize: '12px', color: '#3d4147', margin: 0 }}>
+          © 2026 VoltTrack. Todos los derechos reservados.
+        </p>
+        <p style={{ fontSize: '12px', color: '#3d4147', margin: 0 }}>
+          Gratis para siempre · Sin anuncios · Sin límites
+        </p>
+      </div>
     </footer>
   )
 }
@@ -890,6 +1098,23 @@ const css = `
   @media (prefers-reduced-motion: reduce) {
     .land-marquee { animation: none; }
   }
+  .footer-grid {
+    grid-template-columns: 2fr 1fr 1fr 1.6fr;
+  }
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+  }
+  @media (max-width: 540px) {
+    .footer-grid {
+      grid-template-columns: 1fr !important;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
 `
 
 /* ─── Page ────────────────────────────────────────────────── */
@@ -926,6 +1151,7 @@ export default function LandingPage() {
         <FinalCTA />
         <Footer />
       </div>
+      <FloatingButtons />
     </>
   )
 }
