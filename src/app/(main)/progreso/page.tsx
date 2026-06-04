@@ -1,8 +1,8 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { ChevronDown, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle, Plus, Minus, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle, Plus, Minus, X, CalendarDays } from 'lucide-react'
 
 interface Rutina    { id_rutina: string; nombre: string }
 interface Ejercicio { id_ejercicio: string; nombre: string; num_series: number; orden: number }
@@ -33,6 +33,157 @@ function inputAKg(val: number, u: Unidad): number {
   return val
 }
 
+
+// ── Custom DatePicker ──────────────────────────────────────────────────────
+const MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+const DIAS_ES  = ['L','M','X','J','V','S','D']
+
+function DatePicker({ value, onChange, max }: { value: string; onChange: (v: string) => void; max?: string }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const parsed = value ? new Date(value + 'T12:00:00') : new Date()
+  const [view, setView] = useState({ year: parsed.getFullYear(), month: parsed.getMonth() })
+
+  // Sync view when value changes externally
+  useEffect(() => {
+    if (value) {
+      const d = new Date(value + 'T12:00:00')
+      setView({ year: d.getFullYear(), month: d.getMonth() })
+    }
+  }, [value])
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const display = value
+    ? new Date(value + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' })
+    : 'Seleccionar fecha'
+
+  // Build days grid (Mon-first)
+  const firstDay    = new Date(view.year, view.month, 1)
+  const lastDay     = new Date(view.year, view.month + 1, 0)
+  const startOffset = (firstDay.getDay() + 6) % 7 // Mon = 0
+
+  const cells: (Date | null)[] = Array(startOffset).fill(null)
+  for (let d = 1; d <= lastDay.getDate(); d++) cells.push(new Date(view.year, view.month, d))
+
+  const todayStr = new Date().toISOString().split('T')[0]
+
+  const prevM = () => setView(v => { const d = new Date(v.year, v.month - 1); return { year: d.getFullYear(), month: d.getMonth() } })
+  const nextM = () => setView(v => { const d = new Date(v.year, v.month + 1); return { year: d.getFullYear(), month: d.getMonth() } })
+
+  const pick = (day: Date) => {
+    const str = day.toISOString().split('T')[0]
+    if (max && str > max) return
+    onChange(str)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', textAlign: 'left',
+          backgroundColor: 'var(--surface-input)',
+          border: `1px solid ${open ? 'var(--accent)' : 'var(--border-subtle)'}`,
+          boxShadow: open ? '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)' : 'none',
+          color: value ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          borderRadius: 'var(--r-md)', padding: '8px 11px', fontSize: '13px',
+          fontFamily: 'inherit', cursor: 'pointer',
+          transition: 'border-color var(--t-sm), box-shadow var(--t-sm)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px',
+          boxSizing: 'border-box',
+        }}
+      >
+        <span>{display}</span>
+        <CalendarDays style={{ width: '13px', height: '13px', color: 'var(--text-tertiary)', flexShrink: 0 }} />
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+          backgroundColor: 'var(--surface-card)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 'var(--r-lg)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+          zIndex: 300, padding: '14px', minWidth: '240px',
+          animation: 'fadeUp 0.12s var(--ease-out) both',
+        }}>
+          {/* Month navigation */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <button onClick={prevM} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '5px', borderRadius: 'var(--r-sm)', display: 'flex', transition: 'color var(--t-sm)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+            >
+              <ChevronLeft style={{ width: '14px', height: '14px' }} />
+            </button>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              {MESES_ES[view.month]} {view.year}
+            </span>
+            <button onClick={nextM} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '5px', borderRadius: 'var(--r-sm)', display: 'flex', transition: 'color var(--t-sm)' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+            >
+              <ChevronRight style={{ width: '14px', height: '14px' }} />
+            </button>
+          </div>
+
+          {/* Day headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: '4px' }}>
+            {DIAS_ES.map(d => (
+              <span key={d} style={{ textAlign: 'center', fontSize: '10px', fontWeight: '500', color: 'var(--text-disabled)', letterSpacing: '0.05em', padding: '3px 0' }}>{d}</span>
+            ))}
+          </div>
+
+          {/* Days */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
+            {cells.map((day, i) => {
+              if (!day) return <span key={`e-${i}`} />
+              const str   = day.toISOString().split('T')[0]
+              const isSel = str === value
+              const isHoy = str === todayStr
+              const isOff = max ? str > max : false
+              return (
+                <button key={str} onClick={() => pick(day)} disabled={isOff}
+                  style={{
+                    padding: '6px 0', borderRadius: '6px', border: 'none',
+                    cursor: isOff ? 'default' : 'pointer',
+                    fontSize: '12px', fontFamily: 'inherit', textAlign: 'center',
+                    backgroundColor: isSel ? 'var(--accent)' : isHoy ? 'var(--accent-dim)' : 'transparent',
+                    color: isSel ? '#0c0e12' : isHoy ? 'var(--accent)' : isOff ? 'var(--text-disabled)' : 'var(--text-primary)',
+                    fontWeight: isSel || isHoy ? '600' : '400',
+                    transition: 'background-color var(--t-xs)',
+                  }}
+                  onMouseEnter={e => { if (!isSel && !isOff) e.currentTarget.style.backgroundColor = 'var(--surface-high)' }}
+                  onMouseLeave={e => { if (!isSel) e.currentTarget.style.backgroundColor = isSel ? 'var(--accent)' : isHoy ? 'var(--accent-dim)' : 'transparent' }}
+                >
+                  {day.getDate()}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Hoy shortcut */}
+          <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border-faint)', display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={() => { onChange(todayStr); setOpen(false) }}
+              style={{ fontSize: '11px', color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '500', padding: '2px 4px' }}>
+              Hoy
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const inp: React.CSSProperties = {
   backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)',
@@ -65,7 +216,26 @@ export default function ProgresoPage() {
   const getUnidad = (id: string): Unidad => unidades[id] ?? 'kg'
 
   const toggleUnidadEj = (id: string) => {
-    setUnidades(prev => ({ ...prev, [id]: prev[id] === 'lb' ? 'kg' : 'lb' }))
+    const currentU = getUnidad(id)
+    const nextU: Unidad = currentU === 'lb' ? 'kg' : 'lb'
+
+    // Convertir los valores ya ingresados en los inputs de ese ejercicio
+    setEjConSeries(prev => prev.map(ej => {
+      if (ej.ejercicio.id_ejercicio !== id) return ej
+      return {
+        ...ej,
+        series: ej.series.map(s => {
+          const val = parseFloat(s.peso_kg)
+          if (isNaN(val) || s.peso_kg.trim() === '') return s
+          const converted = nextU === 'lb'
+            ? Math.round(val * KG_TO_LB * 10) / 10   // kg → lb
+            : Math.round(val * LB_TO_KG * 10) / 10   // lb → kg
+          return { ...s, peso_kg: String(converted) }
+        }),
+      }
+    }))
+
+    setUnidades(prev => ({ ...prev, [id]: nextU }))
   }
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
@@ -314,8 +484,7 @@ export default function ProgresoPage() {
           </div>
           <div>
             <label className="label" htmlFor="p-fecha" style={{ display: 'block', marginBottom: '6px' }}>Fecha</label>
-            <input id="p-fecha" type="date" value={fecha} onChange={e => setFecha(e.target.value)}
-              style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 11px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <DatePicker value={fecha} onChange={setFecha} max={new Date().toISOString().split('T')[0]} />
           </div>
         </div>
       </div>
