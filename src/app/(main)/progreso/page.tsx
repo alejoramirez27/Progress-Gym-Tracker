@@ -15,6 +15,24 @@ function fmtFechaLarga(s: string) {
 }
 function serieVacia(): SerieInput { return { peso_kg: '', repeticiones: '', rir: '', notas: '' } }
 
+// ── Conversión de unidades ──────────────────────────────────────────────────
+const KG_TO_LB = 2.20462
+const LB_TO_KG = 0.453592
+
+type Unidad = 'kg' | 'lb'
+
+/** Convierte kg almacenados a la unidad de display */
+function kgADisplay(kg: number, u: Unidad): number {
+  if (u === 'lb') return Math.round(kg * KG_TO_LB * 10) / 10
+  return kg
+}
+
+/** Convierte el valor ingresado por el usuario a kg para guardar */
+function inputAKg(val: number, u: Unidad): number {
+  if (u === 'lb') return Math.round(val * LB_TO_KG * 1000) / 1000
+  return val
+}
+
 const TIMER_OPCIONES = [60, 90, 120, 180]
 
 function RestTimer({ onClose }: { onClose: () => void }) {
@@ -148,6 +166,19 @@ export default function ProgresoPage() {
   const [ultimosPesos, setUltimosPesos]   = useState<Record<string, { peso_kg: number; repeticiones: number }[]>>({})
   // Post-session summary stats
   const [resumen, setResumen] = useState<{ totalSeries: number; volumen: number; nuevosPRs: string[] } | null>(null)
+  // Unidad de peso
+  const [unidad, setUnidad] = useState<Unidad>('kg')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('peso_unit') as Unidad | null
+    if (saved === 'kg' || saved === 'lb') setUnidad(saved)
+  }, [])
+
+  const toggleUnidad = () => {
+    const next: Unidad = unidad === 'kg' ? 'lb' : 'kg'
+    setUnidad(next)
+    localStorage.setItem('peso_unit', next)
+  }
 
   const tieneCambios = ejConSeries.some(ej => ej.series.some(s => s.peso_kg.trim() !== '' || s.repeticiones.trim() !== ''))
 
@@ -250,30 +281,33 @@ export default function ProgresoPage() {
     if (!hayDatos) { toast.error('Registra al menos una serie con repeticiones'); return }
     setGuardando(true)
 
-    // Calcular resumen antes de guardar
+    // Calcular resumen y convertir unidades antes de guardar
     let totalSeries = 0
     let volumen = 0
     const nuevosPRs: string[] = []
-    for (const ej of ejConSeries) {
+
+    // Construir datos con pesos siempre en kg para la API
+    const ejerciciosParaApi = ejConSeries.map(ej => {
       const prevMax = ultimosPesos[ej.ejercicio.id_ejercicio]?.[0]?.peso_kg ?? 0
       let maxEjSesion = 0
-      for (const s of ej.series) {
-        const p = parseFloat(s.peso_kg)
+      const seriesConvertidas = ej.series.map(s => {
+        const pInput = parseFloat(s.peso_kg)
         const r = parseInt(s.repeticiones)
-        if (!isNaN(p) && !isNaN(r) && r > 0) {
+        const pKg = !isNaN(pInput) ? inputAKg(pInput, unidad) : 0
+        if (!isNaN(pInput) && !isNaN(r) && r > 0) {
           totalSeries++
-          volumen += p * r
-          if (p > maxEjSesion) maxEjSesion = p
+          volumen += pKg * r
+          if (pKg > maxEjSesion) maxEjSesion = pKg
         }
-      }
-      if (maxEjSesion > 0 && maxEjSesion > prevMax) {
-        nuevosPRs.push(ej.ejercicio.nombre)
-      }
-    }
+        return { ...s, peso_kg: !isNaN(pInput) ? String(Math.round(pKg * 1000) / 1000) : s.peso_kg }
+      })
+      if (maxEjSesion > 0 && maxEjSesion > prevMax) nuevosPRs.push(ej.ejercicio.nombre)
+      return { id_ejercicio: ej.ejercicio.id_ejercicio, series: seriesConvertidas }
+    })
 
     const res = await fetch('/api/sesiones', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_rutina: rutinaId, fecha, notas: notas.trim() || null, ejercicios_data: ejConSeries.map(ej => ({ id_ejercicio: ej.ejercicio.id_ejercicio, series: ej.series })) }),
+      body: JSON.stringify({ id_rutina: rutinaId, fecha, notas: notas.trim() || null, ejercicios_data: ejerciciosParaApi }),
     })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error ?? 'Error al guardar'); setGuardando(false); return }
@@ -332,8 +366,13 @@ export default function ProgresoPage() {
                 <p className="label" style={{ margin: 0 }}>Series</p>
               </div>
               <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
-                <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>{resumen.volumen >= 1000 ? `${(resumen.volumen/1000).toFixed(1)}t` : `${resumen.volumen}`}</p>
-                <p className="label" style={{ margin: 0 }}>Volumen kg</p>
+                <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>
+                  {(() => {
+                    const v = unidad === 'lb' ? Math.round(resumen.volumen * KG_TO_LB) : resumen.volumen
+                    return v >= 1000 ? `${(v/1000).toFixed(1)}t` : `${v}`
+                  })()}
+                </p>
+                <p className="label" style={{ margin: 0 }}>Volumen {unidad}</p>
               </div>
             </div>
             {resumen.nuevosPRs.length > 0 && (
@@ -375,19 +414,45 @@ export default function ProgresoPage() {
           <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Registrar Sesión</h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Registra los pesos y reps de hoy</p>
         </div>
-        <button
-          onClick={() => setMostrarTimer(t => !t)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px',
-            backgroundColor: mostrarTimer ? 'color-mix(in srgb, var(--accent) 12%, var(--surface-card))' : 'var(--surface-raised)',
-            border: `1px solid ${mostrarTimer ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--border-subtle)'}`,
-            borderRadius: 'var(--r-md)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
-            color: mostrarTimer ? 'var(--accent)' : 'var(--text-secondary)',
-          }}
-        >
-          <Timer style={{ width: '12px', height: '12px' }} />
-          Timer
-        </button>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {/* Toggle kg / lb */}
+          <button
+            onClick={toggleUnidad}
+            style={{
+              display: 'flex', alignItems: 'center', padding: '7px 2px',
+              backgroundColor: 'var(--surface-raised)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--r-md)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
+              overflow: 'hidden', gap: 0,
+            }}
+            title="Cambiar unidad de peso"
+          >
+            {(['kg', 'lb'] as Unidad[]).map(u => (
+              <span key={u} style={{
+                padding: '0 10px', lineHeight: '1',
+                color: unidad === u ? '#0c0e12' : 'var(--text-disabled)',
+                backgroundColor: unidad === u ? 'var(--accent)' : 'transparent',
+                borderRadius: unidad === u ? '4px' : '0',
+                fontWeight: unidad === u ? '600' : '400',
+                transition: 'all 0.14s',
+              }}>{u}</span>
+            ))}
+          </button>
+
+          <button
+            onClick={() => setMostrarTimer(t => !t)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px',
+              backgroundColor: mostrarTimer ? 'color-mix(in srgb, var(--accent) 12%, var(--surface-card))' : 'var(--surface-raised)',
+              border: `1px solid ${mostrarTimer ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--border-subtle)'}`,
+              borderRadius: 'var(--r-md)', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
+              color: mostrarTimer ? 'var(--accent)' : 'var(--text-secondary)',
+            }}
+          >
+            <Timer style={{ width: '12px', height: '12px' }} />
+            Timer
+          </button>
+        </div>
       </div>
 
       {/* Rutina + fecha */}
@@ -435,7 +500,7 @@ export default function ProgresoPage() {
                 </p>
                 {ultimosPesos[item.ejercicio.id_ejercicio]?.length > 0 && (
                   <span style={{ fontSize: '10px', color: 'var(--text-disabled)', backgroundColor: 'var(--surface-high)', borderRadius: '4px', padding: '2px 6px', whiteSpace: 'nowrap' }}>
-                    ↩ {ultimosPesos[item.ejercicio.id_ejercicio][0].peso_kg} kg
+                    ↩ {kgADisplay(ultimosPesos[item.ejercicio.id_ejercicio][0].peso_kg, unidad)} {unidad}
                   </span>
                 )}
                 <button
@@ -452,7 +517,7 @@ export default function ProgresoPage() {
                 {/* Column headers */}
                 <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', marginBottom: '6px' }}>
                   <span />
-                  {['Peso (kg)', 'Reps *', 'RIR'].map(h => (
+                  {[`Peso (${unidad})`, 'Reps *', 'RIR'].map(h => (
                     <span key={h} className="label" style={{ textAlign: 'center' }}>{h}</span>
                   ))}
                 </div>
@@ -465,8 +530,8 @@ export default function ProgresoPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
                       {/* inputMode="decimal" shows numeric pad WITH decimal key on iOS */}
-                      <input type="number" step="0.5" min="0" inputMode="decimal"
-                        placeholder={antSerie && antSerie.peso_kg > 0 ? String(antSerie.peso_kg) : '80'}
+                      <input type="number" step={unidad === 'lb' ? '1' : '0.5'} min="0" inputMode="decimal"
+                        placeholder={antSerie && antSerie.peso_kg > 0 ? String(kgADisplay(antSerie.peso_kg, unidad)) : (unidad === 'lb' ? '176' : '80')}
                         value={serie.peso_kg}
                         onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
                       <input type="number" step="1" min="1" inputMode="numeric"
