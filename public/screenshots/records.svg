@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <rect width="390" height="844" fill="#f8f9fb"/>
+  <text x="195" y="34" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Récords (PRs)</text>
+  <rect x="16" y="56" width="358" height="100" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="40" y="76" width="32" height="32" rx="8" fill="#e8f3fb"/>
+  <rect x="84" y="80" width="140" height="12" rx="4" fill="#111318"/>
+  <rect x="84" y="100" width="80" height="10" rx="3" fill="#dde0e6"/>
+  <text x="340" y="116" text-anchor="middle" fill="#2d7fad" font-size="22" font-family="system-ui" font-weight="700">130</text>
+  <text x="340" y="132" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">kg</text>
+  <rect x="16" y="168" width="358" height="100" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="40" y="188" width="32" height="32" rx="8" fill="#e8f3fb"/>
+  <rect x="84" y="192" width="110" height="12" rx="4" fill="#111318"/>
+  <rect x="84" y="212" width="70" height="10" rx="3" fill="#dde0e6"/>
+  <text x="340" y="228" text-anchor="middle" fill="#2d7fad" font-size="22" font-family="system-ui" font-weight="700">180</text>
+  <text x="340" y="244" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">kg</text>
+  <rect x="16" y="280" width="358" height="100" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="40" y="300" width="32" height="32" rx="8" fill="#e8f3fb"/>
+  <rect x="84" y="304" width="130" height="12" rx="4" fill="#111318"/>
+  <rect x="84" y="324" width="90" height="10" rx="3" fill="#dde0e6"/>
+  <text x="340" y="340" text-anchor="middle" fill="#2d7fad" font-size="22" font-family="system-ui" font-weight="700">100</text>
+  <text x="340" y="356" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">kg</text>
+  <rect x="16" y="400" width="358" height="80" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="16" y="496" width="358" height="80" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+</svg>
+<!-- TODO: reemplazar por screenshot real de /records -->

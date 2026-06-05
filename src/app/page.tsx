@@ -1,5 +1,6 @@
 'use client'
 import { useRef, useState, useEffect } from 'react'
+import Image from 'next/image'
 import {
   motion,
   useScroll,
@@ -14,17 +15,21 @@ import {
   Zap, TrendingUp, Trophy, Layers, ArrowRight, BicepsFlexed,
   CheckCircle2, BarChart2, ChevronDown, Timer, RotateCcw,
   Share2, Download, Smartphone, Target, ShieldCheck, Flame, Dumbbell,
+  HelpCircle, ChevronRight,
 } from 'lucide-react'
 
 /* ─── Easing ──────────────────────────────────────────────── */
 const E: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
-/* ─── Images ──────────────────────────────────────────────── */
+/* ─── Images (stock) — P1-6: fotos de rendimiento/fuerza ──── */
 const IMGS = {
+  // Hombre en barra — powerlifting / deadlift vibe
   hero:     'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=85',
-  registro: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=85',
+  // Atleta masculino con barra — sentadilla / fuerza
   records:  'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1000&q=80',
+  // TODO P1-6: reemplazar progreso por foto de atleta serio en peso muerto o press banca
   progreso: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=80',
+  // Gym vacío, peso muerto
   gym:      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80',
 }
 
@@ -61,7 +66,7 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 /* ─── Animated counter ───────────────────────────────────── */
-function CountUp({ to, suffix = '', prefix = '' }: { to: number; suffix?: string; prefix?: string }) {
+function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
   const [val, setVal] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true })
@@ -81,7 +86,7 @@ function CountUp({ to, suffix = '', prefix = '' }: { to: number; suffix?: string
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [inView, to, reduce])
-  return <span ref={ref}>{prefix}{val}{suffix}</span>
+  return <span ref={ref}>{val}{suffix}</span>
 }
 
 /* ─── Magnetic CTA ───────────────────────────────────────── */
@@ -111,7 +116,6 @@ function MagneticCTA({ href, children, primary = false }: { href: string; childr
           textDecoration: 'none', padding: '14px 26px', borderRadius: '9px',
           fontSize: '15px', fontWeight: '600', letterSpacing: '-0.01em',
           transition: 'background-color 0.14s, box-shadow 0.2s',
-          boxShadow: '0 0 0 0 rgba(45,127,173,0)',
         } : {
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           backgroundColor: 'transparent', color: '#111318',
@@ -122,12 +126,10 @@ function MagneticCTA({ href, children, primary = false }: { href: string; childr
         }}
         onMouseEnter={e => {
           e.currentTarget.style.backgroundColor = primary ? '#246a94' : '#f5f6f8'
-          if (primary) e.currentTarget.style.boxShadow = '0 4px 20px rgba(45,127,173,0.22)'
           if (!primary) e.currentTarget.style.borderColor = '#c4c9d1'
         }}
         onMouseLeave={e => {
           e.currentTarget.style.backgroundColor = primary ? '#2d7fad' : 'transparent'
-          if (primary) e.currentTarget.style.boxShadow = '0 0 0 0 rgba(45,127,173,0)'
           if (!primary) e.currentTarget.style.borderColor = '#dde0e6'
         }}
       >
@@ -154,8 +156,61 @@ function Nav() {
         </motion.div>
         <span style={{ fontSize: '14px', fontWeight: '600', color: '#111318', letterSpacing: '-0.01em' }}>VoltTrack</span>
       </Link>
-      <div />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Link href="/login" style={{ fontSize: '14px', fontWeight: '500', color: '#4a5057', textDecoration: 'none', padding: '8px 14px', borderRadius: '7px', transition: 'color 0.14s' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#111318')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#4a5057')}
+        >
+          Iniciar sesión
+        </Link>
+        <Link href="/registro" style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff', textDecoration: 'none', padding: '8px 16px', borderRadius: '7px', backgroundColor: '#2d7fad', transition: 'background-color 0.14s' }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#246a94')}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#2d7fad')}
+        >
+          Registrarse
+        </Link>
+      </div>
     </motion.header>
+  )
+}
+
+/* ─── P0-1: ProductShot component ────────────────────────── */
+// Frame de teléfono ~9:19.5. Usa screenshots locales en /public/screenshots/
+// TODO: subir capturas reales a /public/screenshots/{registro,records,dashboard}.png
+function ProductShot({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
+  return (
+    <motion.div
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ duration: 0.4, ease: E }}
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '260px',
+        margin: '0 auto',
+        // 9:19.5 aspect ratio
+        aspectRatio: '9 / 19.5',
+        borderRadius: '32px',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.06)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Notch */}
+      <div style={{
+        position: 'absolute', top: '12px', left: '50%', transform: 'translateX(-50%)',
+        width: '72px', height: '22px', backgroundColor: '#111318',
+        borderRadius: '11px', zIndex: 3,
+      }} />
+      {/* Screen content */}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 200px, 260px"
+        style={{ objectFit: 'cover', objectPosition: 'top center' }}
+        priority={priority}
+      />
+    </motion.div>
   )
 }
 
@@ -220,7 +275,6 @@ function Hero() {
 
       {/* Left content */}
       <div className="land-hero-left" style={{ position: 'relative', zIndex: 1 }}>
-        {/* Label chip */}
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -284,9 +338,7 @@ function Hero() {
         </motion.div>
 
         {/* Scroll indicator */}
-        <motion.div
-          style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}
-        >
+        <motion.div style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
             <motion.div
               animate={reduce ? {} : { scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
@@ -307,7 +359,7 @@ function Hero() {
         </motion.div>
       </div>
 
-      {/* Right: image + floating cards */}
+      {/* Right: gym image + floating cards — P1-4 priority image */}
       <div className="land-hero-right" style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.5) 0%, transparent 35%)' }} />
         <motion.div
@@ -316,32 +368,18 @@ function Hero() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.4, delay: 0.15, ease: E }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={IMGS.hero} alt="Atleta entrenando en el gimnasio" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
+          <Image
+            src={IMGS.hero}
+            alt="Atleta entrenando en el gimnasio"
+            fill
+            sizes="48vw"
+            style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+            priority
+          />
         </motion.div>
-
-        {/* Floating achievement cards */}
-        <AchievementCard
-          icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />}
-          label="Nuevo PR"
-          value="Press banca · 130 kg"
-          delay={1.1}
-          style={{ top: '22%', right: '8%' }}
-        />
-        <AchievementCard
-          icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />}
-          label="Racha activa"
-          value="18 días seguidos 🔥"
-          delay={1.35}
-          style={{ top: '44%', right: '14%' }}
-        />
-        <AchievementCard
-          icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />}
-          label="Progreso mensual"
-          value="+12 kg en sentadilla"
-          delay={1.6}
-          style={{ bottom: '24%', right: '7%' }}
-        />
+        <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ top: '22%', right: '8%' }} />
+        <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ top: '44%', right: '14%' }} />
+        <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ bottom: '24%', right: '7%' }} />
       </div>
     </section>
   )
@@ -381,22 +419,16 @@ function MarqueeStrip() {
 function FeaturesGrid() {
   const features = [
     { icon: BicepsFlexed, title: 'Series dinámicas',  body: 'Agrega o elimina series en tiempo real. La última se copia automáticamente.' },
-    { icon: Timer,        title: 'Timer de descanso', body: 'Temporizador de 1, 1.5, 2 o 3 min. Te avisa cuando el descanso terminó.' },
     { icon: RotateCcw,    title: 'Repite sesiones',   body: 'Carga la plantilla de tu última sesión con un solo toque. Sin reescribir.' },
     { icon: Trophy,       title: 'PRs automáticos',   body: 'Tu récord personal se actualiza solo. También calcula tu 1RM estimado.' },
-    { icon: Share2,       title: 'Comparte tu PR',    body: 'Un mensaje con tu récord se genera solo. Compártelo directo desde la app.' },
-    { icon: Download,     title: 'Exporta a CSV',     body: 'Descarga todo tu historial de entrenamiento cuando quieras.' },
     { icon: BarChart2,    title: 'Dashboard visual',  body: 'Heatmap de 365 días, gráfica de progreso por ejercicio y volumen semanal.' },
     { icon: Target,       title: 'RIR por serie',     body: 'Controla la intensidad con Reps In Reserve en cada serie.' },
     { icon: Smartphone,   title: 'Optimizado móvil',  body: 'Diseñado para usarlo desde el teléfono en el gym. Rápido y táctil.' },
   ]
-
   return (
     <section style={{ position: 'relative', backgroundColor: '#f8f9fb', padding: 'clamp(64px,8vw,100px) clamp(24px,5vw,80px)', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto' }}>
-
-        {/* Header */}
         <div style={{ marginBottom: '52px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
             <div>
@@ -406,9 +438,7 @@ function FeaturesGrid() {
                 </h2>
               </LineReveal>
               <Reveal delay={0.06}>
-                <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
-                  9 funciones · 0 fricciones
-                </p>
+                <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>6 funciones · 0 fricciones</p>
               </Reveal>
             </div>
             <Reveal delay={0.1}>
@@ -418,8 +448,6 @@ function FeaturesGrid() {
             </Reveal>
           </div>
         </div>
-
-        {/* Cards grid */}
         <div className="land-features-grid">
           {features.map((f, i) => {
             const Icon = f.icon
@@ -430,12 +458,9 @@ function FeaturesGrid() {
                   whileHover={{ y: -3, borderColor: '#dde0e6' }}
                   transition={{ duration: 0.2, ease: E }}
                 >
-                  {/* Top accent line */}
                   <motion.div
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: Math.floor(i / 3) * 0.05 + (i % 3) * 0.04 + 0.1, ease: E }}
+                    initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.1, ease: E }}
                     style={{ height: '1px', backgroundColor: '#dde0e6', marginBottom: '24px', transformOrigin: 'left' }}
                   />
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '14px' }}>
@@ -458,116 +483,130 @@ function FeaturesGrid() {
   )
 }
 
-/* ─── Feature editorial ──────────────────────────────────── */
-function FeatureEditorial() {
-  return (
-    <section style={{ position: 'relative', minHeight: '75vh', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={IMGS.registro} alt="Atleta realizando ejercicio" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,12,16,1) 0%, rgba(10,12,16,0.55) 40%, rgba(10,12,16,0.08) 100%)' }} />
-      <div style={{ position: 'relative', padding: 'clamp(52px,6vw,88px) clamp(24px,5vw,80px)', maxWidth: '720px' }}>
-        <Reveal>
-          <div style={{ backgroundColor: 'rgba(45,127,173,0.15)', border: '1px solid rgba(45,127,173,0.25)', borderRadius: '8px', padding: '8px', display: 'inline-flex', marginBottom: '24px' }}>
-            <BicepsFlexed style={{ width: '16px', height: '16px', color: '#7ab8d4' }} />
-          </div>
-        </Reveal>
-        <LineReveal delay={0.04}>
-          <h2 style={{ fontSize: 'clamp(32px, 4.5vw, 58px)', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.035em', lineHeight: '1.05', margin: '0 0 18px' }}>
-            Registro de sesiones
-          </h2>
-        </LineReveal>
-        <Reveal delay={0.1}>
-          <p style={{ fontSize: '16px', color: '#9aa0a8', margin: '0 0 24px', lineHeight: '1.7', fontWeight: '300', maxWidth: '500px' }}>
-            Selecciona la rutina del día, y los pesos de tu última sesión aparecen como referencia automáticamente. Actualiza lo que cambió y guarda en un clic.
-          </p>
-        </Reveal>
-        <Reveal delay={0.16}>
-          <div style={{ display: 'flex', gap: '28px', flexWrap: 'wrap' }}>
-            {['Series +/– en tiempo real', 'Notas por serie', 'Timer de descanso integrado'].map(item => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle2 style={{ width: '14px', height: '14px', color: '#7ab8d4', flexShrink: 0 }} />
-                <span style={{ fontSize: '14px', color: '#9aa0a8', fontWeight: '300' }}>{item}</span>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
+/* ─── P0-1 + P0-2: Product showcase (reemplaza FeatureEditorial + FeatureSplit) ── */
+// Secciones alternadas: texto izquierda/derecha + ProductShot
+function ProductShowcase() {
+  const sections = [
+    {
+      tag: 'Registro de sesiones',
+      Icon: BicepsFlexed,
+      title: 'El gym en tu bolsillo.',
+      body: 'Selecciona la rutina del día y los pesos de tu última sesión aparecen como referencia. Solo actualiza lo que cambió y guarda en un clic.',
+      bullets: ['Series +/– en tiempo real', 'Referencia automática del último peso', 'Notas por serie'],
+      // TODO: reemplazar por /screenshots/registro.png real
+      shot: '/screenshots/registro.svg',
+      shotAlt: 'Pantalla de registro de sesión en VoltTrack',
+      reverse: false,
+    },
+    {
+      tag: 'Récords automáticos',
+      Icon: Trophy,
+      title: 'Tu PR se actualiza solo.',
+      // Dashboard más prominente — el más vendedor
+      body: 'Cada vez que superas tu peso máximo, VoltTrack lo detecta y registra el nuevo PR al instante. También calcula tu 1RM estimado con la fórmula Epley.',
+      bullets: ['1RM calculado automáticamente', 'Ranking de ejercicios por fuerza', 'Comparte tu PR en un clic'],
+      // TODO: reemplazar por /screenshots/records.png real
+      shot: '/screenshots/records.svg',
+      shotAlt: 'Pantalla de récords personales en VoltTrack',
+      reverse: true,
+    },
+    {
+      tag: 'Dashboard',
+      Icon: BarChart2,
+      // Dashboard es lo más vendedor — sección más prominente
+      title: '365 días de progreso\nen una pantalla.',
+      body: 'Heatmap de actividad al estilo GitHub, curva de evolución de fuerza por ejercicio, racha de días activos y volumen semanal acumulado.',
+      bullets: ['Heatmap anual de actividad', 'Racha de días consecutivos', 'Volumen semanal vs semana anterior'],
+      // TODO: reemplazar por /screenshots/dashboard.png real — es la imagen MÁS IMPORTANTE
+      shot: '/screenshots/dashboard.svg',
+      shotAlt: 'Dashboard de VoltTrack con heatmap y gráficas de progreso',
+      reverse: false,
+    },
+  ]
 
-/* ─── Feature split ──────────────────────────────────────── */
-function FeatureSplit({
-  imgSrc, imgAlt, Icon, title, body, bullets = [], imgRight = false,
-}: {
-  imgSrc: string; imgAlt: string; Icon: React.ElementType;
-  title: string; body: string; bullets?: string[]; imgRight?: boolean
-}) {
   return (
-    <div className={`land-split ${imgRight ? 'land-split--rev' : ''}`}>
-      <motion.div
-        className={`land-split-img ${imgRight ? 'land-split-img--rev' : ''}`}
-        style={{ position: 'relative', overflow: 'hidden', minHeight: '480px' }}
-        whileHover={{ scale: 1.015 }}
-        transition={{ duration: 0.7, ease: E }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={imgSrc} alt={imgAlt} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
-        <div style={{ position: 'absolute', inset: 0, background: imgRight ? 'linear-gradient(to left, rgba(248,249,251,0.65) 0%, transparent 50%)' : 'linear-gradient(to right, rgba(248,249,251,0.65) 0%, transparent 50%)' }} />
-      </motion.div>
-      <div style={{ backgroundColor: '#f8f9fb', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(52px,7vw,100px) clamp(32px,5vw,72px)' }}>
-        <Reveal>
-          <div style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '8px', padding: '8px', display: 'inline-flex', marginBottom: '24px' }}>
-            <Icon style={{ width: '16px', height: '16px', color: '#2d7fad' }} />
-          </div>
-        </Reveal>
-        <LineReveal delay={0.04}>
-          <h2 style={{ fontSize: 'clamp(28px, 3.8vw, 50px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.035em', lineHeight: '1.08', margin: '0 0 18px' }}>
-            {title}
-          </h2>
-        </LineReveal>
-        <Reveal delay={0.1}>
-          <p style={{ fontSize: '16px', color: '#7a8290', margin: bullets.length > 0 ? '0 0 24px' : '0', lineHeight: '1.7', fontWeight: '300', maxWidth: '400px' }}>
-            {body}
-          </p>
-        </Reveal>
-        {bullets.length > 0 && (
-          <Reveal delay={0.16}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {bullets.map(b => (
-                <div key={b} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#2d7fad', flexShrink: 0 }} />
-                  <span style={{ fontSize: '14px', color: '#7a8290', fontWeight: '300' }}>{b}</span>
+    <>
+      {sections.map((s, idx) => (
+        <section
+          key={s.tag}
+          style={{
+            backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f8f9fb',
+            borderTop: '1px solid #eceef2',
+            padding: 'clamp(64px,8vw,100px) clamp(24px,5vw,80px)',
+          }}
+        >
+          <div style={{
+            maxWidth: '1100px', margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: s.reverse ? '1fr 1fr' : '1fr 1fr',
+            gap: 'clamp(40px,6vw,80px)',
+            alignItems: 'center',
+          }} className={s.reverse ? 'showcase-row showcase-row--rev' : 'showcase-row'}>
+
+            {/* Text */}
+            <div className="showcase-text">
+              <Reveal>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '99px', padding: '4px 12px', marginBottom: '20px' }}>
+                  <s.Icon style={{ width: '12px', height: '12px', color: '#2d7fad' }} />
+                  <span style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{s.tag}</span>
                 </div>
-              ))}
+              </Reveal>
+              <LineReveal delay={0.04}>
+                <h2 style={{ fontSize: 'clamp(28px, 3.6vw, 48px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.035em', lineHeight: '1.06', margin: '0 0 16px', whiteSpace: 'pre-line' }}>
+                  {s.title}
+                </h2>
+              </LineReveal>
+              <Reveal delay={0.1}>
+                <p style={{ fontSize: '16px', color: '#7a8290', margin: '0 0 24px', lineHeight: '1.7', fontWeight: '300', maxWidth: '420px' }}>
+                  {s.body}
+                </p>
+              </Reveal>
+              <Reveal delay={0.16}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {s.bullets.map(b => (
+                    <div key={b} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <CheckCircle2 style={{ width: '14px', height: '14px', color: '#2d7fad', flexShrink: 0, opacity: 0.7 }} />
+                      <span style={{ fontSize: '14px', color: '#4a5057', fontWeight: '400' }}>{b}</span>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
             </div>
-          </Reveal>
-        )}
-      </div>
-    </div>
+
+            {/* ProductShot — P0-1 */}
+            <Reveal delay={0.08}>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(20px,3vw,40px) 0' }}>
+                <ProductShot src={s.shot} alt={s.shotAlt} />
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      ))}
+    </>
   )
 }
 
-/* ─── Stats ───────────────────────────────────────────────── */
+/* ─── Stats — P2-10: todos los colores unificados a azul ──── */
 function Stats() {
   return (
     <section style={{ position: 'relative', backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', overflow: 'hidden', borderTop: '1px solid #eceef2' }}>
       <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '900px', height: '400px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', maxWidth: '900px', margin: '0 auto' }}>
         <Reveal>
           <h2 style={{ fontSize: 'clamp(24px, 3.2vw, 40px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 72px', lineHeight: '1.15', maxWidth: '520px', textWrap: 'balance' } as React.CSSProperties}>
             Diseñado para la sesión,<br />no para la galería.
           </h2>
         </Reveal>
+        {/* P2-10: color unificado — todos #2d7fad */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0', borderTop: '1px solid #eceef2' }}>
           {[
-            { to: 100,  suffix: '%', label: 'Privado',        sub: 'Solo tú ves tus datos',          color: '#2d7fad' },
-            { to: 5,    suffix: '×', label: 'Días / semana',  sub: 'Rutinas ordenadas por día',       color: '#2e9a60' },
-            { to: 0,    suffix: '',  label: 'Distracciones',  sub: 'Interfaz solo para entrenar',     color: '#c07040' },
+            { to: 100, suffix: '%', label: 'Privado',       sub: 'Solo tú ves tus datos' },
+            { to: 5,   suffix: '×', label: 'Días / semana', sub: 'Rutinas ordenadas por día' },
+            { to: 0,   suffix: '',  label: 'Distracciones', sub: 'Interfaz solo para entrenar' },
           ].map((m, i) => (
             <Reveal key={m.label} delay={i * 0.1}>
               <div style={{ padding: 'clamp(36px,4.5vw,56px) 0', paddingRight: 'clamp(16px,3vw,40px)' }}>
-                <p style={{ fontSize: 'clamp(56px, 8vw, 96px)', fontWeight: '700', color: m.color, letterSpacing: '-0.05em', margin: '0 0 10px', lineHeight: '0.92', fontVariantNumeric: 'tabular-nums' }}>
+                <p style={{ fontSize: 'clamp(56px, 8vw, 96px)', fontWeight: '700', color: '#2d7fad', letterSpacing: '-0.05em', margin: '0 0 10px', lineHeight: '0.92', fontVariantNumeric: 'tabular-nums' }}>
                   <CountUp to={m.to} suffix={m.suffix} />
                 </p>
                 <p style={{ fontSize: '15px', fontWeight: '600', color: '#111318', margin: '0 0 5px', letterSpacing: '-0.01em' }}>{m.label}</p>
@@ -581,142 +620,63 @@ function Stats() {
   )
 }
 
-/* ─── Process ─────────────────────────────────────────────── */
-function Process() {
-  const steps = [
-    { n: '01', title: 'Crea tus rutinas',    body: 'Organiza ejercicios por día de semana con el banco de más de 60 movimientos. Define series, orden, y listo.' },
-    { n: '02', title: 'Registra la sesión',  body: 'Selecciona la rutina del día. Los pesos de la última sesión aparecen de referencia. Solo actualiza lo que cambió.' },
-    { n: '03', title: 'Analiza tu progreso', body: 'Dashboard con heatmap de 365 días, curva de fuerza por ejercicio y racha de días. Tus PRs se actualizan solos.' },
-  ]
-  return (
-    <section style={{ backgroundColor: '#f8f9fb', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
-      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '64px' }}>
-          <LineReveal>
-            <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
-              Cómo funciona.
-            </h2>
-          </LineReveal>
-          <Reveal delay={0.06}>
-            <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
-              3 pasos · del gym a los datos
-            </p>
-          </Reveal>
-        </div>
-        {steps.map((step, i) => (
-          <Reveal key={step.n} delay={i * 0.06}>
-            <motion.div
-              whileHover={{ x: 4 }}
-              transition={{ duration: 0.22, ease: E }}
-              style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '0 28px', padding: 'clamp(32px,4.5vw,52px) 0', borderTop: '1px solid #eceef2', alignItems: 'start' }}
-            >
-              <div>
-                <span style={{ fontSize: 'clamp(48px, 6vw, 72px)', fontWeight: '700', color: 'rgba(45,127,173,0.12)', letterSpacing: '-0.05em', lineHeight: '1', fontVariantNumeric: 'tabular-nums', display: 'block' }}>
-                  {step.n}
-                </span>
-              </div>
-              <div style={{ paddingTop: '8px' }}>
-                <h3 style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: '600', color: '#111318', letterSpacing: '-0.025em', margin: '0 0 12px', lineHeight: '1.15' }}>
-                  {step.title}
-                </h3>
-                <p style={{ fontSize: '15px', color: '#7a8290', margin: 0, lineHeight: '1.7', maxWidth: '560px', fontWeight: '300' }}>
-                  {step.body}
-                </p>
-              </div>
-            </motion.div>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-/* ─── Why VoltTrack ───────────────────────────────────────── */
+/* ─── P0-2: WhySection reducida a 3 razones (las más fuertes) */
 function WhySection() {
   const reasons = [
     {
       icon: ShieldCheck,
       title: 'Gratis para siempre',
-      body: 'No hay plan premium, no hay funciones bloqueadas, no hay trampas. Todo lo que ves es todo lo que hay — sin costo.',
+      body: 'No hay plan premium, no hay funciones bloqueadas. Todo lo que ves es todo lo que hay — sin costo, sin sorpresas.',
     },
     {
       icon: Target,
       title: 'Cero distracciones',
-      body: 'Sin feed social, sin stories, sin notificaciones innecesarias. Entras al gym, registras tu sesión, sales. Así de simple.',
-    },
-    {
-      icon: Dumbbell,
-      title: 'Hecho por alguien que entrena',
-      body: 'Cada función surgió de un problema real en el gym. No es teoría — es la app que el creador quería tener.',
+      body: 'Sin feed social, sin notificaciones innecesarias. Entras al gym, registras tu sesión, sales. Así de simple.',
     },
     {
       icon: Download,
       title: 'Tus datos son tuyos',
-      body: 'Exporta todo tu historial en CSV en cualquier momento. Sin bloqueos, sin suscripción requerida para acceder.',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Progreso real, no estimado',
-      body: 'Registras exactamente lo que levantaste. El sistema calcula tus PRs y 1RM a partir de datos reales, no suposiciones.',
-    },
-    {
-      icon: Smartphone,
-      title: 'Rápido desde el celular',
-      body: 'Carga en menos de un segundo. Interfaz táctil optimizada para usarla parado frente a la barra, no sentado en un escritorio.',
+      body: 'Exporta todo tu historial en CSV en cualquier momento. Sin bloqueos ni suscripción requerida.',
     },
   ]
   return (
-    <section style={{ backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
+    <section style={{ backgroundColor: '#f8f9fb', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-
         <div style={{ marginBottom: '52px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
-            <div>
-              <LineReveal>
-                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
-                  Por qué VoltTrack.
-                </h2>
-              </LineReveal>
-              <Reveal delay={0.06}>
-                <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
-                  6 razones · ninguna es marketing
-                </p>
-              </Reveal>
-            </div>
-            <Reveal delay={0.1}>
-              <p style={{ fontSize: '16px', color: '#7a8290', margin: 0, lineHeight: '1.65', fontWeight: '300' }}>
-                La mayoría de apps de gym fallan porque son demasiado complicadas, lentas o te muestran anuncios mientras intentas concentrarte. VoltTrack no hace ninguna de esas cosas.
-              </p>
-            </Reveal>
-          </div>
+          <LineReveal>
+            <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+              Por qué VoltTrack.
+            </h2>
+          </LineReveal>
+          <Reveal delay={0.06}>
+            <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
+              3 razones · ninguna es marketing
+            </p>
+          </Reveal>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#eceef2', borderRadius: '14px', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#eceef2', borderRadius: '14px', overflow: 'hidden' }} className="why-grid">
           {reasons.map((r, i) => {
             const Icon = r.icon
             return (
-              <Reveal key={r.title} delay={Math.floor(i / 3) * 0.06 + (i % 3) * 0.04}>
+              <Reveal key={r.title} delay={i * 0.07}>
                 <motion.div
                   whileHover={{ backgroundColor: '#f3f7fb' }}
                   transition={{ duration: 0.18 }}
-                  style={{ backgroundColor: '#ffffff', padding: 'clamp(28px,3.8vw,44px) clamp(24px,3vw,36px)', height: '100%', boxSizing: 'border-box' }}
+                  style={{ backgroundColor: '#ffffff', padding: 'clamp(32px,4vw,48px) clamp(28px,3.5vw,40px)', height: '100%', boxSizing: 'border-box' }}
                 >
                   <motion.div
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: Math.floor(i / 3) * 0.06 + (i % 3) * 0.05 + 0.1, ease: E }}
-                    style={{ height: '1px', backgroundColor: '#dde0e6', marginBottom: '22px', transformOrigin: 'left' }}
+                    initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.07 + 0.1, ease: E }}
+                    style={{ height: '2px', backgroundColor: '#2d7fad', marginBottom: '28px', transformOrigin: 'left', opacity: 0.25, borderRadius: '2px' }}
                   />
-                  <motion.div
-                    whileHover={{ rotate: 6, scale: 1.08 }}
-                    transition={{ duration: 0.2 }}
-                    style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '9px', padding: '9px', display: 'inline-flex', marginBottom: '18px' }}
+                  <motion.div whileHover={{ rotate: 6, scale: 1.08 }} transition={{ duration: 0.2 }}
+                    style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '10px', padding: '10px', display: 'inline-flex', marginBottom: '20px' }}
                   >
-                    <Icon style={{ width: '16px', height: '16px', color: '#2d7fad' }} />
+                    <Icon style={{ width: '18px', height: '18px', color: '#2d7fad' }} />
                   </motion.div>
-                  <h3 style={{ fontSize: '17px', fontWeight: '600', color: '#111318', letterSpacing: '-0.02em', margin: '0 0 9px', lineHeight: '1.25' }}>{r.title}</h3>
-                  <p style={{ fontSize: '13px', color: '#7a8290', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111318', letterSpacing: '-0.02em', margin: '0 0 10px', lineHeight: '1.25' }}>{r.title}</h3>
+                  <p style={{ fontSize: '14px', color: '#7a8290', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
                 </motion.div>
               </Reveal>
             )
@@ -727,12 +687,98 @@ function WhySection() {
   )
 }
 
+/* ─── P2-9: FAQ section ───────────────────────────────────── */
+function FAQ() {
+  const [open, setOpen] = useState<number | null>(null)
+  const reduce = useReducedMotion()
+
+  const items = [
+    {
+      q: '¿De verdad es gratis? ¿Cuál es la trampa?',
+      a: 'No hay trampa. VoltTrack es 100% gratuito: sin plan premium, sin funciones bloqueadas, sin anuncios. Fue construida para uso propio y se decidió hacerla pública sin monetización.',
+    },
+    {
+      q: '¿Necesito instalar algo?',
+      a: 'No. Funciona desde el navegador de tu teléfono. Si quieres tenerla en la pantalla de inicio como app nativa, puedes instalarla como PWA desde Chrome o Safari con un solo toque — sin pasar por la App Store.',
+    },
+    {
+      q: '¿Dónde se guardan mis datos?',
+      a: 'En una base de datos segura alojada en Supabase (infraestructura sobre AWS). Solo tú puedes ver tus sesiones — ningún otro usuario tiene acceso a tu información.',
+    },
+    {
+      q: '¿Funciona sin conexión?',
+      a: 'Parcialmente. La app carga desde caché si ya la abriste antes. El registro de sesiones requiere conexión para guardar. Modo offline completo está en el roadmap.',
+    },
+    {
+      q: '¿Puedo exportar mis datos?',
+      a: 'Sí. Desde Perfil puedes descargar todo tu historial de series en formato CSV en cualquier momento, sin necesidad de ningún plan ni suscripción.',
+    },
+  ]
+
+  return (
+    <section style={{ backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
+      <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '52px' }}>
+          <LineReveal>
+            <h2 style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
+              Preguntas frecuentes.
+            </h2>
+          </LineReveal>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {items.map((item, i) => (
+            <Reveal key={i} delay={i * 0.04}>
+              <div style={{ borderTop: i === 0 ? '1px solid #eceef2' : undefined }}>
+                <button
+                  onClick={() => setOpen(open === i ? null : i)}
+                  style={{
+                    width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '20px 0', background: 'none', border: 'none', borderBottom: '1px solid #eceef2',
+                    cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', gap: '16px',
+                  }}
+                >
+                  <span style={{ fontSize: '15px', fontWeight: '500', color: '#111318', letterSpacing: '-0.01em', lineHeight: '1.4' }}>{item.q}</span>
+                  <motion.div
+                    animate={{ rotate: open === i ? 90 : 0 }}
+                    transition={{ duration: reduce ? 0 : 0.2, ease: E }}
+                    style={{ flexShrink: 0 }}
+                  >
+                    <ChevronRight style={{ width: '16px', height: '16px', color: '#9aa0a8' }} />
+                  </motion.div>
+                </button>
+                <motion.div
+                  initial={false}
+                  animate={{ height: open === i ? 'auto' : 0, opacity: open === i ? 1 : 0 }}
+                  transition={{ duration: reduce ? 0 : 0.25, ease: E }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <p style={{ fontSize: '14px', color: '#7a8290', lineHeight: '1.7', fontWeight: '300', padding: '12px 0 20px', margin: 0 }}>
+                    {item.a}
+                  </p>
+                </motion.div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── Final CTA ───────────────────────────────────────────── */
 function FinalCTA() {
   return (
     <section style={{ position: 'relative', overflow: 'hidden', minHeight: '68vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={IMGS.gym} alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', opacity: 0.22 }} />
+      <Image
+        src={IMGS.gym}
+        alt=""
+        aria-hidden
+        fill
+        sizes="100vw"
+        style={{ objectFit: 'cover', objectPosition: 'center 40%', opacity: 0.22 }}
+        loading="lazy"
+      />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(8,10,14,0.97) 0%, rgba(12,16,22,0.93) 100%)' }} />
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', textAlign: 'center', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', maxWidth: '760px' }}>
@@ -776,7 +822,7 @@ function FinalCTA() {
   )
 }
 
-/* ─── Social icon SVGs ────────────────────────────────────── */
+/* ─── Social SVGs ─────────────────────────────────────────── */
 const SocialInstagram = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
@@ -797,60 +843,38 @@ const SocialYoutube = () => (
     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0a0c10"/>
   </svg>
 )
-const SocialWhatsApp = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
-  </svg>
-)
 
-/* ─── Floating buttons ────────────────────────────────────── */
-function FloatingButtons() {
+/* ─── P1-5: Solo scroll-to-top (WhatsApp eliminado) ──────── */
+function ScrollToTop() {
   const [visible, setVisible] = useState(false)
   const reduce = useReducedMotion()
-
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400)
+    const onScroll = () => setVisible(window.scrollY > 600)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
   const scrollTop = () => window.scrollTo({ top: 0, behavior: reduce ? 'instant' : 'smooth' })
-
-  const btnBase: React.CSSProperties = {
-    width: '48px', height: '48px', borderRadius: '50%',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: 'none', cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s',
-  }
-
   return (
-    <div style={{ position: 'fixed', bottom: '28px', right: '24px', display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 90 }}>
-      {/* WhatsApp */}
-      <motion.button
-        initial={false}
-        animate={{ opacity: 1, scale: 1 }}
-        onClick={() => window.open('https://wa.me/', '_blank')}
-        style={{ ...btnBase, backgroundColor: '#25D366', color: '#ffffff', boxShadow: '0 4px 16px rgba(37,211,102,0.35)' }}
-        whileHover={{ scale: 1.1, boxShadow: '0 6px 22px rgba(37,211,102,0.45)' }}
-        whileTap={{ scale: 0.95 }}
-        aria-label="Contactar por WhatsApp"
-      >
-        <SocialWhatsApp />
-      </motion.button>
-
-      {/* Scroll to top */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0.7 }}
-        animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.7, pointerEvents: visible ? 'auto' : 'none' }}
-        transition={{ duration: 0.22, ease: E }}
-        onClick={scrollTop}
-        style={{ ...btnBase, backgroundColor: '#2d7fad', color: '#ffffff', boxShadow: '0 4px 16px rgba(45,127,173,0.3)' }}
-        whileHover={{ scale: 1.1, boxShadow: '0 6px 22px rgba(45,127,173,0.4)' }}
-        whileTap={{ scale: 0.95 }}
-        aria-label="Volver arriba"
-      >
-        <ChevronDown style={{ width: '18px', height: '18px', transform: 'rotate(180deg)' }} />
-      </motion.button>
-    </div>
+    <motion.button
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.8, pointerEvents: visible ? 'auto' : 'none' }}
+      transition={{ duration: 0.2, ease: E }}
+      onClick={scrollTop}
+      aria-label="Volver arriba"
+      style={{
+        position: 'fixed', bottom: '28px', right: '24px', zIndex: 90,
+        width: '40px', height: '40px', borderRadius: '50%',
+        backgroundColor: '#ffffff', color: '#4a5057',
+        border: '1px solid #dde0e6',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer',
+      }}
+      whileHover={{ boxShadow: '0 4px 16px rgba(0,0,0,0.12)', borderColor: '#c4c9d1' }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <ChevronDown style={{ width: '16px', height: '16px', transform: 'rotate(180deg)' }} />
+    </motion.button>
   )
 }
 
@@ -858,44 +882,32 @@ function FloatingButtons() {
 function Footer() {
   const [email, setEmail] = useState('')
   const [sent, setSent]   = useState(false)
-
-  const handleNewsletter = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email) return
-    setSent(true)
-  }
+  const handleNewsletter = (e: React.FormEvent) => { e.preventDefault(); if (email) setSent(true) }
 
   const col1 = [
     { label: 'Registrar sesión', href: '/progreso' },
-    { label: 'Mis rutinas',       href: '/rutinas' },
-    { label: 'Dashboard',         href: '/dashboard' },
-    { label: 'Historial',         href: '/historial' },
-    { label: 'Récords (PRs)',     href: '/records' },
-    { label: 'Peso corporal',     href: '/peso' },
+    { label: 'Mis rutinas',      href: '/rutinas' },
+    { label: 'Dashboard',        href: '/dashboard' },
+    { label: 'Historial',        href: '/historial' },
+    { label: 'Récords (PRs)',    href: '/records' },
+    { label: 'Peso corporal',    href: '/peso' },
   ]
   const col2 = [
     { label: 'Crear cuenta gratis', href: '/registro' },
-    { label: 'Iniciar sesión',       href: '/login' },
+    { label: 'Iniciar sesión',      href: '/login' },
   ]
-
   const socials = [
     { label: 'Instagram', href: 'https://instagram.com/', icon: <SocialInstagram /> },
     { label: 'X',         href: 'https://x.com/',        icon: <SocialX /> },
     { label: 'TikTok',    href: 'https://tiktok.com/',   icon: <SocialTikTok /> },
     { label: 'YouTube',   href: 'https://youtube.com/',  icon: <SocialYoutube /> },
   ]
-
-  const linkStyle: React.CSSProperties = {
-    fontSize: '13px', color: '#6b7280', textDecoration: 'none', fontWeight: '400',
-    transition: 'color 0.14s', display: 'block',
-  }
+  const linkStyle: React.CSSProperties = { fontSize: '13px', color: '#6b7280', textDecoration: 'none', fontWeight: '400', transition: 'color 0.14s', display: 'block' }
 
   return (
     <footer style={{ backgroundColor: '#0d0f14', color: '#e2e2e8' }}>
-      {/* Main grid */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(52px,7vw,80px) clamp(24px,5vw,80px) clamp(40px,5vw,56px)', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.6fr', gap: '40px' }} className="footer-grid">
-
-        {/* Brand column */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(52px,7vw,80px) clamp(24px,5vw,80px) clamp(40px,5vw,56px)', display: 'grid', gap: '40px' }} className="footer-grid">
+        {/* Brand */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
             <div style={{ backgroundColor: '#2d7fad', borderRadius: '7px', padding: '6px', display: 'flex', flexShrink: 0 }}>
@@ -906,51 +918,30 @@ function Footer() {
           <p style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.7', margin: '0 0 24px', maxWidth: '260px', fontWeight: '300' }}>
             El tracker de entrenamiento para atletas serios. Registra pesos, sigue tus PRs y visualiza 365 días de progreso.
           </p>
-          {/* Social icons */}
           <div style={{ display: 'flex', gap: '8px' }}>
             {socials.map(s => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
                 style={{ width: '36px', height: '36px', borderRadius: '9px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', textDecoration: 'none', transition: 'color 0.14s, border-color 0.14s, background-color 0.14s' }}
                 onMouseEnter={e => { e.currentTarget.style.color = '#ffffff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)' }}
                 onMouseLeave={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)' }}
-              >
-                {s.icon}
-              </a>
+              >{s.icon}</a>
             ))}
           </div>
         </div>
-
-        {/* App links */}
+        {/* App */}
         <div>
           <p style={{ fontSize: '11px', fontWeight: '600', color: '#ffffff', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 18px' }}>App</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
-            {col1.map(l => (
-              <a key={l.label} href={l.href} style={linkStyle}
-                onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}
-              >{l.label}</a>
-            ))}
+            {col1.map(l => <a key={l.label} href={l.href} style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}>{l.label}</a>)}
           </div>
         </div>
-
-        {/* Cuenta links */}
+        {/* Cuenta */}
         <div>
           <p style={{ fontSize: '11px', fontWeight: '600', color: '#ffffff', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 18px' }}>Cuenta</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
-            {col2.map(l => (
-              <a key={l.label} href={l.href} style={linkStyle}
-                onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}
-              >{l.label}</a>
-            ))}
+            {col2.map(l => <a key={l.label} href={l.href} style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = '#e2e2e8')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}>{l.label}</a>)}
           </div>
         </div>
-
         {/* Newsletter */}
         <div>
           <p style={{ fontSize: '11px', fontWeight: '600', color: '#ffffff', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 10px' }}>Newsletter</p>
@@ -963,21 +954,16 @@ function Footer() {
               <span style={{ fontSize: '13px', color: '#2e9a60', fontWeight: '500' }}>Suscrito correctamente</span>
             </div>
           ) : (
-            <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: '0' }}>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="Tu email"
-                required
+            <form onSubmit={handleNewsletter} style={{ display: 'flex' }}>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Tu email" required
                 style={{ flex: 1, padding: '10px 14px', fontSize: '13px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRight: 'none', borderRadius: '8px 0 0 8px', color: '#e2e2e8', outline: 'none', fontFamily: 'inherit' }}
                 onFocus={e => { e.currentTarget.style.borderColor = 'rgba(45,127,173,0.5)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.09)' }}
                 onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)' }}
               />
-              <button type="submit" style={{ padding: '10px 14px', backgroundColor: '#2d7fad', border: '1px solid #2d7fad', borderRadius: '0 8px 8px 0', color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'background-color 0.14s' }}
+              <button type="submit" aria-label="Suscribirse"
+                style={{ padding: '10px 14px', backgroundColor: '#2d7fad', border: '1px solid #2d7fad', borderRadius: '0 8px 8px 0', color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'background-color 0.14s' }}
                 onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#246a94')}
                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#2d7fad')}
-                aria-label="Suscribirse"
               >
                 <ArrowRight style={{ width: '15px', height: '15px' }} />
               </button>
@@ -985,15 +971,9 @@ function Footer() {
           )}
         </div>
       </div>
-
-      {/* Bottom bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '18px clamp(24px,5vw,80px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', maxWidth: '1200px', margin: '0 auto' }} className="footer-bottom">
-        <p style={{ fontSize: '12px', color: '#3d4147', margin: 0 }}>
-          © 2026 VoltTrack. Todos los derechos reservados.
-        </p>
-        <p style={{ fontSize: '12px', color: '#3d4147', margin: 0 }}>
-          Gratis para siempre · Sin anuncios · Sin límites
-        </p>
+        <p style={{ fontSize: '12px', color: '#3d4147', margin: 0 }}>© 2026 VoltTrack. Todos los derechos reservados.</p>
+        <p style={{ fontSize: '12px', color: '#3d4147', margin: 0 }}>Gratis para siempre · Sin anuncios · Sin límites</p>
       </div>
     </footer>
   )
@@ -1004,7 +984,7 @@ const css = `
   .land-nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px clamp(20px, 5vw, 60px);
+    padding: 12px clamp(20px, 5vw, 60px);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   }
   .land-hero {
@@ -1016,104 +996,65 @@ const css = `
     position: relative;
   }
   .land-hero-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: flex; flex-direction: column; justify-content: center;
     padding: clamp(96px,11vw,130px) clamp(24px,5vw,80px) clamp(48px,6vw,72px);
     position: relative; z-index: 1;
   }
-  .land-hero-right {
-    position: relative;
-    overflow: hidden;
-  }
+  .land-hero-right { position: relative; overflow: hidden; }
   .land-h1 {
     font-size: clamp(52px, 7.8vw, 90px);
-    font-weight: 700;
-    color: #111318;
-    letter-spacing: -0.035em;
-    line-height: 0.94;
-    margin: 0;
-    display: block;
+    font-weight: 700; color: #111318;
+    letter-spacing: -0.035em; line-height: 0.94; margin: 0; display: block;
   }
   .land-sub {
-    font-size: clamp(15px, 1.6vw, 17px);
-    color: #7a8290;
-    line-height: 1.65;
-    max-width: 420px;
-    margin: 0 0 28px;
-    font-weight: 300;
+    font-size: clamp(15px, 1.6vw, 17px); color: #7a8290;
+    line-height: 1.65; max-width: 420px; margin: 0 0 28px; font-weight: 300;
   }
-  .land-split {
+  /* Product showcase row */
+  .showcase-row {
     display: grid;
-    grid-template-columns: 52% 48%;
-    min-height: 60vh;
-    overflow: hidden;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(40px,6vw,80px);
+    align-items: center;
   }
-  .land-split--rev {
-    grid-template-columns: 48% 52%;
-  }
-  .land-split-img { order: 0; }
-  .land-split-img--rev { order: 1; }
+  .showcase-row--rev .showcase-text { order: 2; }
+  .showcase-row--rev > :last-child   { order: 1; }
   .land-features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background-color: #e0e3e7;
-    border-radius: 14px;
-    overflow: hidden;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background-color: #e0e3e7; border-radius: 14px; overflow: hidden;
   }
   .land-feature-card {
     background-color: #ffffff;
     padding: clamp(22px,3vw,32px) clamp(20px,2.5vw,28px);
     border: 1px solid transparent;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-    cursor: default;
+    transition: border-color 0.2s ease, background-color 0.2s ease; cursor: default;
   }
-  .land-feature-card:hover {
-    background-color: #f3f7fb;
-  }
-  .land-marquee {
-    display: flex; width: max-content;
-    animation: marquee 36s linear infinite;
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
+  .land-feature-card:hover { background-color: #f3f7fb; }
+  .land-marquee { display: flex; width: max-content; animation: marquee 36s linear infinite; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   .land-marquee:hover { animation-play-state: paused; }
+  .why-grid { grid-template-columns: repeat(3, 1fr); }
+  .footer-grid { grid-template-columns: 2fr 1fr 1fr 1.6fr; }
+  @media (max-width: 900px) {
+    .land-features-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr !important; }
+    .why-grid { grid-template-columns: 1fr !important; }
+  }
   @media (max-width: 767px) {
-    .land-hero {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 56vw;
-    }
+    .land-hero { grid-template-columns: 1fr; grid-template-rows: auto 56vw; }
     .land-hero-left { padding: 100px 20px 40px; }
     .land-h1 { font-size: clamp(44px, 12vw, 60px); }
-    .land-split, .land-split--rev { grid-template-columns: 1fr; }
-    .land-split-img--rev { order: -1; }
+    .showcase-row, .showcase-row--rev {
+      grid-template-columns: 1fr !important;
+    }
+    .showcase-row--rev .showcase-text { order: 1 !important; }
+    .showcase-row--rev > :last-child   { order: 2 !important; }
     .land-features-grid { grid-template-columns: 1fr; }
-  }
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .land-features-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr !important; }
+    .footer-bottom { flex-direction: column; text-align: center; }
   }
   @media (prefers-reduced-motion: reduce) {
     .land-marquee { animation: none; }
-  }
-  .footer-grid {
-    grid-template-columns: 2fr 1fr 1fr 1.6fr;
-  }
-  @media (max-width: 900px) {
-    .footer-grid {
-      grid-template-columns: 1fr 1fr !important;
-    }
-  }
-  @media (max-width: 540px) {
-    .footer-grid {
-      grid-template-columns: 1fr !important;
-    }
-    .footer-bottom {
-      flex-direction: column;
-      text-align: center;
-    }
   }
 `
 
@@ -1127,31 +1068,14 @@ export default function LandingPage() {
         <Hero />
         <MarqueeStrip />
         <FeaturesGrid />
-        <FeatureEditorial />
-        <FeatureSplit
-          imgSrc={IMGS.records}
-          imgAlt="Atleta levantando pesas"
-          Icon={Trophy}
-          title="Récords automáticos"
-          body="Cada vez que superas tu peso máximo en un ejercicio, VoltTrack lo registra como nuevo PR. Además calcula tu 1RM estimado con la fórmula Epley."
-          bullets={['1RM calculado automáticamente', 'Ranking de ejercicios por fuerza', 'Comparte tu PR en un clic']}
-        />
-        <FeatureSplit
-          imgSrc={IMGS.progreso}
-          imgAlt="Dashboard de progreso atlético"
-          Icon={TrendingUp}
-          title="Progreso visual"
-          body="Dashboard con heatmap de 365 días al estilo GitHub, curva de evolución de peso máximo por ejercicio y volumen total acumulado."
-          bullets={['Heatmap anual de actividad', 'Racha de días consecutivos', 'Volumen por sesión y semana']}
-          imgRight
-        />
+        <ProductShowcase />
         <Stats />
-        <Process />
         <WhySection />
+        <FAQ />
         <FinalCTA />
         <Footer />
       </div>
-      <FloatingButtons />
+      <ScrollToTop />
     </>
   )
 }

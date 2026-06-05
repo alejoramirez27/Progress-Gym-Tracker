@@ -10,8 +10,8 @@ const lexend = Lexend({
 })
 
 export const metadata: Metadata = {
-  title: 'VoltTrack',
-  description: 'Tracking de entrenamiento personal — registra pesos, series y récords',
+  title: 'VoltTrack — Tracker de entrenamiento para atletas serios',
+  description: 'Registra cada serie, calcula tus PRs automáticamente y visualiza 365 días de progreso. Gratis para siempre, sin anuncios, sin límite de rutinas.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -21,14 +21,28 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  openGraph: {
+    type: 'website',
+    siteName: 'VoltTrack',
+    title: 'VoltTrack — Entrena con intención',
+    description: 'Registra pesos, sigue tus PRs y visualiza 365 días de progreso. Gratis para siempre.',
+    // TODO: subir og-image.png real (1200×630) con screenshot del dashboard
+    // images: [{ url: '/og/og-image.png', width: 1200, height: 630, alt: 'VoltTrack Dashboard' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'VoltTrack — Entrena con intención',
+    description: 'Registra pesos, sigue tus PRs y visualiza 365 días de progreso. Gratis para siempre.',
+    // TODO: subir og-image.png real
+    // images: ['/og/og-image.png'],
+  },
 }
 
 export const viewport: Viewport = {
   themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // P2-7: NO maximum-scale ni userScalable=false — viola WCAG para usuarios con baja visión
   viewportFit: 'cover',
 }
 
