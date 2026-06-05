@@ -89,6 +89,73 @@ function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
   return <span ref={ref}>{val}{suffix}</span>
 }
 
+/* ─── SectionHeader ──────────────────────────────────────────
+   Layout: 7 cols título/eyebrow + 5 cols descripción.
+   items-end: la última línea del párrafo alinea con el eyebrow.
+   Móvil: colapsa a una columna con espaciado vertical limpio.
+────────────────────────────────────────────────────────────── */
+function SectionHeader({
+  title,
+  eyebrow,
+  description,
+}: {
+  title: React.ReactNode
+  eyebrow?: string
+  description?: string
+}) {
+  return (
+    <div className="sec-header">
+      {/* Left: título + eyebrow */}
+      <div className="sec-header-left">
+        <LineReveal>
+          <h2 style={{
+            fontSize: 'clamp(36px, 5vw, 64px)',
+            fontWeight: '700',
+            color: '#111318',
+            letterSpacing: '-0.038em',
+            lineHeight: '1.03',
+            margin: 0,
+          }}>
+            {title}
+          </h2>
+        </LineReveal>
+        {eyebrow && (
+          <Reveal delay={0.06}>
+            <p style={{
+              fontSize: '12px',
+              fontWeight: '500',
+              color: '#2d7fad',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              margin: '14px 0 0',
+              lineHeight: '1',
+            }}>
+              {eyebrow}
+            </p>
+          </Reveal>
+        )}
+      </div>
+
+      {/* Right: descripción — solo si existe */}
+      {description && (
+        <Reveal delay={0.12}>
+          <div className="sec-header-right">
+            <p style={{
+              fontSize: 'clamp(16px, 1.5vw, 18px)',
+              color: '#374151',           /* ~9:1 contraste sobre blanco — pasa WCAG AA */
+              lineHeight: '1.7',
+              fontWeight: '300',
+              margin: 0,
+            }}>
+              {description}
+            </p>
+          </div>
+        </Reveal>
+      )}
+    </div>
+  )
+}
+
 /* ─── Magnetic CTA ───────────────────────────────────────── */
 function MagneticCTA({ href, children, primary = false }: { href: string; children: React.ReactNode; primary?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -429,25 +496,11 @@ function FeaturesGrid() {
     <section style={{ position: 'relative', backgroundColor: '#f8f9fb', padding: 'clamp(64px,8vw,100px) clamp(24px,5vw,80px)', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '52px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 48px', alignItems: 'end' }}>
-            <div>
-              <LineReveal>
-                <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
-                  Todo lo que<br />necesitas.
-                </h2>
-              </LineReveal>
-              <Reveal delay={0.06}>
-                <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>6 funciones · 0 fricciones</p>
-              </Reveal>
-            </div>
-            <Reveal delay={0.1}>
-              <p style={{ fontSize: '16px', color: '#7a8290', margin: '0', lineHeight: '1.65', fontWeight: '300' }}>
-                Cada función fue diseñada para eliminar una fricción real que los atletas tienen cuando registran su entrenamiento.
-              </p>
-            </Reveal>
-          </div>
-        </div>
+        <SectionHeader
+          title={<>Todo lo que<br />necesitas.</>}
+          eyebrow="6 funciones · 0 fricciones"
+          description="Cada función fue diseñada para eliminar una fricción real que los atletas tienen cuando registran su entrenamiento."
+        />
         <div className="land-features-grid">
           {features.map((f, i) => {
             const Icon = f.icon
@@ -642,18 +695,11 @@ function WhySection() {
   return (
     <section style={{ backgroundColor: '#f8f9fb', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '52px' }}>
-          <LineReveal>
-            <h2 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
-              Por qué VoltTrack.
-            </h2>
-          </LineReveal>
-          <Reveal delay={0.06}>
-            <p style={{ fontSize: '13px', fontWeight: '500', color: '#2d7fad', letterSpacing: '0.02em', margin: 0 }}>
-              3 razones · ninguna es marketing
-            </p>
-          </Reveal>
-        </div>
+        <SectionHeader
+          title="Por qué VoltTrack."
+          eyebrow="3 razones · ninguna es marketing"
+          description="La mayoría de apps de gym son demasiado complicadas, lentas o te muestran anuncios mientras intentas concentrarte. VoltTrack no hace ninguna de esas cosas."
+        />
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#eceef2', borderRadius: '14px', overflow: 'hidden' }} className="why-grid">
           {reasons.map((r, i) => {
@@ -718,13 +764,11 @@ function FAQ() {
   return (
     <section style={{ backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '52px' }}>
-          <LineReveal>
-            <h2 style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.038em', lineHeight: '1.03', margin: '0 0 12px' }}>
-              Preguntas frecuentes.
-            </h2>
-          </LineReveal>
-        </div>
+        <SectionHeader
+          title="Preguntas frecuentes."
+          eyebrow="5 respuestas directas"
+          description="Lo que más nos preguntan antes de crear una cuenta, respondido sin rodeos."
+        />
 
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {items.map((item, i) => (
@@ -1010,6 +1054,34 @@ const css = `
     font-size: clamp(15px, 1.6vw, 17px); color: #7a8290;
     line-height: 1.65; max-width: 420px; margin: 0 0 28px; font-weight: 300;
   }
+  /* ── SectionHeader ─────────────────────────────────────── */
+  .sec-header {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px 0;
+    margin-bottom: 56px;
+    align-items: start;
+  }
+  /* Desktop: 7 + 5 columnas, alineación base inferior (items-end) */
+  @media (min-width: 1024px) {
+    .sec-header {
+      grid-template-columns: 7fr 5fr;
+      gap: 0 clamp(40px, 5vw, 72px);
+      align-items: end;
+    }
+    /* La columna derecha no necesita padding-bottom porque items-end ya la alinea */
+    .sec-header-right {
+      padding-bottom: 2px; /* ajuste óptico mínimo para línea base */
+    }
+  }
+  /* Móvil: columna única, espaciado generoso entre título y párrafo */
+  @media (max-width: 1023px) {
+    .sec-header-right {
+      max-width: 560px;
+      margin-top: 4px;
+    }
+  }
+
   /* Product showcase row */
   .showcase-row {
     display: grid;
