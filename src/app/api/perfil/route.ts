@@ -10,7 +10,7 @@ export async function GET() {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('usuario')
-    .select('id_usuario, nombre, email, created_at')
+    .select('id_usuario, nombre, email, created_at, foto_perfil')
     .eq('id_usuario', session.id)
     .single()
 

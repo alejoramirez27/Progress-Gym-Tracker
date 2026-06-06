@@ -4,8 +4,8 @@ import { Dumbbell, LayoutDashboard, History, Zap, LogOut, BicepsFlexed, Trophy, 
 
 // 6 items that fit comfortably in the bottom bar
 const navItems = [
-  { href: '/progreso',  label: 'Progreso',  icon: BicepsFlexed },
   { href: '/rutinas',   label: 'Rutinas',   icon: Dumbbell },
+  { href: '/progreso',  label: 'Progreso',  icon: BicepsFlexed },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/historial', label: 'Historial', icon: History },
   { href: '/records',   label: 'PRs',       icon: Trophy },
