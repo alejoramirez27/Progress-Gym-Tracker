@@ -282,12 +282,13 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
 }
 
 /* ─── Floating achievement card ──────────────────────────── */
-function AchievementCard({ icon, label, value, delay = 0, style = {} }: {
-  icon: React.ReactNode; label: string; value: string; delay?: number; style?: React.CSSProperties
+function AchievementCard({ icon, label, value, delay = 0, style = {}, className = '', small = false }: {
+  icon: React.ReactNode; label: string; value: string; delay?: number; style?: React.CSSProperties; className?: string; small?: boolean
 }) {
   const reduce = useReducedMotion()
   return (
     <motion.div
+      className={className}
       initial={reduce ? false : { opacity: 0, y: 16, scale: 0.92 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, duration: 0.7, ease: E }}
@@ -296,18 +297,18 @@ function AchievementCard({ icon, label, value, delay = 0, style = {} }: {
         backdropFilter: 'blur(16px)',
         border: '1px solid rgba(255,255,255,0.9)',
         borderRadius: '12px',
-        padding: '12px 16px',
-        display: 'flex', alignItems: 'center', gap: '10px',
+        padding: small ? '8px 12px' : '12px 16px',
+        display: 'flex', alignItems: 'center', gap: small ? '8px' : '10px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
         ...style,
       }}
     >
-      <div style={{ backgroundColor: 'rgba(45,127,173,0.1)', borderRadius: '8px', padding: '8px', display: 'flex', flexShrink: 0 }}>
+      <div style={{ backgroundColor: 'rgba(45,127,173,0.1)', borderRadius: small ? '6px' : '8px', padding: small ? '6px' : '8px', display: 'flex', flexShrink: 0 }}>
         {icon}
       </div>
       <div>
-        <p style={{ fontSize: '10px', color: '#7a8290', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>{label}</p>
-        <p style={{ fontSize: '14px', fontWeight: '600', color: '#111318', margin: 0, letterSpacing: '-0.01em' }}>{value}</p>
+        <p style={{ fontSize: small ? '9px' : '10px', color: '#7a8290', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>{label}</p>
+        <p style={{ fontSize: small ? '12px' : '14px', fontWeight: '600', color: '#111318', margin: 0, letterSpacing: '-0.01em' }}>{value}</p>
       </div>
     </motion.div>
   )
@@ -448,11 +449,9 @@ function Hero() {
           <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ position: 'absolute', top: '44%', right: '14%' }} />
           <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
         </div>
-        {/* Mobile: cards stacked vertically at bottom-right of image */}
-        <div className="hero-cards-mobile">
-          <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{}} />
-          <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.3} style={{}} />
-        </div>
+        {/* Mobile: cards individually positioned, staggered like desktop */}
+        <AchievementCard small icon={<Trophy style={{ width: '12px', height: '12px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} className="hero-card-m1" style={{}} />
+        <AchievementCard small icon={<TrendingUp style={{ width: '12px', height: '12px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.35} className="hero-card-m2" style={{}} />
       </div>
     </section>
   )
@@ -1120,18 +1119,27 @@ const css = `
   }
   /* Hero achievement cards */
   .hero-cards-desktop { display: contents; }
-  .hero-cards-mobile  { display: none; }
+  .hero-card-m1, .hero-card-m2 { display: none; }
 
   @media (max-width: 767px) {
     .hero-cards-desktop { display: none; }
-    .hero-cards-mobile {
+    /* Card 1: top-right */
+    .hero-card-m1 {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
       position: absolute;
-      bottom: 14px;
-      right: 12px;
+      top: 18%;
+      right: 4%;
       z-index: 4;
+      max-width: 58%;
+    }
+    /* Card 2: lower, shifted left for stagger effect */
+    .hero-card-m2 {
+      display: flex;
+      position: absolute;
+      top: 54%;
+      right: 14%;
+      z-index: 4;
+      max-width: 58%;
     }
     .land-hero { grid-template-columns: 1fr; grid-template-rows: auto 56vw; }
     .land-hero-left { padding: 100px 20px 40px; }
