@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 interface PR { peso_max: number; repeticiones: number; fecha: string }
 interface Ejercicio { id_ejercicio: string; nombre: string; pr: PR | null; primer_peso: number | null }
 interface Rutina { id_rutina: string; nombre: string; dia_semana: string | null; ejercicios: Ejercicio[] }
+interface PuntoPeso { peso_kg: number; repeticiones: number; fecha: string }
 
 function fmtFecha(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -32,6 +33,21 @@ export default function RecordsPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [busqueda, setBusqueda] = useState('')
   const [vistaPlana, setVistaPlana] = useState(false)
+
+  // ── Gráfica de progreso ────────────────────────────────────────────────────
+  const [graficaEj, setGraficaEj]     = useState<{ id: string; nombre: string; pr: PR } | null>(null)
+  const [graficaData, setGraficaData] = useState<PuntoPeso[]>([])
+  const [graficaLoading, setGraficaLoading] = useState(false)
+
+  async function abrirGrafica(id: string, nombre: string, pr: PR) {
+    setGraficaEj({ id, nombre, pr })
+    setGraficaLoading(true)
+    setGraficaData([])
+    const res = await fetch(`/api/records/historico?id_ejercicio=${id}`)
+    const data = await res.json()
+    setGraficaData(Array.isArray(data) ? data : [])
+    setGraficaLoading(false)
+  }
 
   useEffect(() => {
     fetch('/api/records').then(r => r.json()).then(d => {
@@ -138,7 +154,12 @@ export default function RecordsPage() {
           {todosConPR.map((ej, idx) => (
             <div key={ej.id_ejercicio}>
               {idx > 0 && <hr className="divider" />}
-              <div style={{ padding: '11px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                onClick={() => abrirGrafica(ej.id_ejercicio, ej.nombre, ej.pr!)}
+                style={{ padding: '11px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-raised)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
                 <span style={{ fontSize: '11px', color: idx < 3 ? '#d4a07a' : 'var(--text-disabled)', fontWeight: '600', minWidth: '20px', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
                   {idx < 3 ? ['🥇', '🥈', '🥉'][idx] : `#${idx + 1}`}
                 </span>
@@ -209,7 +230,12 @@ export default function RecordsPage() {
                     {rutina.ejercicios.map((ej, idx) => (
                       <div key={ej.id_ejercicio}>
                         {idx > 0 && <hr className="divider" />}
-                        <div style={{ padding: '11px 16px 11px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                        <div
+                          onClick={() => ej.pr && abrirGrafica(ej.id_ejercicio, ej.nombre, ej.pr)}
+                          style={{ padding: '11px 16px 11px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', cursor: ej.pr ? 'pointer' : 'default' }}
+                          onMouseEnter={e => { if (ej.pr) e.currentTarget.style.backgroundColor = 'var(--surface-raised)' }}
+                          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                        >
                           <span style={{ fontSize: '13px', color: ej.pr ? 'var(--text-primary)' : 'var(--text-secondary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {ej.nombre}
                           </span>
@@ -253,6 +279,157 @@ export default function RecordsPage() {
             )
           })}
         </div>
+      )}
+
+      {/* ── Modal Gráfica de Progreso ──────────────────────────────────────── */}
+      {graficaEj && (
+        <>
+          <div onClick={() => setGraficaEj(null)}
+            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 300 }} />
+          <div style={{
+            position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 301,
+            backgroundColor: 'var(--surface-card)',
+            borderTop: '1px solid var(--border-default)',
+            borderRadius: '20px 20px 0 0',
+            padding: '20px 16px 40px',
+            maxHeight: '85vh', overflowY: 'auto',
+            animation: 'slide-up-chart 0.24s cubic-bezier(0.32,0.72,0,1) both',
+          }}>
+            <style>{`
+              @keyframes slide-up-chart {
+                from { transform: translateY(100%); }
+                to   { transform: translateY(0); }
+              }
+            `}</style>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div>
+                <p style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px' }}>Progreso de fuerza</p>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>{graficaEj.nombre}</h3>
+              </div>
+              <button onClick={() => setGraficaEj(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '4px', fontSize: '20px', lineHeight: 1, marginTop: '-2px' }}>×</button>
+            </div>
+
+            {/* PR summary chip */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))', borderRadius: '20px', padding: '5px 12px' }}>
+                <span style={{ fontSize: '12px' }}>🏆</span>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{graficaEj.pr.peso_max} kg</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>× {graficaEj.pr.repeticiones} reps</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'var(--surface-raised)', borderRadius: '20px', padding: '5px 12px' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>1RM estimado</span>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--accent)' }}>{calc1RM(graficaEj.pr.peso_max, graficaEj.pr.repeticiones)} kg</span>
+              </div>
+            </div>
+
+            {/* Chart */}
+            {graficaLoading ? (
+              <div className="skeleton" style={{ height: '160px', borderRadius: '12px' }} />
+            ) : graficaData.length < 2 ? (
+              <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-disabled)', fontSize: '13px' }}>
+                {graficaData.length === 0 ? 'Sin datos registrados' : 'Necesitas al menos 2 sesiones para ver la gráfica'}
+              </div>
+            ) : (
+              (() => {
+                const W = 340, H = 160, PAD = { top: 20, right: 12, bottom: 28, left: 38 }
+                const plotW = W - PAD.left - PAD.right
+                const plotH = H - PAD.top - PAD.bottom
+
+                const pesos = graficaData.map(p => p.peso_kg)
+                const minP  = Math.min(...pesos)
+                const maxP  = Math.max(...pesos)
+                const range = maxP - minP || 1
+
+                const pts = graficaData.map((p, i) => ({
+                  x: PAD.left + (i / (graficaData.length - 1)) * plotW,
+                  y: PAD.top + plotH - ((p.peso_kg - minP) / range) * plotH,
+                  ...p,
+                }))
+
+                const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+                const areaPath = linePath + ` L${pts[pts.length - 1].x.toFixed(1)},${(PAD.top + plotH).toFixed(1)} L${PAD.left},${(PAD.top + plotH).toFixed(1)} Z`
+
+                // Y-axis ticks: 3 values
+                const yTicks = [minP, Math.round((minP + maxP) / 2), maxP]
+
+                // X-axis labels: first and last date
+                function fmtShort(s: string) {
+                  const d = new Date(s + 'T12:00:00')
+                  return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })
+                }
+
+                return (
+                  <div style={{ width: '100%', overflowX: 'auto' }}>
+                    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', overflow: 'visible' }}>
+                      {/* Grid lines */}
+                      {yTicks.map(v => {
+                        const y = PAD.top + plotH - ((v - minP) / range) * plotH
+                        return (
+                          <g key={v}>
+                            <line x1={PAD.left} y1={y} x2={PAD.left + plotW} y2={y} stroke="var(--border-faint)" strokeWidth="1" strokeDasharray="3 3" />
+                            <text x={PAD.left - 4} y={y + 4} textAnchor="end" fontSize="9" fill="var(--text-tertiary)" fontFamily="system-ui">{v}</text>
+                          </g>
+                        )
+                      })}
+
+                      {/* Area fill */}
+                      <path d={areaPath} fill="var(--accent)" opacity="0.08" />
+
+                      {/* Line */}
+                      <path d={linePath} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+                      {/* Dots */}
+                      {pts.map((p, i) => {
+                        const isLast = i === pts.length - 1
+                        return (
+                          <g key={i}>
+                            <circle cx={p.x} cy={p.y} r={isLast ? 5 : 3}
+                              fill={isLast ? 'var(--accent)' : 'var(--surface-card)'}
+                              stroke="var(--accent)" strokeWidth={isLast ? 0 : 1.5} />
+                            {isLast && (
+                              <>
+                                <rect x={p.x - 20} y={p.y - 22} width={40} height={16} rx={8} fill="var(--accent)" />
+                                <text x={p.x} y={p.y - 11} textAnchor="middle" fontSize="9" fill="#0c0e12" fontWeight="700" fontFamily="system-ui">{p.peso_kg} kg</text>
+                              </>
+                            )}
+                          </g>
+                        )
+                      })}
+
+                      {/* X-axis date labels */}
+                      <text x={PAD.left} y={H - 4} fontSize="9" fill="var(--text-tertiary)" fontFamily="system-ui">{fmtShort(graficaData[0].fecha)}</text>
+                      <text x={PAD.left + plotW} y={H - 4} fontSize="9" fill="var(--text-tertiary)" fontFamily="system-ui" textAnchor="end">{fmtShort(graficaData[graficaData.length - 1].fecha)}</text>
+                    </svg>
+                  </div>
+                )
+              })()
+            )}
+
+            {/* Data table */}
+            {!graficaLoading && graficaData.length > 0 && (
+              <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-faint)', paddingTop: '14px' }}>
+                <p style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>Historial</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {[...graficaData].reverse().slice(0, 8).map((p, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderRadius: '8px', backgroundColor: i === 0 ? 'color-mix(in srgb, var(--accent) 6%, var(--surface-raised))' : 'transparent' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        {new Date(p.fecha + 'T12:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '13px', fontWeight: '600', color: i === 0 ? 'var(--accent)' : 'var(--text-primary)' }}>{p.peso_kg} kg</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-disabled)' }}>× {p.repeticiones}</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>1RM {calc1RM(p.peso_kg, p.repeticiones)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   )

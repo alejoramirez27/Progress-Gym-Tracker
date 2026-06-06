@@ -213,6 +213,35 @@ export default function ProgresoPage() {
   // Unidad por ejercicio: { [id_ejercicio]: 'kg' | 'lb' }
   const [unidades, setUnidades] = useState<Record<string, Unidad>>({})
 
+  // ── Custom numpad ──────────────────────────────────────────────────────────
+  type NumpadField = 'peso_kg' | 'repeticiones' | 'rir'
+  const [numpadTarget, setNumpadTarget] = useState<{ ejIdx: number; sIdx: number; field: NumpadField; label: string } | null>(null)
+  const [numpadValue, setNumpadValue]   = useState('')
+
+  function openNumpad(ejIdx: number, sIdx: number, field: NumpadField, currentVal: string) {
+    setNumpadTarget({ ejIdx, sIdx, field, label: field === 'peso_kg' ? 'Peso' : field === 'repeticiones' ? 'Reps' : 'RIR' })
+    setNumpadValue(currentVal)
+  }
+
+  function numpadPress(key: string) {
+    setNumpadValue(prev => {
+      if (key === '⌫') return prev.slice(0, -1)
+      if (key === 'C') return ''
+      if (key === '.') {
+        if (prev.includes('.')) return prev
+        return prev === '' ? '0.' : prev + '.'
+      }
+      if (prev === '0' && key !== '.') return key
+      return prev + key
+    })
+  }
+
+  function numpadConfirm() {
+    if (!numpadTarget) return
+    updateSerie(numpadTarget.ejIdx, numpadTarget.sIdx, numpadTarget.field, numpadValue)
+    setNumpadTarget(null)
+  }
+
   const getUnidad = (id: string): Unidad => unidades[id] ?? 'kg'
 
   const toggleUnidadEj = (id: string) => {
@@ -375,85 +404,167 @@ export default function ProgresoPage() {
   }
 
   if (guardado) {
-    const confettiItems = ['🟡','🔵','🟢','🔴','🟠','🟣']
+    const hasPRs = resumen && resumen.nuevosPRs.length > 0
+
+    // 28 confetti pieces: varied shapes/colors/positions/speeds
+    const CONFETTI = [
+      { emoji: '🟡', x: 8,  delay: 0,    dur: 1.4 },
+      { emoji: '🔵', x: 18, delay: 0.07, dur: 1.2 },
+      { emoji: '🟢', x: 28, delay: 0.14, dur: 1.5 },
+      { emoji: '🔴', x: 38, delay: 0.05, dur: 1.3 },
+      { emoji: '🟠', x: 48, delay: 0.18, dur: 1.1 },
+      { emoji: '🟣', x: 58, delay: 0.03, dur: 1.6 },
+      { emoji: '🟡', x: 68, delay: 0.12, dur: 1.2 },
+      { emoji: '🔵', x: 78, delay: 0.09, dur: 1.4 },
+      { emoji: '🔴', x: 88, delay: 0.16, dur: 1.3 },
+      { emoji: '🟢', x: 14, delay: 0.22, dur: 1.0 },
+      { emoji: '🟠', x: 24, delay: 0.28, dur: 1.5 },
+      { emoji: '🟣', x: 34, delay: 0.20, dur: 1.2 },
+      { emoji: '🟡', x: 44, delay: 0.25, dur: 1.4 },
+      { emoji: '🔵', x: 54, delay: 0.08, dur: 1.1 },
+      { emoji: '🟢', x: 64, delay: 0.30, dur: 1.3 },
+      { emoji: '🔴', x: 74, delay: 0.15, dur: 1.6 },
+      { emoji: '🟠', x: 84, delay: 0.24, dur: 1.0 },
+      { emoji: '🟣', x: 92, delay: 0.11, dur: 1.5 },
+    ]
+
     return (
-      <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '14px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', gap: '16px', textAlign: 'center', position: 'relative', overflow: 'hidden', padding: '24px 16px' }}>
         <style>{`
-          @keyframes confetti-fall {
+          @keyframes confetti-burst {
             0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
-            100% { transform: translateY(-120px) rotate(360deg) scale(0.5); opacity: 0; }
+            70%  { opacity: 1; }
+            100% { transform: translateY(-160px) rotate(720deg) scale(0.3); opacity: 0; }
           }
           @keyframes pop-in {
-            0%   { transform: scale(0.5); opacity: 0; }
-            60%  { transform: scale(1.2); }
+            0%   { transform: scale(0.3); opacity: 0; }
+            55%  { transform: scale(1.3); }
+            75%  { transform: scale(0.9); }
             100% { transform: scale(1);   opacity: 1; }
           }
+          @keyframes trophy-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(240,180,40,0.4), 0 0 0 0 rgba(240,180,40,0.2); }
+            50%       { box-shadow: 0 0 0 14px rgba(240,180,40,0.15), 0 0 0 28px rgba(240,180,40,0.06); }
+          }
           @keyframes slide-up {
-            0%   { transform: translateY(16px); opacity: 0; }
+            0%   { transform: translateY(20px); opacity: 0; }
             100% { transform: translateY(0);    opacity: 1; }
+          }
+          @keyframes pr-row-in {
+            0%   { transform: translateX(-12px); opacity: 0; }
+            100% { transform: translateX(0);     opacity: 1; }
+          }
+          @keyframes shimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; }
           }
         `}</style>
 
-        {/* Confetti particles */}
-        {confettiItems.map((c, i) => (
+        {/* Confetti — only when PRs */}
+        {hasPRs && CONFETTI.map((c, i) => (
           <span key={i} style={{
             position: 'absolute',
-            bottom: '40%',
-            left: `${15 + i * 13}%`,
-            fontSize: '18px',
-            animation: `confetti-fall 1.2s ease-out ${i * 0.08}s both`,
+            bottom: '35%',
+            left: `${c.x}%`,
+            fontSize: '16px',
+            animation: `confetti-burst ${c.dur}s ease-out ${c.delay}s both`,
             pointerEvents: 'none',
-          }}>{c}</span>
+            userSelect: 'none',
+          }}>{c.emoji}</span>
         ))}
 
-        <div style={{ backgroundColor: 'var(--success-dim)', border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)', borderRadius: '50%', padding: '16px', display: 'flex', animation: 'pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both' }}>
-          <CheckCircle2 style={{ width: '36px', height: '36px', color: 'var(--success)' }} />
-        </div>
-        <div style={{ animation: 'slide-up 0.4s ease 0.15s both' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '500', color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.01em' }}>¡Sesión guardada!</h2>
+        {/* Hero icon — trophy for PR, checkmark otherwise */}
+        {hasPRs ? (
+          <div style={{
+            width: '80px', height: '80px', borderRadius: '50%',
+            backgroundColor: 'rgba(240,180,40,0.12)',
+            border: '2px solid rgba(240,180,40,0.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '36px',
+            animation: 'pop-in 0.6s cubic-bezier(0.34,1.56,0.64,1) both, trophy-glow 2s ease-in-out 0.6s infinite',
+          }}>🏆</div>
+        ) : (
+          <div style={{
+            backgroundColor: 'var(--success-dim)', border: '1px solid color-mix(in srgb, var(--success) 30%, transparent)',
+            borderRadius: '50%', padding: '16px', display: 'flex',
+            animation: 'pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both',
+          }}>
+            <CheckCircle2 style={{ width: '36px', height: '36px', color: 'var(--success)' }} />
+          </div>
+        )}
+
+        {/* Title */}
+        <div style={{ animation: 'slide-up 0.4s ease 0.2s both' }}>
+          {hasPRs ? (
+            <>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#b8860b', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 6px' }}>
+                ¡Nuevo récord personal!
+              </p>
+              <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+                {resumen!.nuevosPRs.length === 1 ? '¡Lo superaste!' : `¡${resumen!.nuevosPRs.length} PRs en una sesión!`}
+              </h2>
+            </>
+          ) : (
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
+              ¡Sesión guardada!
+            </h2>
+          )}
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
             {rutinas.find(r => r.id_rutina === rutinaId)?.nombre} · {fmtFechaLarga(fecha)}
           </p>
         </div>
 
-        {/* Resumen de la sesión */}
-        {resumen && (
-          <div style={{ animation: 'slide-up 0.4s ease 0.3s both', display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '320px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
-                <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>{resumen.totalSeries}</p>
-                <p className="label" style={{ margin: 0 }}>Series</p>
+        {/* PR list — golden cards */}
+        {hasPRs && (
+          <div style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {resumen!.nuevosPRs.map((nombre, i) => (
+              <div key={nombre} style={{
+                display: 'flex', alignItems: 'center', gap: '10px',
+                backgroundColor: 'rgba(240,180,40,0.08)',
+                border: '1px solid rgba(240,180,40,0.3)',
+                borderRadius: 'var(--r-lg)',
+                padding: '10px 14px',
+                animation: `pr-row-in 0.35s ease ${0.35 + i * 0.1}s both`,
+              }}>
+                <span style={{ fontSize: '18px' }}>🥇</span>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.01em' }}>{nombre}</p>
               </div>
-              <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
-                <p className="num" style={{ fontSize: '26px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>
-                  {resumen.volumen >= 1000 ? `${(resumen.volumen / 1000).toFixed(1)}t` : `${resumen.volumen}`}
-                </p>
-                <p className="label" style={{ margin: 0 }}>Volumen kg</p>
-              </div>
-            </div>
-            {resumen.nuevosPRs.length > 0 && (
-              <div style={{ backgroundColor: 'color-mix(in srgb, var(--success) 8%, var(--surface-card))', border: '1px solid color-mix(in srgb, var(--success) 25%, transparent)', borderRadius: 'var(--r-lg)', padding: '12px 16px' }}>
-                <p style={{ fontSize: '11px', fontWeight: '600', color: 'var(--success)', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>🏆 {resumen.nuevosPRs.length} PR{resumen.nuevosPRs.length > 1 ? 's' : ''} nuevo{resumen.nuevosPRs.length > 1 ? 's' : ''}</p>
-                {resumen.nuevosPRs.map(nombre => (
-                  <p key={nombre} style={{ fontSize: '12px', color: 'var(--text-primary)', margin: '2px 0 0' }}>· {nombre}</p>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '8px', animation: 'slide-up 0.4s ease 0.45s both' }}>
+        {/* Stats summary */}
+        {resumen && (
+          <div style={{ animation: 'slide-up 0.4s ease 0.4s both', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%', maxWidth: '320px' }}>
+            <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '12px 14px', textAlign: 'center' }}>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>{resumen.totalSeries}</p>
+              <p className="label" style={{ margin: 0 }}>Series</p>
+            </div>
+            <div style={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--r-lg)', padding: '12px 14px', textAlign: 'center' }}>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.03em' }}>
+                {resumen.volumen >= 1000 ? `${(resumen.volumen / 1000).toFixed(1)}t` : `${resumen.volumen}`}
+              </p>
+              <p className="label" style={{ margin: 0 }}>Volumen kg</p>
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: '8px', animation: 'slide-up 0.4s ease 0.55s both' }}>
           <button
             onClick={() => { setGuardado(false); setEjConSeries(prev => prev.map(ej => ({ ...ej, series: Array.from({ length: ej.ejercicio.num_series }, serieVacia) }))) }}
-            style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '8px 16px', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '9px 18px', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             Nueva sesión
           </button>
           <button
-            onClick={() => router.push('/historial')}
-            style={{ backgroundColor: 'var(--accent)', border: 'none', borderRadius: 'var(--r-md)', padding: '8px 16px', fontSize: '13px', fontWeight: '500', color: '#0c0e12', cursor: 'pointer', fontFamily: 'inherit' }}
+            onClick={() => router.push(hasPRs ? '/records' : '/historial')}
+            style={{ backgroundColor: hasPRs ? '#b8860b' : 'var(--accent)', border: 'none', borderRadius: 'var(--r-md)', padding: '9px 18px', fontSize: '13px', fontWeight: '600', color: '#ffffff', cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            Ver historial
+            {hasPRs ? 'Ver mis PRs →' : 'Ver historial'}
           </button>
         </div>
       </div>
@@ -562,17 +673,24 @@ export default function ProgresoPage() {
                   <div key={sIdx} style={{ marginBottom: notasEj.has(ejIdx) ? '8px' : '5px' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
-                      {/* inputMode="decimal" shows numeric pad WITH decimal key on iOS */}
-                      <input type="number" step={u === 'lb' ? '1' : '0.5'} min="0" inputMode="decimal"
+                      {/* Numpad-driven inputs — readOnly to suppress native keyboard */}
+                      <input readOnly
                         placeholder={antSerie && antSerie.peso_kg > 0 ? String(kgADisplay(antSerie.peso_kg, u)) : (u === 'lb' ? '176' : '80')}
-                        value={serie.peso_kg}
-                        onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)} style={inp} />
-                      <input type="number" step="1" min="1" inputMode="numeric"
+                        value={numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'peso_kg' ? numpadValue : serie.peso_kg}
+                        onClick={() => openNumpad(ejIdx, sIdx, 'peso_kg', serie.peso_kg)}
+                        style={{ ...inp, caretColor: 'transparent', cursor: 'pointer',
+                          outline: numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'peso_kg' ? '2px solid var(--accent)' : inp.outline }} />
+                      <input readOnly
                         placeholder={antSerie && antSerie.repeticiones > 0 ? String(antSerie.repeticiones) : '10'}
-                        value={serie.repeticiones}
-                        onChange={e => updateSerie(ejIdx, sIdx, 'repeticiones', e.target.value)} style={inp} />
-                      <input type="number" step="1" min="0" max="5" inputMode="numeric" placeholder="2" value={serie.rir}
-                        onChange={e => updateSerie(ejIdx, sIdx, 'rir', e.target.value)} style={inp} />
+                        value={numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'repeticiones' ? numpadValue : serie.repeticiones}
+                        onClick={() => openNumpad(ejIdx, sIdx, 'repeticiones', serie.repeticiones)}
+                        style={{ ...inp, caretColor: 'transparent', cursor: 'pointer',
+                          outline: numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'repeticiones' ? '2px solid var(--accent)' : inp.outline }} />
+                      <input readOnly
+                        placeholder="2" value={numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'rir' ? numpadValue : serie.rir}
+                        onClick={() => openNumpad(ejIdx, sIdx, 'rir', serie.rir)}
+                        style={{ ...inp, caretColor: 'transparent', cursor: 'pointer',
+                          outline: numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'rir' ? '2px solid var(--accent)' : inp.outline }} />
                     </div>
                     {notasEj.has(ejIdx) && (
                       <div style={{ marginTop: '4px', paddingLeft: '34px' }}>
@@ -640,6 +758,102 @@ export default function ProgresoPage() {
             {guardando ? 'Guardando sesión...' : 'Guardar sesión'}
           </button>
         </div>
+      )}
+
+      {/* ── Custom Numpad ─────────────────────────────────────────────────── */}
+      {numpadTarget && (
+        <>
+          {/* Backdrop */}
+          <div
+            onClick={numpadConfirm}
+            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 300 }}
+          />
+          {/* Numpad panel */}
+          <div style={{
+            position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 301,
+            backgroundColor: 'var(--surface-card)',
+            borderTop: '1px solid var(--border-default)',
+            borderRadius: '20px 20px 0 0',
+            padding: '16px 12px 32px',
+            animation: 'slide-up-numpad 0.22s cubic-bezier(0.32,0.72,0,1) both',
+          }}>
+            <style>{`
+              @keyframes slide-up-numpad {
+                from { transform: translateY(100%); }
+                to   { transform: translateY(0); }
+              }
+            `}</style>
+
+            {/* Handle + label */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <div style={{ width: '36px', height: '4px', borderRadius: '2px', backgroundColor: 'var(--border-default)', margin: '0 auto 0 0' }} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {numpadTarget.label}
+              </span>
+              <button onClick={() => setNumpadTarget(null)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '2px 6px', fontSize: '18px', lineHeight: 1 }}>×</button>
+            </div>
+
+            {/* Value display */}
+            <div style={{
+              backgroundColor: 'var(--surface-input)', border: '1.5px solid var(--accent)',
+              borderRadius: '12px', padding: '12px 16px', marginBottom: '14px',
+              textAlign: 'center',
+            }}>
+              <span style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
+                {numpadValue || <span style={{ color: 'var(--text-disabled)' }}>0</span>}
+              </span>
+            </div>
+
+            {/* Keys grid */}
+            {(() => {
+              const isDecimal = numpadTarget.field === 'peso_kg'
+              const rows: string[][] = [
+                ['7', '8', '9'],
+                ['4', '5', '6'],
+                ['1', '2', '3'],
+                [isDecimal ? '.' : 'C', '0', '⌫'],
+              ]
+              const btnStyle = (key: string): React.CSSProperties => ({
+                height: '60px',
+                borderRadius: '12px',
+                border: 'none',
+                fontSize: key === '⌫' ? '20px' : '22px',
+                fontWeight: key === '⌫' || key === 'C' ? '400' : '600',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: key === '⌫' ? 'color-mix(in srgb, var(--error) 12%, var(--surface-raised))' :
+                                 key === 'C'  ? 'var(--surface-raised)' :
+                                               'var(--surface-raised)',
+                color: key === '⌫' ? 'var(--error)' : 'var(--text-primary)',
+                letterSpacing: '-0.01em',
+              })
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                  {rows.map((row, ri) => (
+                    <div key={ri} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      {row.map(key => (
+                        <button key={key} style={btnStyle(key)} onClick={() => numpadPress(key)}>
+                          {key}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {/* Confirm button */}
+            <button
+              onClick={numpadConfirm}
+              style={{ width: '100%', height: '56px', backgroundColor: 'var(--accent)', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', color: '#0c0e12', cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-0.01em' }}
+            >
+              Listo ✓
+            </button>
+          </div>
+        </>
       )}
 
       {/* Modal confirmación salir */}
