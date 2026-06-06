@@ -14,7 +14,10 @@ export default function LoginPage() {
   const [error, setError]       = useState('')
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); setLoading(true); setError('')
+    e.preventDefault(); setError('')
+    if (!email.trim()) { setError('Ingresa tu email'); return }
+    if (!password) { setError('Ingresa tu contraseña'); return }
+    setLoading(true)
     const res  = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Credenciales incorrectas'); setLoading(false); return }
@@ -72,8 +75,8 @@ export default function LoginPage() {
             <label className="label" htmlFor="l-email">Email</label>
             <div style={{ position: 'relative' }}>
               <Mail style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="l-email" type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="tu@email.com" required autoComplete="email"
+              <input id="l-email" type="email" value={email} onChange={e => { setEmail(e.target.value); if (error) setError('') }}
+                placeholder="tu@email.com" autoComplete="email"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
           </div>
@@ -82,8 +85,8 @@ export default function LoginPage() {
             <label className="label" htmlFor="l-password">Contraseña</label>
             <div style={{ position: 'relative' }}>
               <Lock style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="l-password" type="password" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••" required autoComplete="current-password"
+              <input id="l-password" type="password" value={password} onChange={e => { setPassword(e.target.value); if (error) setError('') }}
+                placeholder="••••••••" autoComplete="current-password"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
           </div>

@@ -41,6 +41,7 @@ export default function RutinaDetallePage() {
   const [nombreEj, setNombreEj]             = useState('')
   const [numSeriesEj, setNumSeriesEj]       = useState('3')
   const [guardandoEj, setGuardandoEj]       = useState(false)
+  const [nombreEjError, setNombreEjError]   = useState('')
   const [editandoEj, setEditandoEj]         = useState<string | null>(null)
   const [editNombreEj, setEditNombreEj]     = useState('')
   const [editNumSeriesEj, setEditNumSeries] = useState('3')
@@ -78,15 +79,21 @@ export default function RutinaDetallePage() {
   }
 
   const crearEjercicio = async (e: React.FormEvent) => {
-    e.preventDefault(); setGuardandoEj(true)
+    e.preventDefault()
+    if (!nombreEj.trim()) { setNombreEjError('El nombre es obligatorio'); return }
+    setNombreEjError('')
+    setGuardandoEj(true)
     try {
-      const res = await fetch('/api/ejercicios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id_rutina: id, nombre: nombreEj, orden: ejercicios.length + 1, num_series: Number(numSeriesEj) || 3 }) })
+      const res = await fetch('/api/ejercicios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id_rutina: id, nombre: nombreEj.trim(), orden: ejercicios.length + 1, num_series: Number(numSeriesEj) || 3 }) })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? 'Error al agregar'); return }
-      toast.success(`"${nombreEj}" agregado`)
+      toast.success(`"${nombreEj.trim()}" agregado`)
       setNombreEj(''); setNumSeriesEj('3'); setMostrarFormEj(false)
       cargarEjercicios()
-    } catch { toast.error('Error de conexión') } finally { setGuardandoEj(false) }
+    } catch (err) {
+      console.error('Error al crear ejercicio:', err)
+      toast.error('No se pudo conectar. Verifica tu conexión e intenta de nuevo.')
+    } finally { setGuardandoEj(false) }
   }
 
   const guardarEditEj = async (id_ej: string) => {
@@ -268,14 +275,27 @@ export default function RutinaDetallePage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px auto', gap: '10px', alignItems: 'flex-end' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <label className="label" htmlFor="ej-nombre">Nombre del ejercicio *</label>
-              <input id="ej-nombre" list="banco-list" style={inp} value={nombreEj} onChange={e => setNombreEj(e.target.value)} placeholder="Press banca, Sentadilla..." required autoFocus />
+              <input
+                id="ej-nombre"
+                list="banco-list"
+                style={{ ...inp, borderColor: nombreEjError ? 'var(--error)' : undefined, outline: nombreEjError ? '1px solid var(--error)' : undefined }}
+                value={nombreEj}
+                onChange={e => { setNombreEj(e.target.value); if (nombreEjError) setNombreEjError('') }}
+                placeholder="Press banca, Sentadilla..."
+                autoFocus
+              />
               <datalist id="banco-list">
                 {Object.values(BANCO_EJERCICIOS).flat().map(ej => <option key={ej} value={ej} />)}
               </datalist>
+              {nombreEjError && (
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--error)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '10px' }}>●</span> {nombreEjError}
+                </p>
+              )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <label className="label" htmlFor="ej-series">Series</label>
-              <input id="ej-series" style={{ ...inp, textAlign: 'center' }} type="number" min="1" max="20" value={numSeriesEj} onChange={e => setNumSeriesEj(e.target.value)} />
+              <input id="ej-series" style={{ ...inp, textAlign: 'center' }} type="number" value={numSeriesEj} onChange={e => setNumSeriesEj(e.target.value)} />
             </div>
             <button type="submit" disabled={guardandoEj} style={{ backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-md)', padding: '8px 16px', fontSize: '13px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', alignSelf: 'flex-end', whiteSpace: 'nowrap' }}>
               {guardandoEj ? 'Agregando...' : 'Agregar'}

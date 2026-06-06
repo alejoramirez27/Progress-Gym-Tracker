@@ -17,6 +17,9 @@ export default function RegistroPage() {
 
   const handleRegistro = async (e: React.FormEvent) => {
     e.preventDefault(); setError('')
+    if (!nombre.trim()) { setError('Ingresa tu nombre'); return }
+    if (!email.trim()) { setError('Ingresa tu email'); return }
+    if (password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
     if (password !== confirm) { setError('Las contraseñas no coinciden'); return }
     setLoading(true)
     const res  = await fetch('/api/auth/registro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, email, password }) })
@@ -72,7 +75,7 @@ export default function RegistroPage() {
             <label className="label" htmlFor="r-nombre">Nombre</label>
             <div style={{ position: 'relative' }}>
               <User style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="r-nombre" type="text" value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Tu nombre" required autoFocus autoComplete="name"
+              <input id="r-nombre" type="text" value={nombre} onChange={e => { setNombre(e.target.value); if (error) setError('') }} placeholder="Tu nombre" autoFocus autoComplete="name"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
           </div>
@@ -81,7 +84,7 @@ export default function RegistroPage() {
             <label className="label" htmlFor="r-email">Email</label>
             <div style={{ position: 'relative' }}>
               <Mail style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="r-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" required autoComplete="email"
+              <input id="r-email" type="email" value={email} onChange={e => { setEmail(e.target.value); if (error) setError('') }} placeholder="tu@email.com" autoComplete="email"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
           </div>
@@ -90,7 +93,7 @@ export default function RegistroPage() {
             <label className="label" htmlFor="r-password">Contraseña</label>
             <div style={{ position: 'relative' }}>
               <Lock style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="r-password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" required autoComplete="new-password"
+              <input id="r-password" type="password" value={password} onChange={e => { setPassword(e.target.value); if (error) setError('') }} placeholder="Mínimo 6 caracteres" autoComplete="new-password"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
           </div>
@@ -99,7 +102,7 @@ export default function RegistroPage() {
             <label className="label" htmlFor="r-confirm">Confirmar contraseña</label>
             <div style={{ position: 'relative' }}>
               <Lock style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="r-confirm" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repite tu contraseña" required autoComplete="new-password"
+              <input id="r-confirm" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repite tu contraseña" autoComplete="new-password"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box', borderColor: confirm && confirm !== password ? 'var(--error)' : undefined }} />
             </div>
             {confirm && confirm !== password && (

@@ -117,6 +117,7 @@ export default function RutinasPage() {
   const [grupos, setGrupos]       = useState('')
   const [diaSemana, setDia]       = useState('')
   const [guardando, setGuardando] = useState(false)
+  const [nombreError, setNombreError] = useState('')
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -143,8 +144,10 @@ export default function RutinasPage() {
   }
 
   const crear = async (e: React.FormEvent) => {
-    e.preventDefault(); setGuardando(true)
-    const res = await fetch('/api/rutinas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, descripcion, grupos, dia_semana: diaSemana || null }) })
+    e.preventDefault()
+    if (!nombre.trim()) { setNombreError('El nombre es obligatorio'); return }
+    setNombreError(''); setGuardando(true)
+    const res = await fetch('/api/rutinas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre: nombre.trim(), descripcion, grupos, dia_semana: diaSemana || null }) })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error); setGuardando(false); return }
     toast.success(`"${nombre}" creada`)
@@ -197,7 +200,8 @@ export default function RutinasPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <label className="label" htmlFor="r-nombre">Nombre *</label>
-              <input id="r-nombre" style={inp} value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Upper A, Pierna..." required autoFocus />
+              <input id="r-nombre" style={{ ...inp, borderColor: nombreError ? 'var(--error)' : undefined, outline: nombreError ? '1px solid var(--error)' : undefined }} value={nombre} onChange={e => { setNombre(e.target.value); if (nombreError) setNombreError('') }} placeholder="Upper A, Pierna..." autoFocus />
+              {nombreError && <p style={{ margin: 0, fontSize: '11px', color: 'var(--error)', display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ fontSize: '10px' }}>●</span> {nombreError}</p>}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <label className="label" htmlFor="r-dia">Día de la semana</label>
