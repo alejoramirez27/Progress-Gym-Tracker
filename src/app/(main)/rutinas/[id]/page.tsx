@@ -336,16 +336,13 @@ export default function RutinaDetallePage() {
               }}
             >
               {editandoEj === ej.id_ejercicio ? (
-                <div style={{ padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'center', backgroundColor: 'var(--surface-raised)' }}>
+                <div style={{ padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'stretch', backgroundColor: 'var(--surface-raised)' }}>
                   <input style={{ ...inp, flex: 1 }} value={editNombreEj} onChange={e => setEditNombreEj(e.target.value)} placeholder="Nombre" autoFocus />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <label className="label">Series</label>
-                    <input style={{ ...inp, width: '58px', textAlign: 'center' }} type="number" min="1" max="20" value={editNumSeriesEj} onChange={e => setEditNumSeries(e.target.value)} />
-                  </div>
-                  <button onClick={() => guardarEditEj(ej.id_ejercicio)} style={{ backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-md)', padding: '7px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <input style={{ ...inp, width: '62px', textAlign: 'center' }} type="number" value={editNumSeriesEj} onChange={e => setEditNumSeries(e.target.value)} title="Series" />
+                  <button onClick={() => guardarEditEj(ej.id_ejercicio)} style={{ backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-md)', padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                     <Check style={{ width: '12px', height: '12px' }} />
                   </button>
-                  <button onClick={() => setEditandoEj(null)} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '7px 9px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <button onClick={() => setEditandoEj(null)} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '7px 10px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                     <X style={{ width: '12px', height: '12px' }} />
                   </button>
                 </div>

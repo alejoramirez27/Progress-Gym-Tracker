@@ -292,7 +292,6 @@ function AchievementCard({ icon, label, value, delay = 0, style = {} }: {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, duration: 0.7, ease: E }}
       style={{
-        position: 'absolute',
         backgroundColor: 'rgba(255,255,255,0.92)',
         backdropFilter: 'blur(16px)',
         border: '1px solid rgba(255,255,255,0.9)',
@@ -300,7 +299,6 @@ function AchievementCard({ icon, label, value, delay = 0, style = {} }: {
         padding: '12px 16px',
         display: 'flex', alignItems: 'center', gap: '10px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-        zIndex: 4,
         ...style,
       }}
     >
@@ -444,9 +442,17 @@ function Hero() {
             priority
           />
         </motion.div>
-        <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ top: '22%', right: '8%' }} />
-        <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ top: '44%', right: '14%' }} />
-        <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ bottom: '24%', right: '7%' }} />
+        {/* Desktop: cards absolutely positioned around the image */}
+        <div className="hero-cards-desktop">
+          <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '22%', right: '8%' }} />
+          <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ position: 'absolute', top: '44%', right: '14%' }} />
+          <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
+        </div>
+        {/* Mobile: cards stacked vertically at bottom-right of image */}
+        <div className="hero-cards-mobile">
+          <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{}} />
+          <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.3} style={{}} />
+        </div>
       </div>
     </section>
   )
@@ -1112,7 +1118,21 @@ const css = `
     .footer-grid { grid-template-columns: 1fr 1fr !important; }
     .why-grid { grid-template-columns: 1fr !important; }
   }
+  /* Hero achievement cards */
+  .hero-cards-desktop { display: contents; }
+  .hero-cards-mobile  { display: none; }
+
   @media (max-width: 767px) {
+    .hero-cards-desktop { display: none; }
+    .hero-cards-mobile {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: absolute;
+      bottom: 14px;
+      right: 12px;
+      z-index: 4;
+    }
     .land-hero { grid-template-columns: 1fr; grid-template-rows: auto 56vw; }
     .land-hero-left { padding: 100px 20px 40px; }
     .land-h1 { font-size: clamp(44px, 12vw, 60px); }
