@@ -556,8 +556,7 @@ function ProductShowcase() {
       title: 'El gym en tu bolsillo.',
       body: 'Selecciona la rutina del día y los pesos de tu última sesión aparecen como referencia. Solo actualiza lo que cambió y guarda en un clic.',
       bullets: ['Series +/– en tiempo real', 'Referencia automática del último peso', 'Notas por serie'],
-      // TODO: reemplazar por /screenshots/registro.png real
-      shot: '/screenshots/registro.svg',
+      shot: '/screenshots/registro.jpg',
       shotAlt: 'Pantalla de registro de sesión en VoltTrack',
       reverse: false,
     },
@@ -568,8 +567,7 @@ function ProductShowcase() {
       // Dashboard más prominente — el más vendedor
       body: 'Cada vez que superas tu peso máximo, VoltTrack lo detecta y registra el nuevo PR al instante. También calcula tu 1RM estimado con la fórmula Epley.',
       bullets: ['1RM calculado automáticamente', 'Ranking de ejercicios por fuerza', 'Comparte tu PR en un clic'],
-      // TODO: reemplazar por /screenshots/records.png real
-      shot: '/screenshots/records.svg',
+      shot: '/screenshots/records.jpg',
       shotAlt: 'Pantalla de récords personales en VoltTrack',
       reverse: true,
     },
@@ -580,8 +578,7 @@ function ProductShowcase() {
       title: '365 días de progreso\nen una pantalla.',
       body: 'Heatmap de actividad al estilo GitHub, curva de evolución de fuerza por ejercicio, racha de días activos y volumen semanal acumulado.',
       bullets: ['Heatmap anual de actividad', 'Racha de días consecutivos', 'Volumen semanal vs semana anterior'],
-      // TODO: reemplazar por /screenshots/dashboard.png real — es la imagen MÁS IMPORTANTE
-      shot: '/screenshots/dashboard.svg',
+      shot: '/screenshots/dashboard.jpg',
       shotAlt: 'Dashboard de VoltTrack con heatmap y gráficas de progreso',
       reverse: false,
     },
