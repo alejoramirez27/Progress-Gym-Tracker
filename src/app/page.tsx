@@ -268,14 +268,16 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
         width: '72px', height: '22px', backgroundColor: '#111318',
         borderRadius: '11px', zIndex: 3,
       }} />
-      {/* Screen content */}
-      <Image
+      {/* Screen content — img tag renders SVG/PNG reliably inside the frame */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={src}
         alt={alt}
-        fill
-        sizes="(max-width: 768px) 200px, 260px"
-        style={{ objectFit: 'cover', objectPosition: 'top center' }}
-        priority={priority}
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'top center',
+        }}
       />
     </motion.div>
   )
