@@ -336,15 +336,23 @@ export default function RutinaDetallePage() {
               }}
             >
               {editandoEj === ej.id_ejercicio ? (
-                <div style={{ padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'stretch', backgroundColor: 'var(--surface-raised)' }}>
-                  <input style={{ ...inp, flex: 1 }} value={editNombreEj} onChange={e => setEditNombreEj(e.target.value)} placeholder="Nombre" autoFocus />
-                  <input style={{ ...inp, width: '62px', textAlign: 'center' }} type="number" value={editNumSeriesEj} onChange={e => setEditNumSeries(e.target.value)} title="Series" />
-                  <button onClick={() => guardarEditEj(ej.id_ejercicio)} style={{ backgroundColor: 'var(--accent)', color: '#0c0e12', border: 'none', borderRadius: 'var(--r-md)', padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                    <Check style={{ width: '12px', height: '12px' }} />
-                  </button>
-                  <button onClick={() => setEditandoEj(null)} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '7px 10px', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                    <X style={{ width: '12px', height: '12px' }} />
-                  </button>
+                <div style={{ padding: '14px 16px', backgroundColor: 'var(--surface-raised)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px auto auto', gap: '10px', alignItems: 'flex-end' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label className="label" style={{ margin: 0 }}>Nombre del ejercicio</label>
+                      <input style={inp} value={editNombreEj} onChange={e => setEditNombreEj(e.target.value)} placeholder="Nombre" autoFocus />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label className="label" style={{ margin: 0 }}>Series</label>
+                      <input style={{ ...inp, textAlign: 'center' }} type="number" value={editNumSeriesEj} onChange={e => setEditNumSeries(e.target.value)} />
+                    </div>
+                    <button onClick={() => guardarEditEj(ej.id_ejercicio)} style={{ backgroundColor: 'var(--accent)', color: '#ffffff', border: 'none', borderRadius: 'var(--r-md)', padding: '8px 16px', fontSize: '13px', fontWeight: '500', cursor: 'pointer', fontFamily: 'inherit', alignSelf: 'flex-end', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <Check style={{ width: '12px', height: '12px' }} /> Guardar
+                    </button>
+                    <button onClick={() => setEditandoEj(null)} style={{ backgroundColor: 'transparent', border: '1px solid var(--border-default)', borderRadius: 'var(--r-md)', padding: '8px 12px', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'inherit', alignSelf: 'flex-end' }}>
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>

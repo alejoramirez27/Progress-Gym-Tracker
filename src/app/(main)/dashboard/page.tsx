@@ -170,7 +170,7 @@ export default function DashboardPage() {
                   <span className="label">{c.label}</span>
                   <Icon style={{ width: '13px', height: '13px', color: 'var(--accent)', opacity: 0.6 }} />
                 </div>
-                <p className="num" style={{ fontSize: '24px', fontWeight: '700', color: 'var(--accent)', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2 }}>
+                <p className="num" style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.2 }}>
                   {c.value}
                 </p>
               </div>
@@ -213,8 +213,8 @@ export default function DashboardPage() {
                 <span className="label">{c.label}</span>
                 {c.icon}
               </div>
-              <p className="num racha-value" style={{ fontSize: '24px', fontWeight: '700', color: 'var(--accent)', margin: '0 0 3px', letterSpacing: '-0.03em' }}>
-                {c.value}<span style={{ fontSize: '11px', fontWeight: '300', color: 'var(--text-secondary)', marginLeft: '3px' }}>{c.unit}</span>
+              <p className="num racha-value" style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 3px', letterSpacing: '-0.03em' }}>
+                {c.value}<span style={{ fontSize: '14px', fontWeight: '400', color: 'var(--text-secondary)', marginLeft: '5px' }}>{c.unit}</span>
               </p>
               <p className="racha-sub" style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.sub}</p>
             </div>
