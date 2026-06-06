@@ -438,8 +438,8 @@ export default function RecordsPage() {
                 </div>
               </div>
             )}
-          </div>{/* end padding wrapper */}
-        </div>{/* end full-screen overlay */}
+          </div>
+        </div>
       )}
     </div>
   )
