@@ -1,25 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
   <rect width="390" height="844" fill="#f8f9fb"/>
-  <text x="195" y="34" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Récords (PRs)</text>
-  <rect x="16" y="56" width="358" height="100" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="40" y="76" width="32" height="32" rx="8" fill="#e8f3fb"/>
-  <rect x="84" y="80" width="140" height="12" rx="4" fill="#111318"/>
-  <rect x="84" y="100" width="80" height="10" rx="3" fill="#dde0e6"/>
-  <text x="340" y="116" text-anchor="middle" fill="#2d7fad" font-size="22" font-family="system-ui" font-weight="700">130</text>
-  <text x="340" y="132" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">kg</text>
-  <rect x="16" y="168" width="358" height="100" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="40" y="188" width="32" height="32" rx="8" fill="#e8f3fb"/>
-  <rect x="84" y="192" width="110" height="12" rx="4" fill="#111318"/>
-  <rect x="84" y="212" width="70" height="10" rx="3" fill="#dde0e6"/>
-  <text x="340" y="228" text-anchor="middle" fill="#2d7fad" font-size="22" font-family="system-ui" font-weight="700">180</text>
-  <text x="340" y="244" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">kg</text>
-  <rect x="16" y="280" width="358" height="100" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="40" y="300" width="32" height="32" rx="8" fill="#e8f3fb"/>
-  <rect x="84" y="304" width="130" height="12" rx="4" fill="#111318"/>
-  <rect x="84" y="324" width="90" height="10" rx="3" fill="#dde0e6"/>
-  <text x="340" y="340" text-anchor="middle" fill="#2d7fad" font-size="22" font-family="system-ui" font-weight="700">100</text>
-  <text x="340" y="356" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">kg</text>
-  <rect x="16" y="400" width="358" height="80" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="16" y="496" width="358" height="80" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+
+  <!-- Status bar -->
+  <rect width="390" height="52" fill="#ffffff"/>
+  <text x="20" y="34" fill="#111318" font-size="13" font-family="system-ui" font-weight="600">9:41</text>
+
+  <!-- Header -->
+  <rect width="390" height="56" y="52" fill="#ffffff"/>
+  <text x="20" y="88" fill="#111318" font-size="16" font-family="system-ui" font-weight="700" letter-spacing="-0.5">Récords Personales</text>
+
+  <!-- Search bar -->
+  <rect x="16" y="120" width="358" height="40" rx="10" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="42" y="144" fill="#9aa0a8" font-size="13" font-family="system-ui">Buscar ejercicio...</text>
+
+  <!-- Top 1RM tab -->
+  <rect x="16" y="174" width="110" height="30" rx="15" fill="#e8f3fb"/>
+  <text x="71" y="193" text-anchor="middle" fill="#2d7fad" font-size="11" font-family="system-ui" font-weight="600">🥇 Top 1RM</text>
+  <rect x="136" y="174" width="100" height="30" rx="15" fill="#f5f6f8"/>
+  <text x="186" y="193" text-anchor="middle" fill="#7a8290" font-size="11" font-family="system-ui" font-weight="500">Por rutina</text>
+
+  <!-- PR Card 1 — Gold -->
+  <rect x="16" y="218" width="358" height="88" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="16" y="218" width="5" height="88" rx="3" fill="#f5c518"/>
+  <text x="40" y="244" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.05em">🥇  #1 · UPPER B</text>
+  <text x="40" y="264" fill="#111318" font-size="15" font-family="system-ui" font-weight="700">Press Banca</text>
+  <rect x="40" y="274" width="60" height="20" rx="10" fill="#e8f3fb"/>
+  <text x="70" y="288" text-anchor="middle" fill="#2d7fad" font-size="9" font-family="system-ui" font-weight="600">+15 kg</text>
+  <text x="330" y="252" text-anchor="middle" fill="#111318" font-size="28" font-family="system-ui" font-weight="800">130</text>
+  <text x="330" y="270" text-anchor="middle" fill="#7a8290" font-size="10" font-family="system-ui">kg</text>
+  <text x="330" y="290" text-anchor="middle" fill="#9aa0a8" font-size="9" font-family="system-ui">1RM ~156</text>
+
+  <!-- PR Card 2 — Silver -->
+  <rect x="16" y="318" width="358" height="88" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="16" y="318" width="5" height="88" rx="3" fill="#c0c0c0"/>
+  <text x="40" y="344" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.05em">🥈  #2 · LOWER A</text>
+  <text x="40" y="364" fill="#111318" font-size="15" font-family="system-ui" font-weight="700">Sentadilla</text>
+  <rect x="40" y="374" width="60" height="20" rx="10" fill="#e8f3fb"/>
+  <text x="70" y="388" text-anchor="middle" fill="#2d7fad" font-size="9" font-family="system-ui" font-weight="600">+20 kg</text>
+  <text x="330" y="352" text-anchor="middle" fill="#111318" font-size="28" font-family="system-ui" font-weight="800">140</text>
+  <text x="330" y="370" text-anchor="middle" fill="#7a8290" font-size="10" font-family="system-ui">kg</text>
+  <text x="330" y="390" text-anchor="middle" fill="#9aa0a8" font-size="9" font-family="system-ui">1RM ~168</text>
+
+  <!-- PR Card 3 — Bronze -->
+  <rect x="16" y="418" width="358" height="88" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <rect x="16" y="418" width="5" height="88" rx="3" fill="#cd7f32"/>
+  <text x="40" y="444" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.05em">🥉  #3 · LOWER A</text>
+  <text x="40" y="464" fill="#111318" font-size="15" font-family="system-ui" font-weight="700">Peso Muerto</text>
+  <rect x="40" y="474" width="60" height="20" rx="10" fill="#e8f3fb"/>
+  <text x="70" y="488" text-anchor="middle" fill="#2d7fad" font-size="9" font-family="system-ui" font-weight="600">+30 kg</text>
+  <text x="330" y="452" text-anchor="middle" fill="#111318" font-size="28" font-family="system-ui" font-weight="800">180</text>
+  <text x="330" y="470" text-anchor="middle" fill="#7a8290" font-size="10" font-family="system-ui">kg</text>
+  <text x="330" y="490" text-anchor="middle" fill="#9aa0a8" font-size="9" font-family="system-ui">1RM ~207</text>
+
+  <!-- PR Card 4 -->
+  <rect x="16" y="518" width="358" height="76" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="40" y="542" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.05em">#4 · UPPER B</text>
+  <text x="40" y="562" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Press Militar</text>
+  <rect x="40" y="570" width="50" height="18" rx="9" fill="#e8f3fb"/>
+  <text x="65" y="582" text-anchor="middle" fill="#2d7fad" font-size="9" font-family="system-ui" font-weight="600">+8 kg</text>
+  <text x="330" y="552" text-anchor="middle" fill="#111318" font-size="24" font-family="system-ui" font-weight="700">80</text>
+  <text x="330" y="568" text-anchor="middle" fill="#7a8290" font-size="10" font-family="system-ui">kg</text>
+
+  <!-- PR Card 5 -->
+  <rect x="16" y="606" width="358" height="76" rx="12" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="40" y="630" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.05em">#5 · UPPER A</text>
+  <text x="40" y="650" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Remo en Barra</text>
+  <rect x="40" y="658" width="50" height="18" rx="9" fill="#e8f3fb"/>
+  <text x="65" y="670" text-anchor="middle" fill="#2d7fad" font-size="9" font-family="system-ui" font-weight="600">+10 kg</text>
+  <text x="330" y="640" text-anchor="middle" fill="#111318" font-size="24" font-family="system-ui" font-weight="700">100</text>
+  <text x="330" y="656" text-anchor="middle" fill="#7a8290" font-size="10" font-family="system-ui">kg</text>
+
+  <!-- Bottom nav -->
+  <rect y="828" width="390" height="16" fill="#f8f9fb"/>
+  <rect x="155" y="834" width="80" height="4" rx="2" fill="#c4c9d1"/>
 </svg>
-<!-- TODO: reemplazar por screenshot real de /records -->

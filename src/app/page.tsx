@@ -449,10 +449,12 @@ function Hero() {
           <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ position: 'absolute', top: '44%', right: '14%' }} />
           <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
         </div>
-        {/* Mobile: 3 cards staggered — 2 top, 1 bottom */}
-        <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} className="hero-card-m1" style={{}} />
-        <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} className="hero-card-m2" style={{}} />
-        <AchievementCard small icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} className="hero-card-m3" style={{}} />
+        {/* Mobile: wrapper div controls visibility — avoids motion.div display:none issues */}
+        <div className="hero-cards-mobile-wrap">
+          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '10%', right: '3%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} style={{ position: 'absolute', top: '42%', right: '13%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} style={{ position: 'absolute', bottom: '8%', right: '3%', maxWidth: '62%' }} />
+        </div>
       </div>
     </section>
   )
@@ -1120,37 +1122,19 @@ const css = `
   }
   /* Hero achievement cards */
   .hero-cards-desktop { display: contents; }
-  .hero-card-m1, .hero-card-m2, .hero-card-m3 { display: none; }
+  /* Mobile wrapper hidden by default — plain div respects display:none unlike motion.div */
+  .hero-cards-mobile-wrap { display: none; }
 
   @media (max-width: 767px) {
     .hero-cards-desktop { display: none; }
-    /* Card 1: top-right */
-    .hero-card-m1 {
-      display: flex;
+    .hero-cards-mobile-wrap {
+      display: block;
       position: absolute;
-      top: 10%;
-      right: 3%;
+      inset: 0;
       z-index: 4;
-      max-width: 62%;
+      pointer-events: none;
     }
-    /* Card 2: mid, shifted left */
-    .hero-card-m2 {
-      display: flex;
-      position: absolute;
-      top: 42%;
-      right: 13%;
-      z-index: 4;
-      max-width: 62%;
-    }
-    /* Card 3: bottom, back to right */
-    .hero-card-m3 {
-      display: flex;
-      position: absolute;
-      bottom: 8%;
-      right: 3%;
-      z-index: 4;
-      max-width: 62%;
-    }
+    .hero-cards-mobile-wrap > * { pointer-events: auto; }
     .land-hero { grid-template-columns: 1fr; grid-template-rows: auto 56vw; }
     .land-hero-left { padding: 100px 20px 40px; }
     .land-h1 { font-size: clamp(44px, 12vw, 60px); }

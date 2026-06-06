@@ -1,18 +1,100 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
   <rect width="390" height="844" fill="#f8f9fb"/>
-  <rect x="16" y="60" width="358" height="48" rx="10" fill="#e8f3fb"/>
-  <rect x="16" y="124" width="200" height="20" rx="6" fill="#dde0e6"/>
-  <rect x="16" y="156" width="358" height="1" fill="#eceef2"/>
-  <rect x="16" y="172" width="120" height="14" rx="4" fill="#dde0e6"/>
-  <rect x="16" y="196" width="358" height="52" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="16" y="260" width="358" height="52" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="16" y="324" width="358" height="52" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="16" y="396" width="358" height="1" fill="#eceef2"/>
-  <rect x="16" y="412" width="120" height="14" rx="4" fill="#dde0e6"/>
-  <rect x="16" y="436" width="358" height="52" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="16" y="500" width="358" height="52" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="16" y="760" width="358" height="52" rx="12" fill="#2d7fad"/>
-  <text x="195" y="792" text-anchor="middle" fill="white" font-size="16" font-family="system-ui" font-weight="600">Guardar sesión</text>
-  <text x="195" y="34" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Registrar sesión</text>
+
+  <!-- Status bar area -->
+  <rect width="390" height="52" fill="#ffffff"/>
+  <text x="20" y="34" fill="#111318" font-size="13" font-family="system-ui" font-weight="600">9:41</text>
+
+  <!-- Header -->
+  <rect width="390" height="56" y="52" fill="#ffffff"/>
+  <text x="20" y="88" fill="#111318" font-size="16" font-family="system-ui" font-weight="700" letter-spacing="-0.5">Registrar sesión</text>
+
+  <!-- Rutina selector card -->
+  <rect x="16" y="120" width="358" height="52" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="140" fill="#7a8290" font-size="9" font-family="system-ui" font-weight="500" letter-spacing="0.06em">RUTINA</text>
+  <text x="32" y="158" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Upper B — Jueves</text>
+  <rect x="330" y="130" width="28" height="28" rx="6" fill="#e8f3fb"/>
+  <text x="344" y="148" text-anchor="middle" fill="#2d7fad" font-size="14" font-family="system-ui">▼</text>
+
+  <!-- Date -->
+  <rect x="16" y="184" width="160" height="40" rx="8" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="200" fill="#7a8290" font-size="9" font-family="system-ui" font-weight="500" letter-spacing="0.06em">FECHA</text>
+  <text x="32" y="216" fill="#111318" font-size="13" font-family="system-ui" font-weight="500">6 jun 2025</text>
+
+  <!-- Divider -->
+  <line x1="16" y1="240" x2="374" y2="240" stroke="#eceef2" stroke-width="1"/>
+
+  <!-- Exercise 1 label -->
+  <text x="16" y="262" fill="#7a8290" font-size="10" font-family="system-ui" font-weight="500" letter-spacing="0.05em">PRESS BANCA</text>
+
+  <!-- Series rows for exercise 1 -->
+  <!-- Series 1 -->
+  <rect x="16" y="272" width="358" height="44" rx="8" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="289" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.04em">SERIE 1</text>
+  <rect x="130" y="278" width="70" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="165" y="297" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">100</text>
+  <text x="208" y="297" fill="#7a8290" font-size="11" font-family="system-ui">kg</text>
+  <rect x="240" y="278" width="60" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="270" y="297" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">8</text>
+  <text x="307" y="297" fill="#7a8290" font-size="11" font-family="system-ui">reps</text>
+
+  <!-- Series 2 -->
+  <rect x="16" y="322" width="358" height="44" rx="8" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="339" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.04em">SERIE 2</text>
+  <rect x="130" y="328" width="70" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="165" y="347" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">100</text>
+  <text x="208" y="347" fill="#7a8290" font-size="11" font-family="system-ui">kg</text>
+  <rect x="240" y="328" width="60" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="270" y="347" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">8</text>
+  <text x="307" y="347" fill="#7a8290" font-size="11" font-family="system-ui">reps</text>
+
+  <!-- Series 3 — active/highlighted -->
+  <rect x="16" y="372" width="358" height="44" rx="8" fill="#e8f3fb" stroke="#2d7fad" stroke-width="1.5"/>
+  <text x="32" y="389" fill="#2d7fad" font-size="9" font-family="system-ui" font-weight="500" letter-spacing="0.04em">SERIE 3</text>
+  <rect x="130" y="378" width="70" height="28" rx="6" fill="#ffffff" stroke="#2d7fad" stroke-width="1.5"/>
+  <text x="165" y="397" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="700">105</text>
+  <text x="208" y="397" fill="#2d7fad" font-size="11" font-family="system-ui">kg</text>
+  <rect x="240" y="378" width="60" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="270" y="397" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">6</text>
+
+  <!-- PR badge -->
+  <rect x="314" y="380" width="48" height="22" rx="11" fill="#2d7fad"/>
+  <text x="338" y="395" text-anchor="middle" fill="#ffffff" font-size="9" font-family="system-ui" font-weight="700">🏆 PR</text>
+
+  <!-- Divider -->
+  <line x1="16" y1="432" x2="374" y2="432" stroke="#eceef2" stroke-width="1"/>
+
+  <!-- Exercise 2 label -->
+  <text x="16" y="452" fill="#7a8290" font-size="10" font-family="system-ui" font-weight="500" letter-spacing="0.05em">VUELOS LATERALES</text>
+
+  <!-- Series for exercise 2 -->
+  <rect x="16" y="462" width="358" height="44" rx="8" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="479" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.04em">SERIE 1</text>
+  <rect x="130" y="468" width="70" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="165" y="487" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">14</text>
+  <text x="208" y="487" fill="#7a8290" font-size="11" font-family="system-ui">kg</text>
+  <rect x="240" y="468" width="60" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="270" y="487" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">12</text>
+
+  <rect x="16" y="512" width="358" height="44" rx="8" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="529" fill="#9aa0a8" font-size="9" font-family="system-ui" letter-spacing="0.04em">SERIE 2</text>
+  <rect x="130" y="518" width="70" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="165" y="537" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">14</text>
+  <text x="208" y="537" fill="#7a8290" font-size="11" font-family="system-ui">kg</text>
+  <rect x="240" y="518" width="60" height="28" rx="6" fill="#f5f6f8" stroke="#dde0e6" stroke-width="1"/>
+  <text x="270" y="537" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">12</text>
+
+  <!-- Volume summary bar -->
+  <rect x="16" y="576" width="358" height="48" rx="10" fill="#f0f2f5"/>
+  <text x="32" y="595" fill="#7a8290" font-size="9" font-family="system-ui" font-weight="500" letter-spacing="0.06em">VOLUMEN TOTAL HASTA AHORA</text>
+  <text x="32" y="614" fill="#111318" font-size="15" font-family="system-ui" font-weight="700">2 480 kg</text>
+  <text x="200" y="614" fill="#7a8290" font-size="11" font-family="system-ui">· 3 ejercicios · 7 series</text>
+
+  <!-- Save button -->
+  <rect x="16" y="776" width="358" height="52" rx="12" fill="#2d7fad"/>
+  <text x="195" y="807" text-anchor="middle" fill="#ffffff" font-size="15" font-family="system-ui" font-weight="700">Guardar sesión →</text>
+
+  <!-- Bottom nav bar -->
+  <rect y="828" width="390" height="16" fill="#f8f9fb"/>
+  <rect x="155" y="834" width="80" height="4" rx="2" fill="#c4c9d1"/>
 </svg>
-<!-- TODO: reemplazar por screenshot real de /progreso -->

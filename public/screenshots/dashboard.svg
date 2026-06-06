@@ -1,82 +1,118 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
   <rect width="390" height="844" fill="#f8f9fb"/>
-  <text x="195" y="34" text-anchor="middle" fill="#111318" font-size="14" font-family="system-ui" font-weight="600">Dashboard</text>
-  <!-- metric cards -->
-  <rect x="16" y="56" width="168" height="80" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <rect x="206" y="56" width="168" height="80" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <text x="100" y="90" text-anchor="middle" fill="#2d7fad" font-size="26" font-family="system-ui" font-weight="700">24</text>
-  <text x="100" y="116" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">Sesiones</text>
-  <text x="290" y="90" text-anchor="middle" fill="#2d7fad" font-size="26" font-family="system-ui" font-weight="700">18🔥</text>
-  <text x="290" y="116" text-anchor="middle" fill="#9aa0a8" font-size="10" font-family="system-ui">Racha días</text>
-  <!-- heatmap -->
-  <rect x="16" y="152" width="358" height="140" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <text x="40" y="175" fill="#111318" font-size="11" font-family="system-ui" font-weight="600">Actividad · 365 días</text>
-  <!-- heatmap cells -->
-  <g fill="#e8f3fb">
-    <rect x="32" y="186" width="8" height="8" rx="2"/><rect x="42" y="186" width="8" height="8" rx="2"/><rect x="52" y="186" width="8" height="8" rx="2"/>
-    <rect x="62" y="186" width="8" height="8" rx="2"/><rect x="72" y="186" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#93c5e8">
-    <rect x="82" y="186" width="8" height="8" rx="2"/><rect x="92" y="186" width="8" height="8" rx="2"/>
-    <rect x="102" y="186" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#2d7fad">
-    <rect x="112" y="186" width="8" height="8" rx="2"/><rect x="122" y="186" width="8" height="8" rx="2"/>
-    <rect x="132" y="186" width="8" height="8" rx="2"/><rect x="142" y="186" width="8" height="8" rx="2"/>
-    <rect x="152" y="186" width="8" height="8" rx="2"/><rect x="162" y="186" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#e8f3fb">
-    <rect x="172" y="186" width="8" height="8" rx="2"/><rect x="182" y="186" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#93c5e8">
-    <rect x="192" y="186" width="8" height="8" rx="2"/><rect x="202" y="186" width="8" height="8" rx="2"/>
-    <rect x="212" y="186" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#2d7fad">
-    <rect x="222" y="186" width="8" height="8" rx="2"/><rect x="232" y="186" width="8" height="8" rx="2"/>
-    <rect x="242" y="186" width="8" height="8" rx="2"/>
-  </g>
-  <!-- row 2 -->
-  <g fill="#e8f3fb">
-    <rect x="32" y="198" width="8" height="8" rx="2"/><rect x="42" y="198" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#2d7fad">
-    <rect x="52" y="198" width="8" height="8" rx="2"/><rect x="62" y="198" width="8" height="8" rx="2"/>
-    <rect x="72" y="198" width="8" height="8" rx="2"/><rect x="82" y="198" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#93c5e8">
-    <rect x="92" y="198" width="8" height="8" rx="2"/><rect x="102" y="198" width="8" height="8" rx="2"/>
-    <rect x="112" y="198" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#e8f3fb">
-    <rect x="122" y="198" width="8" height="8" rx="2"/><rect x="132" y="198" width="8" height="8" rx="2"/>
-    <rect x="142" y="198" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#2d7fad">
-    <rect x="152" y="198" width="8" height="8" rx="2"/><rect x="162" y="198" width="8" height="8" rx="2"/>
-    <rect x="172" y="198" width="8" height="8" rx="2"/><rect x="182" y="198" width="8" height="8" rx="2"/>
-  </g>
-  <!-- row 3 similar pattern -->
-  <g fill="#93c5e8">
-    <rect x="32" y="210" width="8" height="8" rx="2"/><rect x="42" y="210" width="8" height="8" rx="2"/>
-    <rect x="52" y="210" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#2d7fad">
-    <rect x="62" y="210" width="8" height="8" rx="2"/><rect x="72" y="210" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#e8f3fb">
-    <rect x="82" y="210" width="8" height="8" rx="2"/><rect x="92" y="210" width="8" height="8" rx="2"/>
-    <rect x="102" y="210" width="8" height="8" rx="2"/>
-  </g>
-  <g fill="#2d7fad">
-    <rect x="112" y="210" width="8" height="8" rx="2"/><rect x="122" y="210" width="8" height="8" rx="2"/>
-    <rect x="132" y="210" width="8" height="8" rx="2"/>
-  </g>
-  <!-- progress chart -->
-  <rect x="16" y="308" width="358" height="120" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
-  <text x="40" y="330" fill="#111318" font-size="11" font-family="system-ui" font-weight="600">Press banca — Progreso</text>
-  <polyline points="40,400 80,385 120,378 160,365 200,350 240,342 280,330 320,322 360,310" stroke="#2d7fad" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <polygon points="40,400 80,385 120,378 160,365 200,350 240,342 280,330 320,322 360,310 360,415 40,415" fill="url(#grad)" opacity="0.15"/>
-  <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d7fad"/><stop offset="100%" stop-color="#2d7fad" stop-opacity="0"/></linearGradient></defs>
+
+  <!-- Status bar -->
+  <rect width="390" height="52" fill="#ffffff"/>
+  <text x="20" y="34" fill="#111318" font-size="13" font-family="system-ui" font-weight="600">9:41</text>
+
+  <!-- Header -->
+  <rect width="390" height="56" y="52" fill="#ffffff"/>
+  <text x="20" y="80" fill="#111318" font-size="16" font-family="system-ui" font-weight="700" letter-spacing="-0.5">Dashboard</text>
+  <text x="20" y="96" fill="#7a8290" font-size="10" font-family="system-ui">Evolución y métricas de tu entrenamiento</text>
+
+  <!-- Stats grid 2x2 -->
+  <rect x="16" y="114" width="170" height="70" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="132" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.07em">RUTINAS</text>
+  <text x="32" y="165" fill="#111318" font-size="26" font-family="system-ui" font-weight="800">5</text>
+
+  <rect x="204" y="114" width="170" height="70" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="220" y="132" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.07em">EJERCICIOS</text>
+  <text x="220" y="165" fill="#111318" font-size="26" font-family="system-ui" font-weight="800">24</text>
+
+  <rect x="16" y="194" width="170" height="70" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="212" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.07em">SERIES TOTALES</text>
+  <text x="32" y="245" fill="#111318" font-size="26" font-family="system-ui" font-weight="800">38</text>
+
+  <rect x="204" y="194" width="170" height="70" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="220" y="212" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.07em">ULTIMA SESION</text>
+  <text x="220" y="245" fill="#111318" font-size="22" font-family="system-ui" font-weight="800">4 jun</text>
+
+  <!-- Racha cards row -->
+  <rect x="16" y="276" width="110" height="64" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="26" y="293" fill="#9aa0a8" font-size="8" font-family="system-ui" letter-spacing="0.05em">RACHA</text>
+  <text x="26" y="322" fill="#111318" font-size="22" font-family="system-ui" font-weight="800">7</text>
+  <text x="52" y="322" fill="#7a8290" font-size="11" font-family="system-ui">dias</text>
+  <text x="26" y="335" fill="#e07040" font-size="9" font-family="system-ui">en racha</text>
+
+  <rect x="140" y="276" width="110" height="64" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="150" y="293" fill="#9aa0a8" font-size="8" font-family="system-ui" letter-spacing="0.05em">MEJOR</text>
+  <text x="150" y="322" fill="#111318" font-size="22" font-family="system-ui" font-weight="800">14</text>
+  <text x="176" y="322" fill="#7a8290" font-size="11" font-family="system-ui">dias</text>
+
+  <rect x="264" y="276" width="110" height="64" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="274" y="293" fill="#9aa0a8" font-size="8" font-family="system-ui" letter-spacing="0.05em">ESTA SEM.</text>
+  <text x="274" y="322" fill="#111318" font-size="22" font-family="system-ui" font-weight="800">3</text>
+  <text x="300" y="322" fill="#7a8290" font-size="11" font-family="system-ui">ses.</text>
+
+  <!-- Weekly dots -->
+  <rect x="16" y="352" width="358" height="56" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="370" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.06em">ESTA SEMANA</text>
+  <circle cx="50" cy="390" r="8" fill="#2d7fad" opacity="0.9"/>
+  <text x="50" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">L</text>
+  <circle cx="98" cy="390" r="8" fill="#2d7fad" opacity="0.9"/>
+  <text x="98" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">M</text>
+  <circle cx="146" cy="390" r="8" fill="#eceef2"/>
+  <text x="146" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">X</text>
+  <circle cx="194" cy="390" r="8" fill="#2d7fad" opacity="0.9"/>
+  <text x="194" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">J</text>
+  <circle cx="242" cy="390" r="8" fill="#eceef2"/>
+  <text x="242" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">V</text>
+  <circle cx="290" cy="390" r="8" fill="#eceef2" stroke="#2d7fad" stroke-width="2"/>
+  <text x="290" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">S</text>
+  <circle cx="358" cy="390" r="8" fill="#eceef2"/>
+  <text x="358" y="408" text-anchor="middle" fill="#9aa0a8" font-size="7" font-family="system-ui">D</text>
+
+  <!-- Heatmap -->
+  <rect x="16" y="420" width="358" height="148" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="440" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.06em">ACTIVIDAD - ULTIMOS 12 MESES</text>
+  <text x="350" y="440" text-anchor="end" fill="#2d7fad" font-size="9" font-family="system-ui">38 sesiones</text>
+  <text x="32" y="458" fill="#9aa0a8" font-size="7" font-family="system-ui">ene</text>
+  <text x="90" y="458" fill="#9aa0a8" font-size="7" font-family="system-ui">feb</text>
+  <text x="140" y="458" fill="#9aa0a8" font-size="7" font-family="system-ui">mar</text>
+  <text x="192" y="458" fill="#9aa0a8" font-size="7" font-family="system-ui">abr</text>
+  <text x="240" y="458" fill="#9aa0a8" font-size="7" font-family="system-ui">may</text>
+  <text x="292" y="458" fill="#9aa0a8" font-size="7" font-family="system-ui">jun</text>
+  <!-- Heatmap cells rows -->
+  <rect x="32" y="462" width="6" height="6" rx="1" fill="#c8dff0"/><rect x="40" y="462" width="6" height="6" rx="1" fill="#eceef2"/><rect x="48" y="462" width="6" height="6" rx="1" fill="#c8dff0"/><rect x="56" y="462" width="6" height="6" rx="1" fill="#eceef2"/><rect x="64" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.5"/><rect x="72" y="462" width="6" height="6" rx="1" fill="#eceef2"/><rect x="80" y="462" width="6" height="6" rx="1" fill="#c8dff0"/>
+  <rect x="140" y="462" width="6" height="6" rx="1" fill="#c8dff0"/><rect x="148" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.6"/><rect x="156" y="462" width="6" height="6" rx="1" fill="#eceef2"/><rect x="164" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.7"/>
+  <rect x="200" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.8"/><rect x="208" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.6"/><rect x="216" y="462" width="6" height="6" rx="1" fill="#eceef2"/><rect x="224" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.9"/>
+  <rect x="292" y="462" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="300" y="462" width="6" height="6" rx="1" fill="#eceef2"/><rect x="308" y="462" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="316" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.8"/><rect x="324" y="462" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="332" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.9"/><rect x="340" y="462" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="348" y="462" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.7"/>
+  <rect x="32" y="470" width="6" height="6" rx="1" fill="#eceef2"/><rect x="56" y="470" width="6" height="6" rx="1" fill="#c8dff0"/><rect x="72" y="470" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.4"/>
+  <rect x="148" y="470" width="6" height="6" rx="1" fill="#c8dff0"/><rect x="164" y="470" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.5"/>
+  <rect x="208" y="470" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.7"/><rect x="224" y="470" width="6" height="6" rx="1" fill="#eceef2"/>
+  <rect x="292" y="470" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="308" y="470" width="6" height="6" rx="1" fill="#eceef2"/><rect x="316" y="470" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="332" y="470" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="348" y="470" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.6"/>
+  <rect x="40" y="478" width="6" height="6" rx="1" fill="#c8dff0"/><rect x="64" y="478" width="6" height="6" rx="1" fill="#eceef2"/>
+  <rect x="156" y="478" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.5"/>
+  <rect x="216" y="478" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.8"/>
+  <rect x="300" y="478" width="6" height="6" rx="1" fill="#2d7fad"/><rect x="316" y="478" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.9"/><rect x="340" y="478" width="6" height="6" rx="1" fill="#2d7fad"/>
+  <!-- Legend -->
+  <text x="32" y="560" fill="#9aa0a8" font-size="7" font-family="system-ui">Menos</text>
+  <rect x="66" y="552" width="6" height="6" rx="1" fill="#eceef2"/>
+  <rect x="74" y="552" width="6" height="6" rx="1" fill="#c8dff0"/>
+  <rect x="82" y="552" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.5"/>
+  <rect x="90" y="552" width="6" height="6" rx="1" fill="#2d7fad" opacity="0.8"/>
+  <rect x="98" y="552" width="6" height="6" rx="1" fill="#2d7fad"/>
+  <text x="107" y="560" fill="#9aa0a8" font-size="7" font-family="system-ui">Mas</text>
+
+  <!-- Progress chart -->
+  <rect x="16" y="580" width="358" height="200" rx="10" fill="#ffffff" stroke="#dde0e6" stroke-width="1"/>
+  <text x="32" y="600" fill="#9aa0a8" font-size="8" font-family="system-ui" font-weight="500" letter-spacing="0.06em">PROGRESO DE FUERZA</text>
+  <text x="32" y="617" fill="#111318" font-size="12" font-family="system-ui" font-weight="600">Press Banca</text>
+  <!-- Chart line -->
+  <polygon points="40,748 80,730 120,718 160,705 200,692 240,678 280,660 320,642 358,622 358,760 40,760" fill="#2d7fad" opacity="0.06"/>
+  <polyline points="40,748 80,730 120,718 160,705 200,692 240,678 280,660 320,642 358,622" fill="none" stroke="#2d7fad" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="80" cy="730" r="3" fill="#2d7fad"/>
+  <circle cx="160" cy="705" r="3" fill="#2d7fad"/>
+  <circle cx="240" cy="678" r="3" fill="#2d7fad"/>
+  <circle cx="358" cy="622" r="4.5" fill="#2d7fad" stroke="#ffffff" stroke-width="2"/>
+  <rect x="328" y="604" width="48" height="16" rx="8" fill="#2d7fad"/>
+  <text x="352" y="615" text-anchor="middle" fill="#ffffff" font-size="8" font-family="system-ui" font-weight="700">130 kg</text>
+  <text x="20" y="630" fill="#9aa0a8" font-size="7" font-family="system-ui">130</text>
+  <text x="20" y="660" fill="#9aa0a8" font-size="7" font-family="system-ui">110</text>
+  <text x="20" y="700" fill="#9aa0a8" font-size="7" font-family="system-ui">90</text>
+  <text x="20" y="745" fill="#9aa0a8" font-size="7" font-family="system-ui">70</text>
+
+  <!-- Bottom nav -->
+  <rect y="828" width="390" height="16" fill="#f8f9fb"/>
+  <rect x="155" y="834" width="80" height="4" rx="2" fill="#c4c9d1"/>
 </svg>
-<!-- TODO: reemplazar por screenshot real de /dashboard -->
