@@ -283,33 +283,43 @@ export default function RecordsPage() {
 
       {/* ── Modal Gráfica de Progreso ──────────────────────────────────────── */}
       {graficaEj && (
-        <>
-          <div onClick={() => setGraficaEj(null)}
-            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 300 }} />
-          <div style={{
-            position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 301,
-            backgroundColor: 'var(--surface-card)',
-            borderTop: '1px solid var(--border-default)',
-            borderRadius: '20px 20px 0 0',
-            padding: '20px 16px 40px',
-            maxHeight: '85vh', overflowY: 'auto',
-            animation: 'slide-up-chart 0.24s cubic-bezier(0.32,0.72,0,1) both',
-          }}>
-            <style>{`
-              @keyframes slide-up-chart {
-                from { transform: translateY(100%); }
-                to   { transform: translateY(0); }
-              }
-            `}</style>
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 300,
+          backgroundColor: 'var(--surface-base)',
+          overflowY: 'auto',
+          animation: 'chart-enter 0.28s cubic-bezier(0.32,0.72,0,1) both',
+        }}>
+          <style>{`
+            @keyframes chart-enter {
+              from { transform: translateY(100%); opacity: 0.6; }
+              to   { transform: translateY(0);    opacity: 1; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              @keyframes chart-enter { from { opacity: 0; } to { opacity: 1; } }
+            }
+          `}</style>
 
+          {/* Safe-area top spacer + back button */}
+          <div style={{ position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'var(--surface-base)', borderBottom: '1px solid var(--border-faint)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => setGraficaEj(null)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontFamily: 'inherit', fontSize: '14px', fontWeight: '500', padding: '4px 0' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Volver
+            </button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{graficaEj.nombre}</p>
+            </div>
+          </div>
+
+          <div style={{ padding: '20px 16px 40px' }}>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div>
-                <p style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px' }}>Progreso de fuerza</p>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>{graficaEj.nombre}</h3>
-              </div>
-              <button onClick={() => setGraficaEj(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '4px', fontSize: '20px', lineHeight: 1, marginTop: '-2px' }}>×</button>
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px' }}>Progreso de fuerza</p>
+              <h3 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>{graficaEj.nombre}</h3>
             </div>
 
             {/* PR summary chip */}
@@ -428,8 +438,8 @@ export default function RecordsPage() {
                 </div>
               </div>
             )}
-          </div>
-        </>
+          </div>{/* end padding wrapper */}
+        </div>{/* end full-screen overlay */}
       )}
     </div>
   )
