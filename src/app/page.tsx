@@ -453,7 +453,7 @@ function Hero() {
       <div className="land-hero-right" style={{ position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 14%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.35) 0%, transparent 22%)' }} />
         <motion.div
-          style={{ position: 'absolute', inset: '-14% 0', y: reduce ? 0 : imgY }}
+          style={{ position: 'absolute', inset: '0 0 -28% 0', y: reduce ? 0 : imgY }}
           initial={reduce ? false : { scale: 1.08, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.4, delay: 0.15, ease: E }}
@@ -463,7 +463,7 @@ function Hero() {
             alt="Atleta entrenando en el gimnasio"
             fill
             unoptimized
-            style={{ objectFit: 'cover', objectPosition: '50% 15%' }}
+            style={{ objectFit: 'cover', objectPosition: '50% 0%' }}
             priority
           />
         </motion.div>
