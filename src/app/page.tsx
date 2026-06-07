@@ -15,7 +15,7 @@ import {
   Zap, TrendingUp, Trophy, Layers, ArrowRight, BicepsFlexed,
   CheckCircle2, BarChart2, ChevronDown, Timer, RotateCcw,
   Share2, Download, Smartphone, Target, ShieldCheck, Flame, Dumbbell,
-  HelpCircle, ChevronRight,
+  HelpCircle,
 } from 'lucide-react'
 
 /* ─── Easing ──────────────────────────────────────────────── */
@@ -89,10 +89,39 @@ function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
   return <span ref={ref}>{val}{suffix}</span>
 }
 
-/* ─── SectionHeader ──────────────────────────────────────────
-   Layout: 7 cols título/eyebrow + 5 cols descripción.
-   items-end: la última línea del párrafo alinea con el eyebrow.
-   Móvil: colapsa a una columna con espaciado vertical limpio.
+/* ─── HeatmapTexture — brand identity motif ─────────────────
+   SVG heatmap grid. Pseudo-random seed for consistency.
+   Use as decorative background: opacity 0.06–0.18.
+────────────────────────────────────────────────────────────── */
+function HeatmapTexture({ cols = 52, rows = 7 }: { cols?: number; rows?: number }) {
+  const cells: { c: number; r: number; lvl: number }[] = []
+  let seed = 0x4b7a9c3e
+  const rand = () => {
+    seed = ((seed * 1664525 + 1013904223) | 0) >>> 0
+    return seed / 0xffffffff
+  }
+  for (let c = 0; c < cols; c++) {
+    for (let r = 0; r < rows; r++) {
+      const v = rand()
+      const lvl = v < 0.52 ? 0 : v < 0.70 ? 1 : v < 0.83 ? 2 : v < 0.93 ? 3 : 4
+      if (lvl > 0) cells.push({ c, r, lvl })
+    }
+  }
+  const fills = ['', 'rgba(45,127,173,0.2)', 'rgba(45,127,173,0.38)', 'rgba(45,127,173,0.58)', 'rgba(45,127,173,0.80)']
+  const W = cols * 15
+  const H = rows * 15
+  return (
+    <svg width={W} height={H} aria-hidden="true" style={{ display: 'block' }}>
+      {cells.map(({ c, r, lvl }) => (
+        <rect key={`${c}-${r}`} x={c * 15} y={r * 15} width={13} height={13} rx={2} fill={fills[lvl]} />
+      ))}
+    </svg>
+  )
+}
+
+/* ─── SectionHeader — single column ─────────────────────────
+   eyebrow (top) → title → thin divider → paragraph.
+   Applies to: "Todo lo que necesitas", "Por qué VoltTrack", "FAQ"
 ────────────────────────────────────────────────────────────── */
 function SectionHeader({
   title,
@@ -104,52 +133,47 @@ function SectionHeader({
   description?: string
 }) {
   return (
-    <div className="sec-header">
-      {/* Left: título + eyebrow */}
-      <div className="sec-header-left">
-        <LineReveal>
-          <h2 style={{
-            fontSize: 'clamp(36px, 5vw, 64px)',
-            fontWeight: '700',
-            color: '#111318',
-            letterSpacing: '-0.038em',
-            lineHeight: '1.03',
-            margin: 0,
+    <div style={{ marginBottom: '56px' }}>
+      {eyebrow && (
+        <Reveal>
+          <p style={{
+            fontSize: '11px',
+            fontWeight: '500',
+            color: '#2d7fad',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            margin: '0 0 16px',
+            lineHeight: '1',
           }}>
-            {title}
-          </h2>
-        </LineReveal>
-        {eyebrow && (
-          <Reveal delay={0.06}>
-            <p style={{
-              fontSize: '12px',
-              fontWeight: '500',
-              color: '#2d7fad',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              margin: '14px 0 0',
-              lineHeight: '1',
-            }}>
-              {eyebrow}
-            </p>
-          </Reveal>
-        )}
-      </div>
-
-      {/* Right: descripción — solo si existe */}
+            {eyebrow}
+          </p>
+        </Reveal>
+      )}
+      <LineReveal>
+        <h2 style={{
+          fontSize: 'clamp(34px, 4.8vw, 62px)',
+          fontWeight: '700',
+          color: '#111318',
+          letterSpacing: '-0.038em',
+          lineHeight: '1.03',
+          margin: 0,
+        }}>
+          {title}
+        </h2>
+      </LineReveal>
       {description && (
-        <Reveal delay={0.12}>
-          <div className="sec-header-right">
-            <p style={{
-              fontSize: 'clamp(16px, 1.5vw, 18px)',
-              color: '#374151',           /* ~9:1 contraste sobre blanco — pasa WCAG AA */
-              lineHeight: '1.7',
-              fontWeight: '300',
-              margin: 0,
-            }}>
-              {description}
-            </p>
-          </div>
+        <Reveal delay={0.1}>
+          <div style={{ height: '1px', backgroundColor: '#eceef2', margin: '22px 0 18px', maxWidth: '500px' }} />
+          <p style={{
+            fontSize: 'clamp(15px, 1.4vw, 17px)',
+            color: '#4a5057',
+            lineHeight: '1.72',
+            fontWeight: '300',
+            margin: 0,
+            maxWidth: '540px',
+          }}>
+            {description}
+          </p>
         </Reveal>
       )}
     </div>
@@ -337,11 +361,15 @@ function Hero() {
 
       {/* Left content */}
       <div className="land-hero-left" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Identity: heatmap motif bottom-right */}
+        <div style={{ position: 'absolute', bottom: '20px', right: '-20px', opacity: 0.12, pointerEvents: 'none', zIndex: 0 }} aria-hidden="true">
+          <HeatmapTexture cols={14} rows={5} />
+        </div>
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: E }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px', alignSelf: 'flex-start' }}
         >
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2d7fad' }} />
           <span style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
@@ -423,7 +451,7 @@ function Hero() {
 
       {/* Right: gym image + floating cards — P1-4 priority image */}
       <div className="land-hero-right" style={{ position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.85) 0%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.5) 0%, transparent 35%)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.65) 22%, rgba(255,255,255,0.2) 42%, transparent 58%), linear-gradient(to top, rgba(255,255,255,0.55) 0%, transparent 38%)' }} />
         <motion.div
           style={{ position: 'absolute', inset: '-14% 0', y: reduce ? 0 : imgY }}
           initial={reduce ? false : { scale: 1.08, opacity: 0 }}
@@ -642,8 +670,12 @@ function ProductShowcase() {
 function Stats() {
   return (
     <section style={{ position: 'relative', backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', overflow: 'hidden', borderTop: '1px solid #eceef2' }}>
-      <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '900px', height: '400px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'relative', maxWidth: '900px', margin: '0 auto' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '1100px', height: '400px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      {/* Identity: heatmap background */}
+      <div style={{ position: 'absolute', top: '50%', right: '5%', transform: 'translateY(-50%)', opacity: 0.05, pointerEvents: 'none' }} aria-hidden="true">
+        <HeatmapTexture cols={20} rows={7} />
+      </div>
+      <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto' }}>
         <Reveal>
           <h2 style={{ fontSize: 'clamp(24px, 3.2vw, 40px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 72px', lineHeight: '1.15', maxWidth: '520px', textWrap: 'balance' } as React.CSSProperties}>
             Diseñado para la sesión,<br />no para la galería.
@@ -657,7 +689,7 @@ function Stats() {
             { to: 0,   suffix: '',  label: 'Distracciones',   sub: 'Interfaz diseñada solo para entrenar' },
           ].map((m, i) => (
             <Reveal key={m.label} delay={i * 0.1}>
-              <div style={{ padding: 'clamp(36px,4.5vw,56px) 0', paddingRight: 'clamp(16px,3vw,40px)' }}>
+              <div style={{ padding: 'clamp(36px,4.5vw,56px) clamp(16px,3vw,40px) clamp(36px,4.5vw,56px) 0' }}>
                 <p style={{ fontSize: 'clamp(56px, 8vw, 96px)', fontWeight: '700', color: '#2d7fad', letterSpacing: '-0.05em', margin: '0 0 10px', lineHeight: '0.92', fontVariantNumeric: 'tabular-nums' }}>
                   <CountUp to={m.to} suffix={m.suffix} />
                 </p>
@@ -783,11 +815,11 @@ function FAQ() {
                 >
                   <span style={{ fontSize: '15px', fontWeight: '500', color: '#111318', letterSpacing: '-0.01em', lineHeight: '1.4' }}>{item.q}</span>
                   <motion.div
-                    animate={{ rotate: open === i ? 90 : 0 }}
-                    transition={{ duration: reduce ? 0 : 0.2, ease: E }}
+                    animate={{ rotate: open === i ? 180 : 0 }}
+                    transition={{ duration: reduce ? 0 : 0.22, ease: E }}
                     style={{ flexShrink: 0 }}
                   >
-                    <ChevronRight style={{ width: '16px', height: '16px', color: '#9aa0a8' }} />
+                    <ChevronDown style={{ width: '16px', height: '16px', color: '#9aa0a8' }} />
                   </motion.div>
                 </button>
                 <motion.div
@@ -822,7 +854,7 @@ function FinalCTA() {
         style={{ objectFit: 'cover', objectPosition: 'center 40%', opacity: 0.22 }}
         loading="lazy"
       />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(8,10,14,0.97) 0%, rgba(12,16,22,0.93) 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(145deg, rgba(10,14,26,0.97) 0%, rgba(8,14,28,0.94) 100%)' }} />
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '500px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.1) 0%, transparent 65%)', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', textAlign: 'center', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', maxWidth: '760px' }}>
         <LineReveal>
@@ -1049,33 +1081,8 @@ const css = `
     font-size: clamp(15px, 1.6vw, 17px); color: #7a8290;
     line-height: 1.65; max-width: 420px; margin: 0 0 28px; font-weight: 300;
   }
-  /* ── SectionHeader ─────────────────────────────────────── */
-  .sec-header {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px 0;
-    margin-bottom: 56px;
-    align-items: start;
-  }
-  /* Desktop: 7 + 5 columnas, alineación base inferior (items-end) */
-  @media (min-width: 1024px) {
-    .sec-header {
-      grid-template-columns: 7fr 5fr;
-      gap: 0 clamp(40px, 5vw, 72px);
-      align-items: end;
-    }
-    /* La columna derecha no necesita padding-bottom porque items-end ya la alinea */
-    .sec-header-right {
-      padding-bottom: 2px; /* ajuste óptico mínimo para línea base */
-    }
-  }
-  /* Móvil: columna única, espaciado generoso entre título y párrafo */
-  @media (max-width: 1023px) {
-    .sec-header-right {
-      max-width: 560px;
-      margin-top: 4px;
-    }
-  }
+  /* ── SectionHeader — single column ────────────────────── */
+  /* Layout handled inline; no CSS grid needed */
 
   /* Product showcase row */
   .showcase-row {
