@@ -503,9 +503,9 @@ export default function DashboardPage() {
             </button>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: registrosPeso.length > 1 ? '12px' : '0', backgroundColor: 'var(--success-dim)', borderRadius: 'var(--r-md)', padding: '8px 12px' }}>
-            <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--success)' }}>{pesoHoyRegistrado.peso_kg} kg</span>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>registrado hoy ✓</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: registrosPeso.length > 1 ? '12px' : '0', backgroundColor: 'color-mix(in srgb, var(--accent) 8%, var(--surface-raised))', border: '1px solid color-mix(in srgb, var(--accent) 22%, var(--border-faint))', borderRadius: 'var(--r-md)', padding: '8px 12px' }}>
+            <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--accent)', letterSpacing: '-0.02em' }}>{pesoHoyRegistrado.peso_kg} <span style={{ fontSize: '11px', fontWeight: '400', color: 'var(--text-secondary)' }}>kg</span></span>
+            <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>registrado hoy ✓</span>
           </div>
         )}
 

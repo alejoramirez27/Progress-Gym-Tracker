@@ -1,6 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil, RotateCcw, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil, RotateCcw, TrendingUp, TrendingDown, Minus, Filter } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -23,8 +23,18 @@ export default function HistorialPage() {
   const [expandida, setExpandida]     = useState<string | null>(null)
   const [detalles, setDetalles]       = useState<Record<string, { current: EjDet[]; anterior: EjAnterior[] }>>({})
   const [cargandoDet, setCargandoDet] = useState<string | null>(null)
-  const [busqueda, setBusqueda]       = useState('')
+  const [busqueda, setBusqueda]           = useState('')
   const [filtroMusculo, setFiltroMusculo] = useState<string | null>(null)
+  const [filtroOpen, setFiltroOpen]       = useState(false)
+  const filtroRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (filtroRef.current && !filtroRef.current.contains(e.target as Node)) setFiltroOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const cargar = () => {
     setLoading(true)
@@ -119,8 +129,9 @@ export default function HistorialPage() {
       </div>
 
       {!loading && sesiones.length > 0 && (
-        <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ position: 'relative' }}>
+        <div style={{ marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {/* Search */}
+          <div style={{ position: 'relative', flex: 1 }}>
             <Search style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
             <input type="text" placeholder="Buscar por rutina o fecha..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
               style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 32px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
@@ -131,33 +142,55 @@ export default function HistorialPage() {
             )}
           </div>
 
+          {/* Filter button + dropdown */}
           {musculosUnicos.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div ref={filtroRef} style={{ position: 'relative', flexShrink: 0 }}>
               <button
-                onClick={() => setFiltroMusculo(null)}
+                onClick={() => setFiltroOpen(o => !o)}
                 style={{
-                  fontSize: '12px', fontFamily: 'inherit', fontWeight: filtroMusculo === null ? '600' : '400',
-                  padding: '4px 11px', borderRadius: '999px', cursor: 'pointer',
-                  backgroundColor: filtroMusculo === null ? 'var(--accent)' : 'var(--surface-raised)',
-                  color: filtroMusculo === null ? '#fff' : 'var(--text-secondary)',
-                  border: filtroMusculo === null ? '1px solid transparent' : '1px solid var(--border-subtle)',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '8px 12px', borderRadius: 'var(--r-md)', cursor: 'pointer',
+                  fontFamily: 'inherit', fontSize: '13px', fontWeight: '500',
+                  backgroundColor: filtroMusculo ? 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))' : 'var(--surface-raised)',
+                  color: filtroMusculo ? 'var(--accent)' : 'var(--text-secondary)',
+                  border: filtroMusculo ? '1px solid color-mix(in srgb, var(--accent) 35%, var(--border-subtle))' : '1px solid var(--border-subtle)',
                   transition: 'all var(--t-sm) var(--ease-out)',
+                  whiteSpace: 'nowrap',
                 }}
-              >Todos</button>
-              {musculosUnicos.map(m => (
-                <button
-                  key={m}
-                  onClick={() => setFiltroMusculo(filtroMusculo === m ? null : m)}
-                  style={{
-                    fontSize: '12px', fontFamily: 'inherit', fontWeight: filtroMusculo === m ? '600' : '400',
-                    padding: '4px 11px', borderRadius: '999px', cursor: 'pointer',
-                    backgroundColor: filtroMusculo === m ? 'var(--accent)' : 'var(--surface-raised)',
-                    color: filtroMusculo === m ? '#fff' : 'var(--text-secondary)',
-                    border: filtroMusculo === m ? '1px solid transparent' : '1px solid var(--border-subtle)',
-                    transition: 'all var(--t-sm) var(--ease-out)',
-                  }}
-                >{m}</button>
-              ))}
+              >
+                <Filter style={{ width: '12px', height: '12px' }} />
+                {filtroMusculo ?? 'Músculo'}
+                <ChevronDown style={{ width: '11px', height: '11px', opacity: 0.6, transform: filtroOpen ? 'rotate(180deg)' : 'none', transition: 'transform var(--t-sm) var(--ease-out)' }} />
+              </button>
+
+              {filtroOpen && (
+                <div style={{
+                  position: 'absolute', right: 0, top: 'calc(100% + 6px)', zIndex: 50,
+                  backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)',
+                  borderRadius: 'var(--r-md)', boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+                  minWidth: '180px', padding: '6px', animation: 'fadeUp 0.12s ease both',
+                }}>
+                  {[null, ...musculosUnicos].map(m => (
+                    <button key={m ?? '__todos'}
+                      onClick={() => { setFiltroMusculo(m); setFiltroOpen(false) }}
+                      style={{
+                        display: 'block', width: '100%', textAlign: 'left',
+                        padding: '7px 10px', borderRadius: 'var(--r-sm)',
+                        border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                        fontSize: '13px',
+                        backgroundColor: filtroMusculo === m ? 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))' : 'transparent',
+                        color: filtroMusculo === m ? 'var(--accent)' : 'var(--text-secondary)',
+                        fontWeight: filtroMusculo === m ? '500' : '400',
+                        transition: 'background-color var(--t-sm) var(--ease-out), color var(--t-sm) var(--ease-out)',
+                      }}
+                      onMouseEnter={e => { if (filtroMusculo !== m) { e.currentTarget.style.backgroundColor = 'var(--surface-raised)'; e.currentTarget.style.color = 'var(--text-primary)' } }}
+                      onMouseLeave={e => { if (filtroMusculo !== m) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)' } }}
+                    >
+                      {m ?? 'Todos los grupos'}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
