@@ -652,9 +652,9 @@ function Stats() {
         {/* P2-10: color unificado — todos #2d7fad */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0', borderTop: '1px solid #eceef2' }}>
           {[
-            { to: 100, suffix: '%', label: 'Privado',       sub: 'Solo tú ves tus datos' },
-            { to: 5,   suffix: '×', label: 'Días / semana', sub: 'Rutinas ordenadas por día' },
-            { to: 0,   suffix: '',  label: 'Distracciones', sub: 'Interfaz solo para entrenar' },
+            { to: 100, suffix: '%', label: 'Privado',          sub: 'Solo tú ves tus datos' },
+            { to: 7,   suffix: '',  label: 'días por rutina', sub: 'Asigna cada rutina a su día de la semana' },
+            { to: 0,   suffix: '',  label: 'Distracciones',   sub: 'Interfaz diseñada solo para entrenar' },
           ].map((m, i) => (
             <Reveal key={m.label} delay={i * 0.1}>
               <div style={{ padding: 'clamp(36px,4.5vw,56px) 0', paddingRight: 'clamp(16px,3vw,40px)' }}>
@@ -740,23 +740,23 @@ function FAQ() {
   const items = [
     {
       q: '¿De verdad es gratis? ¿Cuál es la trampa?',
-      a: 'No hay trampa. VoltTrack es 100% gratuito: sin plan premium, sin funciones bloqueadas, sin anuncios. Fue construida para uso propio y se decidió hacerla pública sin monetización.',
+      a: 'La construí para mí y decidí abrirla gratis. No hay plan premium, no hay funciones bloqueadas, no hay anuncios. Todo lo que ves es todo lo que hay.',
     },
     {
       q: '¿Necesito instalar algo?',
-      a: 'No. Funciona desde el navegador de tu teléfono. Si quieres tenerla en la pantalla de inicio como app nativa, puedes instalarla como PWA desde Chrome o Safari con un solo toque — sin pasar por la App Store.',
+      a: 'No. La abrí desde el navegador del teléfono desde el primer día. Si quieres el ícono en la pantalla de inicio, puedes instalarla como PWA desde Chrome o Safari con un toque, sin pasar por ninguna tienda.',
     },
     {
       q: '¿Dónde se guardan mis datos?',
-      a: 'En una base de datos segura alojada en Supabase (infraestructura sobre AWS). Solo tú puedes ver tus sesiones — ningún otro usuario tiene acceso a tu información.',
+      a: 'En Supabase, que corre sobre infraestructura AWS. Tus sesiones son tuyas: ningún otro usuario puede verlas y yo tampoco las uso para nada.',
     },
     {
       q: '¿Funciona sin conexión?',
-      a: 'Parcialmente. La app carga desde caché si ya la abriste antes. El registro de sesiones requiere conexión para guardar. Modo offline completo está en el roadmap.',
+      a: 'Parcialmente. La app carga desde caché si ya la abriste antes. Para guardar una sesión necesitas conexión. Modo offline completo es algo que quiero resolver, está en el roadmap.',
     },
     {
       q: '¿Puedo exportar mis datos?',
-      a: 'Sí. Desde Perfil puedes descargar todo tu historial de series en formato CSV en cualquier momento, sin necesidad de ningún plan ni suscripción.',
+      a: 'Sí, desde Perfil puedes descargar todo tu historial en CSV cuando quieras. Sin suscripción, sin formularios, sin fricción.',
     },
   ]
 
@@ -939,12 +939,8 @@ function Footer() {
     { label: 'Crear cuenta gratis', href: '/registro' },
     { label: 'Iniciar sesión',      href: '/login' },
   ]
-  const socials = [
-    { label: 'Instagram', href: 'https://instagram.com/', icon: <SocialInstagram /> },
-    { label: 'X',         href: 'https://x.com/',        icon: <SocialX /> },
-    { label: 'TikTok',    href: 'https://tiktok.com/',   icon: <SocialTikTok /> },
-    { label: 'YouTube',   href: 'https://youtube.com/',  icon: <SocialYoutube /> },
-  ]
+  // Sin perfiles reales aún — iconos eliminados para no apuntar a homes genéricas
+  const socials: { label: string; href: string; icon: React.ReactNode }[] = []
   const linkStyle: React.CSSProperties = { fontSize: '13px', color: '#6b7280', textDecoration: 'none', fontWeight: '400', transition: 'color 0.14s', display: 'block' }
 
   return (
