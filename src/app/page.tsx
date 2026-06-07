@@ -24,7 +24,7 @@ const E: [number, number, number, number] = [0.16, 1, 0.3, 1]
 /* ─── Images (stock) — P1-6: fotos de rendimiento/fuerza ──── */
 const IMGS = {
   // Hombre en barra — powerlifting / deadlift vibe
-  hero:     'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2400&q=90',
+  hero:     '/screenshots/gym.jpg',
   // Atleta masculino con barra — sentadilla / fuerza
   records:  'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1000&q=80',
   // TODO P1-6: reemplazar progreso por foto de atleta serio en peso muerto o press banca

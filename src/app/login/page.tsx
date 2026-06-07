@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Zap, Mail, Lock, ArrowRight } from 'lucide-react'
 
-const IMG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=85'
+const IMG = '/screenshots/gym2.jpg'
 
 export default function LoginPage() {
   const router = useRouter()
