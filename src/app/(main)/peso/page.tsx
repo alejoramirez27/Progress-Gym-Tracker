@@ -255,9 +255,9 @@ export default function PesoPage() {
                     <YAxis tick={{ fontSize: 10, fill: 'var(--text-disabled)' }} axisLine={false} tickLine={false} unit=" kg" />
                     <Tooltip
                       contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: '8px', fontSize: '11px', color: 'var(--text-primary)' }}
-                      formatter={(v: unknown, name: string) => {
-                        const idx = parseInt(name.replace('rm_', ''))
-                        return [`${v} kg`, conDatos[idx]?.nombre ?? name]
+                      formatter={(v: unknown, name) => {
+                        const idx = parseInt(String(name ?? '').replace('rm_', ''))
+                        return [`${v} kg`, conDatos[idx]?.nombre ?? String(name)]
                       }}
                       labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
                     />
