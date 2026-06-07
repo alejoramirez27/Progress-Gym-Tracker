@@ -451,7 +451,7 @@ function Hero() {
 
       {/* Right: gym image + floating cards — P1-4 priority image */}
       <div className="land-hero-right" style={{ position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.65) 22%, rgba(255,255,255,0.2) 42%, transparent 58%), linear-gradient(to top, rgba(255,255,255,0.55) 0%, transparent 38%)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 14%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.35) 0%, transparent 22%)' }} />
         <motion.div
           style={{ position: 'absolute', inset: '-14% 0', y: reduce ? 0 : imgY }}
           initial={reduce ? false : { scale: 1.08, opacity: 0 }}
