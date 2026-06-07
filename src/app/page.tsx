@@ -633,12 +633,16 @@ function ProductShowcase() {
               </Reveal>
             </div>
 
-            {/* ProductShot — P0-1 */}
-            <Reveal delay={0.08}>
-              <div style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(20px,3vw,40px) 0' }}>
-                <ProductShot src={s.shot} alt={s.shotAlt} />
-              </div>
-            </Reveal>
+            {/* ProductShot — animación propia, no depende de whileInView */}
+            <motion.div
+              initial={{ opacity: 0, x: s.reverse ? -24 : 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 0.7, delay: 0.08, ease: E }}
+              style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(20px,3vw,40px) 0' }}
+            >
+              <ProductShot src={s.shot} alt={s.shotAlt} />
+            </motion.div>
           </div>
         </section>
       ))}
