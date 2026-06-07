@@ -7,24 +7,24 @@
 
 :root {
   /* ── Surfaces ────────────────────────────────────────── */
-  --surface-deep:    #f0f2f5;
-  --surface-base:    #ffffff;
-  --surface-raised:  #f8f9fb;
-  --surface-card:    #ffffff;
-  --surface-high:    #eef0f3;
-  --surface-input:   #f5f6f8;
+  --surface-deep:    #d8dce4;
+  --surface-base:    #e8ebf0;   /* fondo de página: gris claro, no blanco */
+  --surface-raised:  #edf0f4;
+  --surface-card:    #ffffff;   /* cards: blanco puro sobre gris → contraste claro */
+  --surface-high:    #dde1e8;
+  --surface-input:   #f0f2f5;
 
   /* ── Borders ─────────────────────────────────────────── */
-  --border-faint:    #eceef2;
-  --border-subtle:   #dde0e6;
-  --border-default:  #c4c9d1;
-  --border-strong:   #9aa0aa;
+  --border-faint:    #d4d8e0;
+  --border-subtle:   #c2c8d4;
+  --border-default:  #a8b0be;
+  --border-strong:   #7a8290;
 
   /* ── Text ────────────────────────────────────────────── */
-  --text-primary:    #111318;
-  --text-secondary:  #4a5057;
-  --text-tertiary:   #7a8290;
-  --text-disabled:   #b8bcc4;
+  --text-primary:    #0d1017;
+  --text-secondary:  #3e454f;
+  --text-tertiary:   #656e7a;
+  --text-disabled:   #9aa2ae;
 
   /* ── Accent — Steel Blue ─────────────────────────────── */
   --accent:          #2d7fad;

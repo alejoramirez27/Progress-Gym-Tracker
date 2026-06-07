@@ -426,6 +426,25 @@ export default function DashboardPage() {
           {!ultimoPeso && (
             <p style={{ fontSize: '12px', color: 'var(--text-disabled)', margin: 0 }}>Sin registros todavía</p>
           )}
+
+          {/* ── Divider + Nota del día ── */}
+          <hr className="divider" style={{ margin: '14px 0 12px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+            <StickyNote style={{ width: '11px', height: '11px', color: 'var(--text-tertiary)' }} />
+            <p className="label" style={{ margin: 0, flex: 1 }}>Nota del día</p>
+            {nota && <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>local</span>}
+          </div>
+          <textarea
+            value={nota} onChange={e => { setNota(e.target.value); setNotaGuardada(false) }}
+            placeholder="¿Cómo te sientes hoy? Energía, sueño..." rows={3}
+            style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 10px', fontSize: '12px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box', marginBottom: '8px', lineHeight: '1.5' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={guardarNota}
+              style={{ padding: '4px 12px', fontSize: '11px', fontFamily: 'inherit', borderRadius: 'var(--r-sm)', backgroundColor: notaGuardada ? 'var(--success-dim)' : 'var(--surface-raised)', color: notaGuardada ? 'var(--success)' : 'var(--text-secondary)', border: `1px solid ${notaGuardada ? 'color-mix(in srgb, var(--success) 30%, transparent)' : 'var(--border-subtle)'}`, fontWeight: '500', transition: 'all 0.14s', cursor: 'pointer' }}>
+              {notaGuardada ? '✓ Guardada' : 'Guardar'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -529,25 +548,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ══ NOTA DEL DÍA (secundaria, al final) ══════════════════════════════ */}
-      <div className="card" style={{ padding: '16px 18px', borderTop: '2px solid var(--border-faint)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-          <StickyNote style={{ width: '12px', height: '12px', color: 'var(--text-tertiary)' }} />
-          <p className="label" style={{ margin: 0 }}>Nota del día</p>
-          {nota && <span style={{ fontSize: '10px', color: 'var(--text-disabled)', marginLeft: 'auto' }}>guardada en local</span>}
-        </div>
-        <textarea
-          value={nota} onChange={e => { setNota(e.target.value); setNotaGuardada(false) }}
-          placeholder="¿Cómo te sientes hoy? ¿Dormiste bien? ¿Energía alta o baja?..." rows={2}
-          style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '9px 11px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box', marginBottom: '8px' }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={guardarNota}
-            style={{ padding: '5px 14px', fontSize: '12px', fontFamily: 'inherit', borderRadius: 'var(--r-sm)', backgroundColor: notaGuardada ? 'var(--success-dim)' : 'var(--surface-raised)', color: notaGuardada ? 'var(--success)' : 'var(--text-secondary)', border: `1px solid ${notaGuardada ? 'color-mix(in srgb, var(--success) 30%, transparent)' : 'var(--border-subtle)'}`, fontWeight: '500', transition: 'all 0.14s', cursor: 'pointer' }}>
-            {notaGuardada ? '✓ Guardada' : 'Guardar nota'}
-          </button>
-        </div>
-      </div>
     </div>
   )
 }
