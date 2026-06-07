@@ -337,114 +337,83 @@ function AchievementCard({ icon, label, value, delay = 0, style = {}, className 
 /* ─── Hero ────────────────────────────────────────────────── */
 function Hero() {
   const ref = useRef<HTMLElement>(null)
-  const { scrollY } = useScroll()
+  const { scrollY }        = useScroll()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
-  const scrollOpacity = useTransform(scrollY, [0, 240], [1, 0])
+  const imgY         = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
+  const scrollOpacity = useTransform(scrollY, [0, 220], [1, 0])
   const reduce = useReducedMotion()
 
+  const [mouse, setMouse] = useState({ x: 50, y: 50 })
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setMouse({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 })
+  }
+
   return (
-    <section ref={ref} className="land-hero">
-
-      {/* Background photo — full bleed, dark-treated */}
-      <motion.div
-        style={{ position: 'absolute', inset: '-10% 0', y: reduce ? 0 : imgY, zIndex: 0 }}
-        initial={reduce ? false : { scale: 1.06, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1.6, ease: E }}
-      >
-        <Image
-          src="https://images.unsplash.com/photo-1517963879433-6ad2a56fcd04?auto=format&fit=crop&w=2400&q=90"
-          alt=""
-          aria-hidden
-          fill
-          quality={90}
-          sizes="100vw"
-          style={{ objectFit: 'cover', objectPosition: 'center 35%' }}
-          priority
-        />
-      </motion.div>
-
-      {/* Dark overlay */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(160deg, rgba(6,9,15,0.82) 0%, rgba(8,12,20,0.70) 50%, rgba(6,9,15,0.78) 100%)' }} />
-
-      {/* Animated gradient blobs */}
+    <section ref={ref} className="land-hero" onMouseMove={reduce ? undefined : handleMouseMove}>
       {!reduce && (
-        <>
-          <div className="hero-blob hero-blob-1" />
-          <div className="hero-blob hero-blob-2" />
-          <div className="hero-blob hero-blob-3" />
-        </>
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+          background: `radial-gradient(700px circle at ${mouse.x}% ${mouse.y}%, rgba(45,127,173,0.04) 0%, transparent 65%)`,
+          transition: 'background 0.06s ease',
+        }} />
       )}
 
-      {/* Bottom fade → white (transitions to next section) */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '220px', zIndex: 3, background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.55) 70%, #ffffff 100%)', pointerEvents: 'none' }} />
-
-      {/* ── Centered content ── */}
-      <div className="land-hero-center" style={{ position: 'relative', zIndex: 4 }}>
-
-        {/* Pill badge */}
+      {/* Left content */}
+      <div className="land-hero-left" style={{ position: 'relative', zIndex: 1 }}>
+        {/* Identity: heatmap motif bottom-right */}
+        <div style={{ position: 'absolute', bottom: '20px', right: '-20px', opacity: 0.12, pointerEvents: 'none', zIndex: 0 }} aria-hidden="true">
+          <HeatmapTexture cols={14} rows={5} />
+        </div>
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: E }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', backgroundColor: 'rgba(45,127,173,0.18)', border: '1px solid rgba(45,127,173,0.4)', borderRadius: '99px', padding: '5px 14px', marginBottom: '28px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px', alignSelf: 'flex-start' }}
         >
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#7ab8d4' }} />
-          <span style={{ fontSize: '11px', fontWeight: '600', color: '#7ab8d4', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2d7fad' }} />
+          <span style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
         </motion.div>
 
-        {/* Headline */}
         <div style={{ overflow: 'hidden', paddingBottom: '6px' }}>
-          <motion.h1 className="land-h1" style={{ color: '#ffffff' }}
-            initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }}
-            transition={{ duration: 1.0, delay: 0.1, ease: E }}>
+          <motion.h1 className="land-h1" initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.1, ease: E }}>
             Entrena con
           </motion.h1>
         </div>
-        <div style={{ overflow: 'hidden', marginBottom: '22px', paddingBottom: '6px' }}>
-          <motion.h1 className="land-h1" style={{ color: '#7ab8d4' }}
-            initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }}
-            transition={{ duration: 1.0, delay: 0.22, ease: E }}>
+        <div style={{ overflow: 'hidden', marginBottom: '20px', paddingBottom: '6px' }}>
+          <motion.h1 className="land-h1" style={{ color: '#2d7fad' }} initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.22, ease: E }}>
             intención.
           </motion.h1>
         </div>
 
-        {/* Subtitle */}
         <motion.p
           initial={reduce ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.5, ease: E }}
-          style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: 'rgba(255,255,255,0.62)', lineHeight: '1.68', maxWidth: '480px', margin: '0 auto 30px', fontWeight: '300' }}
+          className="land-sub"
         >
-          Registra cada serie, calcula tus PRs automáticamente y visualiza 365 días de progreso — todo sin distracciones.
+          Registra cada serie, calcula tus PRs automáticamente y visualiza 365 días de progreso — todo sin distracciones. Solo tú y tus números.
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.64, ease: E }}
-          style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '26px', justifyContent: 'center' }}
+          style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}
         >
           <MagneticCTA href="/registro" primary>
             Crear cuenta gratis <ArrowRight style={{ width: '16px', height: '16px' }} />
           </MagneticCTA>
-          <Link href="/login"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,255,255,0.09)', color: '#ffffff', textDecoration: 'none', padding: '14px 24px', borderRadius: '9px', fontSize: '15px', fontWeight: '500', border: '1px solid rgba(255,255,255,0.18)', transition: 'background-color 0.14s' }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)')}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.09)')}
-          >
+          <MagneticCTA href="/login">
             Iniciar sesión
-          </Link>
+          </MagneticCTA>
         </motion.div>
 
-        {/* Trust badges */}
         <motion.div
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.84, ease: E }}
-          style={{ display: 'flex', gap: '22px', flexWrap: 'wrap', justifyContent: 'center' }}
+          style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}
         >
           {[
             { icon: ShieldCheck, text: 'Gratis para siempre' },
@@ -452,41 +421,66 @@ function Hero() {
             { icon: Flame,       text: 'Sin anuncios' },
           ].map(b => (
             <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <b.icon style={{ width: '13px', height: '13px', color: '#7ab8d4', opacity: 0.7 }} />
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', fontWeight: '400' }}>{b.text}</span>
+              <b.icon style={{ width: '13px', height: '13px', color: '#2d7fad', opacity: 0.5 }} />
+              <span style={{ fontSize: '12px', color: '#7a8290', fontWeight: '400' }}>{b.text}</span>
             </div>
           ))}
         </motion.div>
 
         {/* Scroll indicator */}
-        <motion.div style={{ opacity: scrollOpacity, marginTop: '40px', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
+        <motion.div style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
             <motion.div
               animate={reduce ? {} : { scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-              style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(122,184,212,0.35)' }}
+              style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '1px solid rgba(45,127,173,0.25)' }}
             />
             <motion.div
               animate={reduce ? {} : { y: [0, 5, 0] }}
               transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(45,127,173,0.14)', borderRadius: '50%', border: '1px solid rgba(122,184,212,0.25)' }}
+              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(45,127,173,0.06)', borderRadius: '50%', border: '1px solid rgba(45,127,173,0.15)' }}
             >
-              <ChevronDown style={{ width: '15px', height: '15px', color: '#7ab8d4' }} />
+              <ChevronDown style={{ width: '15px', height: '15px', color: '#2d7fad' }} />
             </motion.div>
           </div>
-          <span style={{ fontSize: '12px', fontWeight: '500', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '13px', fontWeight: '500', color: 'rgba(45,127,173,0.5)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Desliza para explorar
           </span>
         </motion.div>
       </div>
 
-      {/* Floating achievement cards — desktop */}
-      <div className="hero-cards-desktop">
-        <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '26%', right: '8%', zIndex: 4 }} />
-        <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ position: 'absolute', top: '46%', right: '14%', zIndex: 4 }} />
-        <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ position: 'absolute', bottom: '28%', right: '7%', zIndex: 4 }} />
+      {/* Right: gym image + floating cards — P1-4 priority image */}
+      <div className="land-hero-right" style={{ position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 14%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.35) 0%, transparent 22%)' }} />
+        <motion.div
+          style={{ position: 'absolute', inset: '-14% 0', y: reduce ? 0 : imgY }}
+          initial={reduce ? false : { scale: 1.08, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.4, delay: 0.15, ease: E }}
+        >
+          <Image
+            src={IMGS.hero}
+            alt="Atleta entrenando en el gimnasio"
+            fill
+            quality={90}
+            sizes="(max-width: 767px) 100vw, 52vw"
+            style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+            priority
+          />
+        </motion.div>
+        {/* Desktop: cards absolutely positioned around the image */}
+        <div className="hero-cards-desktop">
+          <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '22%', right: '8%' }} />
+          <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ position: 'absolute', top: '44%', right: '14%' }} />
+          <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
+        </div>
+        {/* Mobile: wrapper div controls visibility — avoids motion.div display:none issues */}
+        <div className="hero-cards-mobile-wrap">
+          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '10%', right: '3%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} style={{ position: 'absolute', top: '42%', right: '13%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} style={{ position: 'absolute', bottom: '8%', right: '3%', maxWidth: '62%' }} />
+        </div>
       </div>
-
     </section>
   )
 }
@@ -1066,67 +1060,27 @@ const css = `
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   }
   .land-hero {
-    position: relative;
+    display: grid;
+    grid-template-columns: 52% 48%;
     min-height: 100dvh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #06090f;
+    background: #ffffff;
     overflow: hidden;
+    position: relative;
   }
-  .land-hero-center {
-    text-align: center;
-    padding: clamp(110px,13vw,150px) clamp(24px,6vw,80px) clamp(100px,12vw,140px);
-    max-width: 780px;
-    width: 100%;
+  .land-hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(96px,11vw,130px) clamp(24px,5vw,80px) clamp(48px,6vw,72px);
+    position: relative; z-index: 1;
   }
+  .land-hero-right { position: relative; overflow: hidden; }
   .land-h1 {
     font-size: clamp(52px, 7.8vw, 90px);
-    font-weight: 700;
+    font-weight: 700; color: #111318;
     letter-spacing: -0.035em; line-height: 0.94; margin: 0; display: block;
   }
-  /* ── Animated gradient blobs ──────────────────────────── */
-  .hero-blob {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    filter: blur(90px);
-    z-index: 2;
-  }
-  .hero-blob-1 {
-    width: 700px; height: 700px;
-    background: radial-gradient(circle, rgba(45,127,173,0.28) 0%, transparent 70%);
-    top: -180px; left: -140px;
-    animation: blob1 14s ease-in-out infinite;
-  }
-  .hero-blob-2 {
-    width: 560px; height: 560px;
-    background: radial-gradient(circle, rgba(30,90,130,0.22) 0%, transparent 70%);
-    bottom: 60px; right: -100px;
-    animation: blob2 18s ease-in-out infinite;
-  }
-  .hero-blob-3 {
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(45,127,173,0.14) 0%, transparent 70%);
-    top: 40%; left: 50%; transform: translate(-50%,-50%);
-    animation: blob3 22s ease-in-out infinite;
-  }
-  @keyframes blob1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33%       { transform: translate(70px, -50px) scale(1.12); }
-    66%       { transform: translate(-40px, 60px) scale(0.94); }
-  }
-  @keyframes blob2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33%       { transform: translate(-60px, 40px) scale(1.08); }
-    66%       { transform: translate(50px, -50px) scale(0.9); }
-  }
-  @keyframes blob3 {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50%       { transform: translate(-50%, -50%) scale(1.2); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-blob { animation: none; }
+  .land-sub {
+    font-size: clamp(15px, 1.6vw, 17px); color: #7a8290;
+    line-height: 1.65; max-width: 420px; margin: 0 0 28px; font-weight: 300;
   }
   /* ── SectionHeader — single column ────────────────────── */
   /* Layout handled inline; no CSS grid needed */
@@ -1176,7 +1130,8 @@ const css = `
       pointer-events: none;
     }
     .hero-cards-mobile-wrap > * { pointer-events: auto; }
-    .land-hero-center { padding: 110px 20px 100px; }
+    .land-hero { grid-template-columns: 1fr; grid-template-rows: auto 56vw; }
+    .land-hero-left { padding: 100px 20px 40px; }
     .land-h1 { font-size: clamp(44px, 12vw, 60px); }
     .showcase-row, .showcase-row--rev {
       grid-template-columns: 1fr !important;
