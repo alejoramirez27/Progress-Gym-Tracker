@@ -1,20 +1,50 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Dumbbell, LayoutDashboard, History, LogOut, Zap, BicepsFlexed, Trophy, User, Scale } from 'lucide-react'
 
 const navItems = [
-  { href: '/rutinas',   label: 'Rutinas',    icon: Dumbbell },
-  { href: '/progreso',  label: 'Progreso',   icon: BicepsFlexed },
-  { href: '/dashboard', label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/historial', label: 'Historial',  icon: History },
-  { href: '/records',   label: 'PRs',        icon: Trophy },
-  { href: '/peso',      label: 'Peso',       icon: Scale },
-  { href: '/perfil',    label: 'Perfil',     icon: User },
+  { href: '/rutinas',   label: 'Rutinas',    icon: Dumbbell,        key2: 'r' },
+  { href: '/progreso',  label: 'Progreso',   icon: BicepsFlexed,    key2: 'p' },
+  { href: '/dashboard', label: 'Dashboard',  icon: LayoutDashboard, key2: 'd' },
+  { href: '/historial', label: 'Historial',  icon: History,         key2: 'h' },
+  { href: '/records',   label: 'PRs',        icon: Trophy,          key2: 'k' },
+  { href: '/peso',      label: 'Peso',       icon: Scale,           key2: 'w' },
+  { href: '/perfil',    label: 'Perfil',     icon: User,            key2: 'u' },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
   const router   = useRouter()
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null)
+  const [tooltipY, setTooltipY]       = useState(0)
+
+  // Keyboard navigation: press G then a key to navigate
+  useEffect(() => {
+    let waitingForKey = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) return
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+
+      if (!waitingForKey) {
+        if (e.key === 'g') {
+          waitingForKey = true
+          timer = setTimeout(() => { waitingForKey = false }, 1500)
+        }
+      } else {
+        waitingForKey = false
+        if (timer) clearTimeout(timer)
+        const match = navItems.find(i => i.key2 === e.key)
+        if (match) { e.preventDefault(); router.push(match.href) }
+      }
+    }
+
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [router])
 
   const cerrarSesion = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -66,6 +96,44 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
+      {/* Floating tooltip */}
+      {hoveredHref && (
+        <div style={{
+          position: 'fixed',
+          left: '228px',
+          top: tooltipY,
+          transform: 'translateY(-50%)',
+          backgroundColor: 'var(--surface-card)',
+          border: '1px solid var(--border-default)',
+          borderRadius: 'var(--r-sm)',
+          padding: '5px 10px',
+          fontSize: '12px',
+          color: 'var(--text-primary)',
+          whiteSpace: 'nowrap',
+          zIndex: 200,
+          pointerEvents: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+          animation: 'fadeUp 0.12s ease both',
+        }}>
+          {navItems.find(i => i.href === hoveredHref)?.label}
+          <kbd style={{
+            fontSize: '10px',
+            color: 'var(--text-disabled)',
+            backgroundColor: 'var(--surface-raised)',
+            padding: '2px 5px',
+            borderRadius: '3px',
+            border: '1px solid var(--border-faint)',
+            fontFamily: 'ui-monospace, monospace',
+            letterSpacing: '0.03em',
+          }}>
+            g {navItems.find(i => i.href === hoveredHref)?.key2}
+          </kbd>
+        </div>
+      )}
+
       <nav aria-label="Navegación principal" style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {navItems.map(item => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/')
@@ -99,6 +167,9 @@ export default function Sidebar() {
                   e.currentTarget.style.borderColor = 'var(--border-subtle)'
                   e.currentTarget.style.color = 'var(--text-primary)'
                 }
+                const rect = e.currentTarget.getBoundingClientRect()
+                setHoveredHref(item.href)
+                setTooltipY(rect.top + rect.height / 2)
               }}
               onMouseLeave={e => {
                 if (!active) {
@@ -106,6 +177,7 @@ export default function Sidebar() {
                   e.currentTarget.style.borderColor = 'var(--border-faint)'
                   e.currentTarget.style.color = 'var(--text-secondary)'
                 }
+                setHoveredHref(null)
               }}
             >
               <Icon style={{ width: '14px', height: '14px', flexShrink: 0, opacity: active ? 1 : 0.6 }} />

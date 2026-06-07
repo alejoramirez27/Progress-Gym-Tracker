@@ -221,6 +221,7 @@ export default function ProgresoPage() {
   type NumpadField = 'peso_kg' | 'repeticiones' | 'rir'
   const [numpadTarget, setNumpadTarget] = useState<{ ejIdx: number; sIdx: number; field: NumpadField; label: string } | null>(null)
   const [numpadValue, setNumpadValue]   = useState('')
+  const [lastConfirmed, setLastConfirmed] = useState<string | null>(null)
 
   function openNumpad(ejIdx: number, sIdx: number, field: NumpadField, currentVal: string) {
     setNumpadTarget({ ejIdx, sIdx, field, label: field === 'peso_kg' ? 'Peso' : field === 'repeticiones' ? 'Reps' : 'RIR' })
@@ -242,8 +243,11 @@ export default function ProgresoPage() {
 
   function numpadConfirm() {
     if (!numpadTarget) return
+    const key = `${numpadTarget.ejIdx}-${numpadTarget.sIdx}`
     updateSerie(numpadTarget.ejIdx, numpadTarget.sIdx, numpadTarget.field, numpadValue)
     setNumpadTarget(null)
+    setLastConfirmed(key)
+    setTimeout(() => setLastConfirmed(null), 700)
   }
 
   const getUnidad = (id: string): Unidad => unidades[id] ?? 'kg'
@@ -675,7 +679,13 @@ export default function ProgresoPage() {
                   const antSerie = pesosAnt[sIdx] ?? pesosAnt[pesosAnt.length - 1] ?? null
                   return (
                   <div key={sIdx} style={{ marginBottom: notasEj.has(ejIdx) ? '8px' : '5px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center' }}>
+                    <div style={{
+                      display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center',
+                      borderRadius: 'var(--r-sm)',
+                      transition: 'background-color 0.5s ease',
+                      backgroundColor: lastConfirmed === `${ejIdx}-${sIdx}` ? 'color-mix(in srgb, var(--success) 12%, transparent)' : 'transparent',
+                      padding: lastConfirmed === `${ejIdx}-${sIdx}` ? '2px 4px' : '0',
+                    }}>
                       <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
                       {/* Numpad-driven inputs — readOnly to suppress native keyboard */}
                       <input readOnly

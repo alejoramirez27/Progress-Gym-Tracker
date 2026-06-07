@@ -76,7 +76,7 @@ export async function GET(request: Request) {
   // Lista de sesiones del usuario
   const { data: sesiones, error } = await supabase
     .from('sesion')
-    .select('id_sesion, fecha, notas, id_rutina, rutina:id_rutina(nombre)')
+    .select('id_sesion, fecha, notas, id_rutina, rutina:id_rutina(nombre, grupos)')
     .eq('id_usuario', session.id)
     .order('fecha', { ascending: false })
     .order('created_at', { ascending: false })
@@ -91,11 +91,13 @@ export async function GET(request: Request) {
   const result = (sesiones ?? []).map(s => {
     const seriesDeSesion = (series ?? []).filter(sr => sr.id_sesion === s.id_sesion)
     const ejUnicos = new Set(seriesDeSesion.map(sr => sr.id_ejercicio)).size
+    const rutina = s.rutina as unknown as { nombre: string; grupos: string | null } | null
     return {
       id_sesion:      s.id_sesion,
       id_rutina:      s.id_rutina,
       fecha:          s.fecha,
-      nombre_rutina:  (s.rutina as unknown as { nombre: string } | null)?.nombre ?? '—',
+      nombre_rutina:  rutina?.nombre ?? '—',
+      grupos_rutina:  rutina?.grupos ?? null,
       num_ejercicios: ejUnicos,
       num_series:     seriesDeSesion.length,
     }

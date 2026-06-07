@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil, RotateCc
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
-interface Sesion { id_sesion: string; id_rutina: string; fecha: string; nombre_rutina: string; num_ejercicios: number; num_series: number }
+interface Sesion { id_sesion: string; id_rutina: string; fecha: string; nombre_rutina: string; grupos_rutina: string | null; num_ejercicios: number; num_series: number }
 interface SerieDet { id_serie: string; numero_serie: number; peso_kg: number | null; repeticiones: number; rir: number | null; notas: string | null }
 interface EjDet { nombre: string; id_ejercicio: string; series: SerieDet[] }
 interface EjAnterior { id_ejercicio: string; peso_max: number; fecha: string }
@@ -24,6 +24,7 @@ export default function HistorialPage() {
   const [detalles, setDetalles]       = useState<Record<string, { current: EjDet[]; anterior: EjAnterior[] }>>({})
   const [cargandoDet, setCargandoDet] = useState<string | null>(null)
   const [busqueda, setBusqueda]       = useState('')
+  const [filtroMusculo, setFiltroMusculo] = useState<string | null>(null)
 
   const cargar = () => {
     setLoading(true)
@@ -81,11 +82,25 @@ export default function HistorialPage() {
     router.push('/progreso')
   }
 
-  const sesionesFiltered = sesiones.filter(s =>
-    busqueda === '' ||
-    s.nombre_rutina.toLowerCase().includes(busqueda.toLowerCase()) ||
-    fmtFecha(s.fecha).toLowerCase().includes(busqueda.toLowerCase())
-  )
+  // Músculo groups únicos
+  const musculosUnicos = Array.from(
+    new Set(
+      sesiones.flatMap(s =>
+        s.grupos_rutina
+          ? s.grupos_rutina.split(',').map(g => g.trim()).filter(Boolean)
+          : []
+      )
+    )
+  ).sort()
+
+  const sesionesFiltered = sesiones.filter(s => {
+    const matchBusqueda = busqueda === '' ||
+      s.nombre_rutina.toLowerCase().includes(busqueda.toLowerCase()) ||
+      fmtFecha(s.fecha).toLowerCase().includes(busqueda.toLowerCase())
+    const matchMusculo = !filtroMusculo ||
+      (s.grupos_rutina ?? '').split(',').map(g => g.trim()).includes(filtroMusculo)
+    return matchBusqueda && matchMusculo
+  })
 
   const porMes: Record<string, Sesion[]> = {}
   for (const s of sesionesFiltered) {
@@ -104,14 +119,46 @@ export default function HistorialPage() {
       </div>
 
       {!loading && sesiones.length > 0 && (
-        <div style={{ position: 'relative', marginBottom: '20px' }}>
-          <Search style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-          <input type="text" placeholder="Buscar por rutina o fecha..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
-            style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 32px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
-          {busqueda && (
-            <button onClick={() => setBusqueda('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', padding: '2px' }}>
-              <X style={{ width: '12px', height: '12px' }} />
-            </button>
+        <div style={{ marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ position: 'relative' }}>
+            <Search style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
+            <input type="text" placeholder="Buscar por rutina o fecha..." value={busqueda} onChange={e => setBusqueda(e.target.value)}
+              style={{ width: '100%', backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', borderRadius: 'var(--r-md)', padding: '8px 32px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+            {busqueda && (
+              <button onClick={() => setBusqueda('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', display: 'flex', padding: '2px' }}>
+                <X style={{ width: '12px', height: '12px' }} />
+              </button>
+            )}
+          </div>
+
+          {musculosUnicos.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <button
+                onClick={() => setFiltroMusculo(null)}
+                style={{
+                  fontSize: '12px', fontFamily: 'inherit', fontWeight: filtroMusculo === null ? '600' : '400',
+                  padding: '4px 11px', borderRadius: '999px', cursor: 'pointer',
+                  backgroundColor: filtroMusculo === null ? 'var(--accent)' : 'var(--surface-raised)',
+                  color: filtroMusculo === null ? '#fff' : 'var(--text-secondary)',
+                  border: filtroMusculo === null ? '1px solid transparent' : '1px solid var(--border-subtle)',
+                  transition: 'all var(--t-sm) var(--ease-out)',
+                }}
+              >Todos</button>
+              {musculosUnicos.map(m => (
+                <button
+                  key={m}
+                  onClick={() => setFiltroMusculo(filtroMusculo === m ? null : m)}
+                  style={{
+                    fontSize: '12px', fontFamily: 'inherit', fontWeight: filtroMusculo === m ? '600' : '400',
+                    padding: '4px 11px', borderRadius: '999px', cursor: 'pointer',
+                    backgroundColor: filtroMusculo === m ? 'var(--accent)' : 'var(--surface-raised)',
+                    color: filtroMusculo === m ? '#fff' : 'var(--text-secondary)',
+                    border: filtroMusculo === m ? '1px solid transparent' : '1px solid var(--border-subtle)',
+                    transition: 'all var(--t-sm) var(--ease-out)',
+                  }}
+                >{m}</button>
+              ))}
+            </div>
           )}
         </div>
       )}
@@ -123,7 +170,19 @@ export default function HistorialPage() {
       )}
 
       {!loading && sesiones.length === 0 && (
-        <div className="card empty-state"><History style={{ width: '26px', height: '26px' }} /><p>Sin sesiones registradas</p><p className="empty-hint">Empieza registrando una sesión en Progreso</p></div>
+        <div className="card empty-state">
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <History style={{ width: '26px', height: '26px', color: 'var(--accent)' }} />
+          </div>
+          <p style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', margin: '4px 0 2px' }}>Sin sesiones todavía</p>
+          <p className="empty-hint" style={{ maxWidth: '280px', textAlign: 'center' }}>Cada entrenamiento quedará guardado aquí. ¡Tu primer sesión te espera!</p>
+          <button onClick={() => router.push('/progreso')}
+            style={{ marginTop: '4px', padding: '8px 20px', backgroundColor: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontSize: '13px', fontFamily: 'inherit', fontWeight: '500', cursor: 'pointer', transition: 'opacity var(--t-sm) var(--ease-out)' }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+            Registrar entrenamiento
+          </button>
+        </div>
       )}
       {!loading && sesiones.length > 0 && sesionesFiltered.length === 0 && (
         <div className="card empty-state"><Search style={{ width: '26px', height: '26px' }} /><p>Sin resultados para "{busqueda}"</p></div>

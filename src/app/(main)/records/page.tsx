@@ -134,9 +134,11 @@ export default function RecordsPage() {
 
       {!loading && rutinas.length === 0 && (
         <div className="card empty-state">
-          <Trophy style={{ width: '26px', height: '26px' }} />
-          <p>Sin récords todavía</p>
-          <p className="empty-hint">Registra sesiones con peso en Progreso para ver tus PRs</p>
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Trophy style={{ width: '26px', height: '26px', color: 'var(--accent)' }} />
+          </div>
+          <p style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', margin: '4px 0 2px' }}>Tus PRs aparecerán aquí</p>
+          <p className="empty-hint" style={{ maxWidth: '280px', textAlign: 'center' }}>Registra series con peso y los récords personales se calculan automáticamente.</p>
         </div>
       )}
 

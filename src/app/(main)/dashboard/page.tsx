@@ -16,7 +16,10 @@ function fmtFecha(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
 }
 
-function hoy() { return new Date().toISOString().split('T')[0] }
+function hoy() {
+  const col = new Date(Date.now() - 5 * 60 * 60 * 1000)
+  return col.toISOString().split('T')[0]
+}
 
 const sel: React.CSSProperties = {
   backgroundColor: 'var(--surface-input)', border: '1px solid var(--border-subtle)',
@@ -329,8 +332,12 @@ export default function DashboardPage() {
                           : dia.count === 0
                             ? 'var(--surface-raised)'
                             : dia.count === 1
-                              ? 'color-mix(in srgb, var(--accent) 35%, var(--surface-raised))'
-                              : 'color-mix(in srgb, var(--accent) 75%, var(--surface-raised))'
+                              ? 'color-mix(in srgb, var(--accent) 18%, var(--surface-raised))'
+                              : dia.count === 2
+                                ? 'color-mix(in srgb, var(--accent) 40%, var(--surface-raised))'
+                                : dia.count === 3
+                                  ? 'color-mix(in srgb, var(--accent) 62%, var(--surface-raised))'
+                                  : 'color-mix(in srgb, var(--accent) 88%, var(--surface-raised))'
                         const d = new Date(dia.fecha + 'T12:00:00')
                         const titulo = `${d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}${dia.count > 0 ? ` — ${dia.count} sesión${dia.count > 1 ? 'es' : ''}` : ''}`
                         return (

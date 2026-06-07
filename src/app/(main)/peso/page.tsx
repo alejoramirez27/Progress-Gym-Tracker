@@ -1,12 +1,18 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Scale, Plus, Trash2, TrendingDown, TrendingUp, Minus } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Scale, Plus, Trash2, TrendingDown, TrendingUp, Minus, Dumbbell } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
 interface RegistroPeso { id: string; fecha: string; peso_kg: number; notas: string | null }
+interface RmEjercicio  { id_ejercicio: string; nombre: string; datos: { fecha: string; rm1: number }[] }
 
-function hoy() { return new Date().toISOString().split('T')[0] }
+function hoy() {
+  const col = new Date(Date.now() - 5 * 60 * 60 * 1000)
+  return col.toISOString().split('T')[0]
+}
+
+const RM_COLORS = ['var(--accent)', '#f59e0b', '#a78bfa']
 
 function fmtFecha(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'short' })
@@ -24,6 +30,8 @@ export default function PesoPage() {
   const [notas, setNotas]         = useState('')
   const [guardando, setGuardando] = useState(false)
   const [mostrarForm, setForm]    = useState(false)
+  const [rm1Exercises, setRm1Exercises] = useState<RmEjercicio[]>([])
+  const [loadingRm, setLoadingRm]       = useState(true)
 
   const cargar = () => {
     setLoading(true)
@@ -32,7 +40,13 @@ export default function PesoPage() {
       setLoading(false)
     })
   }
-  useEffect(() => { cargar() }, [])
+  useEffect(() => {
+    cargar()
+    fetch('/api/peso/1rm').then(r => r.json()).then(d => {
+      setRm1Exercises(Array.isArray(d) ? d : [])
+      setLoadingRm(false)
+    }).catch(() => setLoadingRm(false))
+  }, [])
 
   const guardar = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -211,6 +225,66 @@ export default function PesoPage() {
               </ResponsiveContainer>
             </div>
           )}
+
+          {/* Gráfica 1RM top ejercicios */}
+          {loadingRm ? (
+            <div className="skeleton" style={{ height: '200px', marginBottom: '16px' }} />
+          ) : rm1Exercises.length > 0 && rm1Exercises.some(e => e.datos.length >= 2) ? (() => {
+            const conDatos = rm1Exercises.filter(e => e.datos.length >= 2)
+            const allFechas = Array.from(new Set(conDatos.flatMap(e => e.datos.map(d => d.fecha)))).sort()
+            const chartData = allFechas.map(fecha => {
+              const pt: Record<string, string | number> = { fechaFmt: fmtFecha(fecha) }
+              conDatos.forEach((ej, i) => {
+                const d = ej.datos.find(d => d.fecha === fecha)
+                if (d != null) pt[`rm_${i}`] = d.rm1
+              })
+              return pt
+            })
+            return (
+              <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <Dumbbell style={{ width: '13px', height: '13px', color: 'var(--accent)' }} />
+                  <p style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)', margin: 0 }}>
+                    Evolución 1RM estimado (Epley)
+                  </p>
+                </div>
+                <ResponsiveContainer width="100%" height={170}>
+                  <LineChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-faint)" vertical={false} />
+                    <XAxis dataKey="fechaFmt" tick={{ fontSize: 10, fill: 'var(--text-disabled)' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 10, fill: 'var(--text-disabled)' }} axisLine={false} tickLine={false} unit=" kg" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: '8px', fontSize: '11px', color: 'var(--text-primary)' }}
+                      formatter={(v: unknown, name: string) => {
+                        const idx = parseInt(name.replace('rm_', ''))
+                        return [`${v} kg`, conDatos[idx]?.nombre ?? name]
+                      }}
+                      labelStyle={{ color: 'var(--text-secondary)', marginBottom: '4px' }}
+                    />
+                    <Legend
+                      formatter={(value) => {
+                        const idx = parseInt(value.replace('rm_', ''))
+                        return <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{conDatos[idx]?.nombre ?? value}</span>
+                      }}
+                      iconType="circle" iconSize={7}
+                    />
+                    {conDatos.map((_, i) => (
+                      <Line
+                        key={i}
+                        type="monotone"
+                        dataKey={`rm_${i}`}
+                        stroke={RM_COLORS[i]}
+                        strokeWidth={2}
+                        dot={false}
+                        activeDot={{ r: 4, strokeWidth: 0 }}
+                        connectNulls
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )
+          })() : null}
 
           {/* Historial */}
           <div className="card" style={{ overflow: 'hidden' }}>
