@@ -119,6 +119,28 @@ export default function RutinasPage() {
   const [guardando, setGuardando] = useState(false)
   const [nombreError, setNombreError] = useState('')
 
+  // Días de descanso — JS getDay(): 0=Dom, 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb
+  const DIAS_DESCANSO = [
+    { label: 'L', nombre: 'Lunes',     val: 1 },
+    { label: 'M', nombre: 'Martes',    val: 2 },
+    { label: 'X', nombre: 'Miércoles', val: 3 },
+    { label: 'J', nombre: 'Jueves',    val: 4 },
+    { label: 'V', nombre: 'Viernes',   val: 5 },
+    { label: 'S', nombre: 'Sábado',    val: 6 },
+    { label: 'D', nombre: 'Domingo',   val: 0 },
+  ]
+  const [diasDescanso, setDiasDescanso] = useState<Set<number>>(new Set())
+  const [guardandoDescanso, setGuardandoDescanso] = useState(false)
+
+  async function toggleDescanso(val: number) {
+    const next = new Set(diasDescanso)
+    next.has(val) ? next.delete(val) : next.add(val)
+    setDiasDescanso(next)
+    setGuardandoDescanso(true)
+    await fetch('/api/descanso', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dias: [...next] }) })
+    setGuardandoDescanso(false)
+  }
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor,   { activationConstraint: { delay: 250, tolerance: 5 } }),
@@ -130,6 +152,11 @@ export default function RutinasPage() {
     fetch('/api/rutinas').then(r => r.json()).then(d => { setRutinas(Array.isArray(d) ? d : []); setLoading(false) })
   }
   useEffect(() => { cargar() }, [])
+  useEffect(() => {
+    fetch('/api/descanso').then(r => r.json()).then(d => {
+      if (Array.isArray(d.dias)) setDiasDescanso(new Set(d.dias))
+    })
+  }, [])
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
@@ -288,6 +315,60 @@ export default function RutinasPage() {
         <p style={{ fontSize: '11px', color: 'var(--text-disabled)', textAlign: 'center', marginTop: '14px' }}>
           Arrastra ⠿ para reordenar
         </p>
+      )}
+
+      {/* ── Días de descanso ──────────────────────────────────────────────── */}
+      {!loading && (
+        <div className="card" style={{ padding: '16px 18px', marginTop: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.01em' }}>
+                Días de descanso
+              </p>
+              <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: 0 }}>
+                La racha no se rompe en estos días
+              </p>
+            </div>
+            {guardandoDescanso && (
+              <span style={{ fontSize: '11px', color: 'var(--text-disabled)' }}>Guardando…</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {DIAS_DESCANSO.map(({ label, nombre: nombreDia, val }) => {
+              const activo = diasDescanso.has(val)
+              return (
+                <button
+                  key={val}
+                  onClick={() => toggleDescanso(val)}
+                  title={nombreDia}
+                  style={{
+                    flex: 1,
+                    height: '38px',
+                    borderRadius: '8px',
+                    border: activo ? 'none' : '1px solid var(--border-subtle)',
+                    backgroundColor: activo ? 'var(--accent)' : 'var(--surface-raised)',
+                    color: activo ? '#0c0e12' : 'var(--text-secondary)',
+                    fontSize: '12px',
+                    fontWeight: activo ? '700' : '400',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.14s ease',
+                  }}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+          {diasDescanso.size > 0 && (
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>
+              Descansas los {[...diasDescanso]
+                .sort((a, b) => (a === 0 ? 7 : a) - (b === 0 ? 7 : b))
+                .map(v => DIAS_DESCANSO.find(d => d.val === v)?.nombre)
+                .join(', ')}
+            </p>
+          )}
+        </div>
       )}
     </div>
   )

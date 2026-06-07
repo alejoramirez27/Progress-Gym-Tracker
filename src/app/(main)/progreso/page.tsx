@@ -9,7 +9,11 @@ interface Ejercicio { id_ejercicio: string; nombre: string; num_series: number; 
 interface SerieInput { peso_kg: string; repeticiones: string; rir: string; notas: string }
 interface EjConSeries { ejercicio: Ejercicio; series: SerieInput[] }
 
-function hoy() { return new Date().toISOString().split('T')[0] }
+/** Fecha actual en Colombia (UTC-5, sin horario de verano) */
+function hoy() {
+  const col = new Date(Date.now() - 5 * 60 * 60 * 1000)
+  return col.toISOString().split('T')[0]
+}
 function fmtFechaLarga(s: string) {
   return new Date(s + 'T12:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
 }
@@ -74,7 +78,7 @@ function DatePicker({ value, onChange, max }: { value: string; onChange: (v: str
   const cells: (Date | null)[] = Array(startOffset).fill(null)
   for (let d = 1; d <= lastDay.getDate(); d++) cells.push(new Date(view.year, view.month, d))
 
-  const todayStr = new Date().toISOString().split('T')[0]
+  const todayStr = hoy()
 
   const prevM = () => setView(v => { const d = new Date(v.year, v.month - 1); return { year: d.getFullYear(), month: d.getMonth() } })
   const nextM = () => setView(v => { const d = new Date(v.year, v.month + 1); return { year: d.getFullYear(), month: d.getMonth() } })
@@ -595,7 +599,7 @@ export default function ProgresoPage() {
           </div>
           <div>
             <label className="label" htmlFor="p-fecha" style={{ display: 'block', marginBottom: '6px' }}>Fecha</label>
-            <DatePicker value={fecha} onChange={setFecha} max={new Date().toISOString().split('T')[0]} />
+            <DatePicker value={fecha} onChange={setFecha} max={hoy()} />
           </div>
         </div>
       </div>

@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/session'
 
+/** Devuelve la fecha actual en zona horaria de Colombia (UTC-5) como 'YYYY-MM-DD' */
+function fechaColombia(offsetDias = 0): string {
+  const now = new Date()
+  // Colombia es UTC-5 siempre (sin horario de verano)
+  const col = new Date(now.getTime() - 5 * 60 * 60 * 1000 + offsetDias * 86400000)
+  return col.toISOString().split('T')[0]
+}
+
 export async function GET(request: Request) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -88,14 +96,13 @@ export async function GET(request: Request) {
       .map(([fecha, v]) => ({ fecha, volumen: Math.round(v.vol), sesiones: v.sesiones.size }))
       .slice(-30)
 
-    // Heatmap — últimos 365 días (alineado al lunes de la semana actual)
+    // Heatmap — últimos 365 días (alineado al lunes de la semana actual) en hora Colombia
     const activeDates = new Set(Object.keys(porFechaVol))
-    const hoyD = new Date()
-    // Ir al domingo más lejano que cubra 365 días
+    const hoyStr = fechaColombia()
+    const hoyD   = new Date(hoyStr + 'T12:00:00')
     const diasAtras = 364
     const inicio = new Date(hoyD)
     inicio.setDate(hoyD.getDate() - diasAtras)
-    // Retroceder hasta el lunes de esa semana
     const diaSemana = inicio.getDay() === 0 ? 6 : inicio.getDay() - 1
     inicio.setDate(inicio.getDate() - diaSemana)
 
@@ -108,7 +115,8 @@ export async function GET(request: Request) {
     })
   } else {
     // Heatmap vacío — 365 días
-    const hoyD = new Date()
+    const hoyStr = fechaColombia()
+    const hoyD   = new Date(hoyStr + 'T12:00:00')
     const inicio = new Date(hoyD)
     inicio.setDate(hoyD.getDate() - 364)
     const diaSemana = inicio.getDay() === 0 ? 6 : inicio.getDay() - 1
@@ -119,6 +127,28 @@ export async function GET(request: Request) {
       d.setDate(inicio.getDate() + i)
       return { fecha: d.toISOString().split('T')[0], count: 0 }
     })
+  }
+
+  // Días de descanso del usuario
+  const { data: usuarioData } = await supabase
+    .from('usuario').select('dias_descanso').eq('id_usuario', session.id).single()
+  const diasDescanso: Set<number> = new Set(
+    usuarioData?.dias_descanso
+      ? usuarioData.dias_descanso.split(',').map(Number).filter((n: number) => !isNaN(n))
+      : []
+  )
+
+  /** Retorna true si TODOS los días entre dateB y dateA (sin incluirlos) son días de descanso */
+  function soloDescansosEntre(dateA: string, dateB: string): boolean {
+    const msA = new Date(dateA + 'T12:00:00').getTime()
+    const msB = new Date(dateB + 'T12:00:00').getTime()
+    const gaps = Math.round((msA - msB) / 86400000) - 1
+    if (gaps <= 0) return true
+    for (let i = 1; i <= gaps; i++) {
+      const d = new Date(msB + i * 86400000)
+      if (!diasDescanso.has(d.getDay())) return false
+    }
+    return true
   }
 
   // Racha
@@ -132,25 +162,33 @@ export async function GET(request: Request) {
       .order('fecha', { ascending: false })
     const fechasUnicas = [...new Set((fechasSeries ?? []).map(s => s.fecha))].sort((a, b) => b.localeCompare(a))
     if (fechasUnicas.length > 0) {
-      const hoy = new Date().toISOString().split('T')[0]
-      const ayer = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+      const hoy  = fechaColombia()
+      const ayer = fechaColombia(-1)
       let streak = 0; let mejorStreak = 0; let prev: string | null = null
       for (const f of fechasUnicas) {
         if (prev === null) { streak = 1; mejorStreak = 1 }
         else {
-          const diff = (new Date(prev).getTime() - new Date(f).getTime()) / 86400000
-          if (diff === 1) { streak++; if (streak > mejorStreak) mejorStreak = streak }
-          else streak = 1
+          const diff = Math.round((new Date(prev + 'T12:00:00').getTime() - new Date(f + 'T12:00:00').getTime()) / 86400000)
+          if (diff === 1 || (diff > 1 && soloDescansosEntre(prev, f))) {
+            streak++
+            if (streak > mejorStreak) mejorStreak = streak
+          } else {
+            streak = 1
+          }
         }
         prev = f
       }
-      rachaActual = fechasUnicas[0] === hoy || fechasUnicas[0] === ayer ? streak : 0
+      // Racha activa: último entreno fue hoy, ayer, o los días entre ese día y hoy son todos descanso
+      const ultimoFue = fechasUnicas[0]
+      const rachaVigente = ultimoFue === hoy || ultimoFue === ayer ||
+        (ultimoFue < hoy && soloDescansosEntre(hoy, ultimoFue))
+      rachaActual = rachaVigente ? streak : 0
       rachaMejor = mejorStreak
     }
   }
 
-  // Sesiones esta semana vs semana anterior
-  const hoyDate = new Date()
+  // Sesiones esta semana vs semana anterior (en hora Colombia)
+  const hoyDate = new Date(fechaColombia() + 'T12:00:00')
   const lunesEstaSeamana = new Date(hoyDate)
   lunesEstaSeamana.setDate(hoyDate.getDate() - hoyDate.getDay() + (hoyDate.getDay() === 0 ? -6 : 1))
   lunesEstaSeamana.setHours(0,0,0,0)
