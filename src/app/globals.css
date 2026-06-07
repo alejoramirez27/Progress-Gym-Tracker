@@ -291,7 +291,7 @@ button:disabled:active { transform: none; }
   grid-template-columns: 1fr 280px;
   gap: 16px;
   margin-bottom: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 @media (max-width: 1080px) {
   .dash-2col { grid-template-columns: 1fr; }

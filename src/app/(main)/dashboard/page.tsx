@@ -515,10 +515,7 @@ export default function DashboardPage() {
                         const isFuture = dia.fecha > hoy()
                         const bg = isFuture ? 'transparent'
                           : dia.count === 0 ? 'var(--surface-raised)'
-                          : dia.count === 1 ? 'color-mix(in srgb, var(--accent) 18%, var(--surface-raised))'
-                          : dia.count === 2 ? 'color-mix(in srgb, var(--accent) 40%, var(--surface-raised))'
-                          : dia.count === 3 ? 'color-mix(in srgb, var(--accent) 62%, var(--surface-raised))'
-                          : 'color-mix(in srgb, var(--accent) 88%, var(--surface-raised))'
+                          : 'var(--accent)'
                         const d = new Date(dia.fecha + 'T12:00:00')
                         const titulo = `${d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}${dia.count > 0 ? ` — ${dia.count} sesión${dia.count > 1 ? 'es' : ''}` : ''}`
                         return (
@@ -537,13 +534,12 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Leyenda */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '12px', justifyContent: 'flex-end' }}>
-            <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>Menos</span>
-            {['var(--surface-raised)', 'color-mix(in srgb, var(--accent) 18%, var(--surface-raised))', 'color-mix(in srgb, var(--accent) 40%, var(--surface-raised))', 'color-mix(in srgb, var(--accent) 62%, var(--surface-raised))', 'color-mix(in srgb, var(--accent) 88%, var(--surface-raised))'].map((bg, i) => (
-              <div key={i} style={{ width: '11px', height: '11px', borderRadius: '2px', backgroundColor: bg }} />
-            ))}
-            <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>Más</span>
+          {/* Leyenda simple */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px', justifyContent: 'flex-end' }}>
+            <div style={{ width: '11px', height: '11px', borderRadius: '2px', backgroundColor: 'var(--surface-raised)', border: '1px solid var(--border-faint)' }} />
+            <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>sin entreno</span>
+            <div style={{ width: '11px', height: '11px', borderRadius: '2px', backgroundColor: 'var(--accent)', marginLeft: '4px' }} />
+            <span style={{ fontSize: '10px', color: 'var(--text-disabled)' }}>entreno</span>
           </div>
         </div>
       )}
