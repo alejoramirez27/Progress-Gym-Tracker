@@ -2,9 +2,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import Image from 'next/image'
 import { Zap, Mail, Lock, ArrowRight } from 'lucide-react'
-
-const IMG = '/screenshots/gym2.jpg'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,8 +30,7 @@ export default function LoginPage() {
 
       {/* Left: editorial image panel */}
       <div className="auth-img-panel" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={IMG} alt="Atleta entrenando" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
+        <Image src="/screenshots/gym2.jpg" alt="Atleta entrenando" fill priority sizes="50vw" style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
         {/* Right-edge fade into form panel */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 45%, rgba(255,255,255,0.97) 100%)' }} />
         {/* Bottom fade for text legibility */}
