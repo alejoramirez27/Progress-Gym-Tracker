@@ -293,8 +293,8 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
         src={src}
         alt={alt}
         fill
+        unoptimized
         priority={priority}
-        sizes="260px"
         style={{ objectFit: 'cover', objectPosition: 'top center' }}
       />
     </motion.div>
@@ -462,8 +462,7 @@ function Hero() {
             src={IMGS.hero}
             alt="Atleta entrenando en el gimnasio"
             fill
-            quality={90}
-            sizes="(max-width: 767px) 100vw, 52vw"
+            unoptimized
             style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
             priority
           />

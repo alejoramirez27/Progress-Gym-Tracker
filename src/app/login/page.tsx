@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       {/* Left: editorial image panel */}
       <div className="auth-img-panel" style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <Image src="/screenshots/gym2.jpg" alt="Atleta entrenando" fill priority sizes="50vw" style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
+        <Image src="/screenshots/gym2.jpg" alt="Atleta entrenando" fill unoptimized priority style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
         {/* Right-edge fade into form panel */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent 45%, rgba(255,255,255,0.97) 100%)' }} />
         {/* Bottom fade for text legibility */}
