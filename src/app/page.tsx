@@ -242,8 +242,6 @@ function Nav() {
 }
 
 /* ─── P0-1: ProductShot component ────────────────────────── */
-// Frame de teléfono ~9:19.5. Usa screenshots locales en /public/screenshots/
-// TODO: subir capturas reales a /public/screenshots/{registro,records,dashboard}.png
 function ProductShot({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
   return (
     <motion.div
@@ -251,11 +249,9 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
       transition={{ duration: 0.4, ease: E }}
       style={{
         position: 'relative',
-        width: '100%',
-        maxWidth: '260px',
-        margin: '0 auto',
-        // 9:19.5 aspect ratio
-        aspectRatio: '9 / 19.5',
+        width: '260px',
+        height: '564px',
+        flexShrink: 0,
         borderRadius: '32px',
         backgroundColor: '#ffffff',
         boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.06)',
@@ -268,16 +264,14 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
         width: '72px', height: '22px', backgroundColor: '#111318',
         borderRadius: '11px', zIndex: 3,
       }} />
-      {/* Screen content — img tag renders SVG/PNG reliably inside the frame */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* Next.js Image — served through /_next/image, bypasses static-file routing issues */}
+      <Image
         src={src}
         alt={alt}
-        style={{
-          position: 'absolute', inset: 0,
-          width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'top center',
-        }}
+        fill
+        priority={priority}
+        sizes="260px"
+        style={{ objectFit: 'cover', objectPosition: 'top center' }}
       />
     </motion.div>
   )
