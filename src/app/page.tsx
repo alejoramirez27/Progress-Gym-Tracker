@@ -21,17 +21,17 @@ import {
 /* ─── Easing ──────────────────────────────────────────────── */
 const E: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
-/* ─── Images (stock) — P1-6: fotos de rendimiento/fuerza ──── */
+/* ─── Images (stock) ─────────────────────────────────────── */
 const IMGS = {
-  // Hombre en barra — powerlifting / deadlift vibe
   hero:     'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2400&q=90',
-  // Atleta masculino con barra — sentadilla / fuerza
   records:  'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1000&q=80',
-  // TODO P1-6: reemplazar progreso por foto de atleta serio en peso muerto o press banca
   progreso: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1000&q=80',
-  // Gym vacío, peso muerto
   gym:      'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&q=80',
 }
+
+/* ─── Hero background video — free from Pexels ───────────── */
+// Pexels 4761421: "Man lifting weights in gym", 1080p, CC0
+const HERO_VIDEO = 'https://videos.pexels.com/video-files/4761421/4761421-hd_1920_1080_24fps.mp4'
 
 /* ─── Line reveal ────────────────────────────────────────── */
 function LineReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -427,6 +427,41 @@ function Hero() {
           ))}
         </motion.div>
 
+        {/* Social proof */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.0, ease: E }}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '20px' }}
+        >
+          {/* Avatar stack */}
+          <div style={{ display: 'flex' }}>
+            {['AL', 'MR', 'CG', 'JS'].map((initials, i) => (
+              <div key={initials} style={{
+                width: '26px', height: '26px', borderRadius: '50%',
+                backgroundColor: ['#2d7fad','#3a8ebb','#246a94','#1a5478'][i],
+                border: '2px solid #ffffff',
+                marginLeft: i > 0 ? '-8px' : '0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <span style={{ fontSize: '8px', fontWeight: '700', color: '#fff' }}>{initials}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {/* Live dot */}
+            <motion.div
+              animate={reduce ? {} : { scale: [1, 1.5, 1], opacity: [1, 0.4, 1] }}
+              transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
+              style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6dba8e', flexShrink: 0 }}
+            />
+            <span style={{ fontSize: '12px', color: '#7a8290', fontWeight: '400' }}>
+              <span style={{ color: '#111318', fontWeight: '600' }}>47 atletas</span> activos esta semana
+            </span>
+          </div>
+        </motion.div>
+
         {/* Scroll indicator */}
         <motion.div style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
@@ -458,15 +493,31 @@ function Hero() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.4, delay: 0.15, ease: E }}
         >
-          <Image
-            src={IMGS.hero}
-            alt="Atleta entrenando en el gimnasio"
-            fill
-            quality={90}
-            sizes="(max-width: 767px) 100vw, 52vw"
-            style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
-            priority
-          />
+          {reduce ? (
+            /* prefers-reduced-motion: static image only */
+            <Image
+              src={IMGS.hero}
+              alt="Atleta entrenando en el gimnasio"
+              fill
+              quality={90}
+              sizes="(max-width: 767px) 100vw, 52vw"
+              style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+              priority
+            />
+          ) : (
+            /* Looping background video — poster shows while loading */
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster={IMGS.hero}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }}
+            >
+              <source src={HERO_VIDEO} type="video/mp4" />
+            </video>
+          )}
         </motion.div>
         {/* Desktop: cards absolutely positioned around the image */}
         <div className="hero-cards-desktop">
@@ -759,6 +810,228 @@ function WhySection() {
               </Reveal>
             )
           })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Interactive demo ────────────────────────────────────── */
+function InteractiveDemo() {
+  const [screen, setScreen] = useState<0 | 1 | 2>(0)
+  const reduce = useReducedMotion()
+  const PREV_PR = 90
+  const INITIAL_ROWS = [
+    { kg: '80', reps: '10' },
+    { kg: '85', reps: '8' },
+    { kg: '92.5', reps: '6' },
+  ]
+  const [rows, setRows] = useState(INITIAL_ROWS)
+  const addRow = () => setRows(r => [...r, { kg: r[r.length - 1].kg, reps: '5' }])
+  const update = (i: number, f: 'kg' | 'reps', v: string) =>
+    setRows(r => r.map((row, idx) => idx === i ? { ...row, [f]: v } : row))
+  const reset = () => { setScreen(0); setRows(INITIAL_ROWS) }
+  const maxKg = Math.max(...rows.map(r => parseFloat(r.kg) || 0))
+  const isPR = maxKg > PREV_PR
+  const totalVol = rows.reduce((s, r) => s + (parseFloat(r.kg) || 0) * (parseInt(r.reps) || 0), 0)
+
+  const phoneShell: React.CSSProperties = {
+    position: 'relative', width: '300px', height: '630px', borderRadius: '42px',
+    backgroundColor: '#f5f7fa', flexShrink: 0,
+    boxShadow: '0 40px 100px rgba(0,0,0,0.16), 0 8px 28px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(0,0,0,0.07)',
+    overflow: 'hidden',
+  }
+  const notch = <div style={{ position: 'absolute', top: '14px', left: '50%', transform: 'translateX(-50%)', width: '84px', height: '26px', backgroundColor: '#111318', borderRadius: '13px', zIndex: 20 }} />
+  const statusBar = (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 22px 0', fontSize: '11px', fontWeight: '700', color: '#111318', letterSpacing: '-0.01em' }}>
+      <span>9:41</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <svg width="15" height="9" viewBox="0 0 15 9" fill="none"><rect x="0" y="5" width="3" height="4" rx="0.6" fill="#111318"/><rect x="4" y="3" width="3" height="6" rx="0.6" fill="#111318"/><rect x="8" y="1" width="3" height="8" rx="0.6" fill="#111318"/><rect x="12" y="0" width="3" height="9" rx="0.6" fill="#111318" opacity="0.25"/></svg>
+        <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="0.5" y="0.5" width="20" height="10" rx="2.5" stroke="#111318" strokeOpacity="0.35"/><rect x="1.5" y="1.5" width="15" height="8" rx="1.5" fill="#111318"/><path d="M22 3.5v4a2.5 2.5 0 0 0 0-4Z" fill="#111318" opacity="0.4"/></svg>
+      </div>
+    </div>
+  )
+
+  const routines = [
+    { name: 'Día A', sub: 'Pecho · Tríceps · Hombro' },
+    { name: 'Día B', sub: 'Espalda · Bíceps' },
+    { name: 'Día C', sub: 'Piernas · Core' },
+  ]
+
+  return (
+    <section style={{ backgroundColor: '#f8f9fb', padding: 'clamp(64px,8vw,100px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <SectionHeader
+          title={<>Pruébalo antes<br />de registrarte.</>}
+          eyebrow="Demo interactiva"
+          description="Así se ve registrar una sesión en VoltTrack. Edita los pesos, agrega series — VoltTrack detecta el PR automáticamente."
+        />
+
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 'clamp(32px,5vw,72px)', flexWrap: 'wrap' }}>
+          {/* ── Phone shell ── */}
+          <div style={phoneShell}>
+            {notch}
+            <div style={{ position: 'absolute', inset: 0, paddingTop: '50px', display: 'flex', flexDirection: 'column' }}>
+              {statusBar}
+
+              {/* SCREEN 0 — Selección de rutina */}
+              {screen === 0 && (
+                <motion.div key="s0" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.22, ease: E }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '14px 20px 20px' }}>
+                  <p style={{ fontSize: '10px', color: '#9aa0a8', margin: '0 0 3px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' }}>HOY</p>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 18px', lineHeight: '1.2' }}>¿Cuál es tu rutina?</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {routines.map((r) => (
+                      <motion.button key={r.name} onClick={() => setScreen(1)}
+                        whileHover={{ backgroundColor: '#eef5fc', borderColor: 'rgba(45,127,173,0.3)' }}
+                        whileTap={{ scale: 0.98 }}
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 14px', backgroundColor: '#ffffff', border: '1px solid #eceef2', borderRadius: '11px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'background-color 0.12s, border-color 0.12s' }}
+                      >
+                        <div>
+                          <p style={{ fontSize: '13px', fontWeight: '600', color: '#111318', margin: 0 }}>{r.name}</p>
+                          <p style={{ fontSize: '11px', color: '#9aa0a8', margin: 0, fontWeight: '400' }}>{r.sub}</p>
+                        </div>
+                        <ChevronDown style={{ width: '14px', height: '14px', color: '#c4c9d1', transform: 'rotate(-90deg)', flexShrink: 0 }} />
+                      </motion.button>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+                    <div style={{ height: '1px', backgroundColor: '#eceef2', marginBottom: '12px' }} />
+                    <p style={{ fontSize: '11px', color: '#c4c9d1', margin: 0, textAlign: 'center' }}>Toca una rutina para comenzar</p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* SCREEN 1 — Registro de series */}
+              {screen === 1 && (
+                <motion.div key="s1" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.22, ease: E }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                  {/* Header */}
+                  <div style={{ padding: '10px 20px 10px', borderBottom: '1px solid #f0f2f5' }}>
+                    <button onClick={() => setScreen(0)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '5px', fontFamily: 'inherit' }}>
+                      <ChevronDown style={{ width: '12px', height: '12px', color: '#9aa0a8', transform: 'rotate(90deg)' }} />
+                      <span style={{ fontSize: '11px', color: '#9aa0a8', fontWeight: '500' }}>Día A · Pecho</span>
+                    </button>
+                    <h3 style={{ fontSize: '17px', fontWeight: '700', color: '#111318', letterSpacing: '-0.02em', margin: '0 0 2px', lineHeight: 1.2 }}>Press Banca</h3>
+                    <p style={{ fontSize: '11px', color: '#9aa0a8', margin: 0 }}>
+                      Anterior: {PREV_PR} kg&nbsp;
+                      {isPR && <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} style={{ color: '#c07040', fontWeight: '700' }}>· ¡Nuevo PR!</motion.span>}
+                    </p>
+                  </div>
+                  {/* Col headers */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '22px 1fr 1fr 36px', gap: '6px', padding: '7px 20px 5px', backgroundColor: '#f8f9fb', borderBottom: '1px solid #f0f2f5' }}>
+                    {['#', 'KG', 'REPS', ''].map(h => (
+                      <span key={h} style={{ fontSize: '9px', fontWeight: '700', color: '#b0b8c4', letterSpacing: '0.09em' }}>{h}</span>
+                    ))}
+                  </div>
+                  {/* Rows */}
+                  <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 0' }}>
+                    {rows.map((row, i) => {
+                      const rowKg = parseFloat(row.kg) || 0
+                      const rowPR = rowKg >= maxKg && rowKg > PREV_PR
+                      return (
+                        <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18, delay: i * 0.04 }}
+                          style={{ display: 'grid', gridTemplateColumns: '22px 1fr 1fr 36px', gap: '6px', alignItems: 'center', padding: '6px 0', borderBottom: '1px solid #f5f6f8' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#d0d5dd', fontVariantNumeric: 'tabular-nums' }}>{i + 1}</span>
+                          <input type="number" value={row.kg} onChange={e => update(i, 'kg', e.target.value)}
+                            style={{ padding: '6px 8px', fontSize: '13px', fontWeight: '500', color: '#111318', backgroundColor: '#f0f2f5', border: '1px solid transparent', borderRadius: '7px', width: '100%', fontFamily: 'inherit', outline: 'none' }}
+                            onFocus={e => { e.target.style.borderColor = '#2d7fad'; e.target.style.backgroundColor = '#fff' }}
+                            onBlur={e => { e.target.style.borderColor = 'transparent'; e.target.style.backgroundColor = '#f0f2f5' }}
+                          />
+                          <input type="number" value={row.reps} onChange={e => update(i, 'reps', e.target.value)}
+                            style={{ padding: '6px 8px', fontSize: '13px', fontWeight: '500', color: '#111318', backgroundColor: '#f0f2f5', border: '1px solid transparent', borderRadius: '7px', width: '100%', fontFamily: 'inherit', outline: 'none' }}
+                            onFocus={e => { e.target.style.borderColor = '#2d7fad'; e.target.style.backgroundColor = '#fff' }}
+                            onBlur={e => { e.target.style.borderColor = 'transparent'; e.target.style.backgroundColor = '#f0f2f5' }}
+                          />
+                          {rowPR
+                            ? <span style={{ fontSize: '8px', fontWeight: '800', color: '#c07040', backgroundColor: 'rgba(192,112,64,0.12)', borderRadius: '4px', padding: '2px 4px', textAlign: 'center', letterSpacing: '0.04em' }}>PR</span>
+                            : <span />
+                          }
+                        </motion.div>
+                      )
+                    })}
+                    <button onClick={addRow}
+                      style={{ width: '100%', margin: '8px 0', padding: '9px', background: 'none', border: '1.5px dashed #dde0e6', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', color: '#9aa0a8', fontWeight: '500', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                      <span style={{ fontSize: '15px', lineHeight: 1 }}>+</span> Agregar serie
+                    </button>
+                  </div>
+                  {/* Save */}
+                  <div style={{ padding: '10px 20px 16px', borderTop: '1px solid #f0f2f5' }}>
+                    <motion.button onClick={() => setScreen(2)} whileTap={{ scale: 0.98 }}
+                      style={{ width: '100%', padding: '13px', backgroundColor: '#2d7fad', color: '#fff', border: 'none', borderRadius: '11px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      Guardar sesión
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* SCREEN 2 — Sesión guardada */}
+              {screen === 2 && (
+                <motion.div key="s2" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, ease: E }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 24px', textAlign: 'center' }}>
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.08 }}
+                    style={{ width: '54px', height: '54px', borderRadius: '50%', backgroundColor: '#edf7f2', border: '1px solid rgba(109,186,142,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                    <CheckCircle2 style={{ width: '26px', height: '26px', color: '#6dba8e' }} />
+                  </motion.div>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 3px' }}>Sesión guardada</h3>
+                  <p style={{ fontSize: '12px', color: '#9aa0a8', margin: '0 0 22px' }}>Día A · Press Banca</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', width: '100%', marginBottom: '16px' }}>
+                    {[
+                      { val: totalVol.toLocaleString('es-CO'), label: 'kg volumen' },
+                      { val: String(rows.length), label: 'series' },
+                    ].map(s => (
+                      <div key={s.label} style={{ backgroundColor: '#f5f7fa', borderRadius: '10px', padding: '12px 10px' }}>
+                        <p style={{ fontSize: '22px', fontWeight: '700', color: '#2d7fad', margin: '0 0 2px', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums' }}>{s.val}</p>
+                        <p style={{ fontSize: '9px', color: '#9aa0a8', margin: 0, fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {isPR && (
+                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 12px', backgroundColor: 'rgba(192,112,64,0.08)', border: '1px solid rgba(192,112,64,0.18)', borderRadius: '9px', marginBottom: '18px', width: '100%' }}>
+                      <Trophy style={{ width: '13px', height: '13px', color: '#c07040', flexShrink: 0 }} />
+                      <span style={{ fontSize: '12px', color: '#c07040', fontWeight: '600' }}>Nuevo PR: {maxKg} kg en Press Banca</span>
+                    </motion.div>
+                  )}
+                  <Link href="/registro"
+                    style={{ width: '100%', padding: '12px', backgroundColor: '#2d7fad', color: '#fff', borderRadius: '10px', fontSize: '13px', fontWeight: '600', textDecoration: 'none', display: 'block', textAlign: 'center', marginBottom: '8px' }}>
+                    Crear cuenta gratis
+                  </Link>
+                  <button onClick={reset} style={{ background: 'none', border: 'none', fontSize: '12px', color: '#9aa0a8', cursor: 'pointer', fontFamily: 'inherit', padding: '4px' }}>
+                    Volver a explorar
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Right: callouts ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '28px', maxWidth: '380px' }}>
+            {[
+              { icon: BicepsFlexed, step: '01', title: 'Selecciona la rutina del día', body: 'Cada día de la semana tiene su rutina asignada. Sin buscar, sin recordar cuál tocaba.' },
+              { icon: Trophy,       step: '02', title: 'VoltTrack detecta el PR solo', body: 'Supera tu peso anterior y aparece la insignia dorada instantáneamente. No tienes que hacer nada.' },
+              { icon: BarChart2,    step: '03', title: 'Resumen al guardar', body: 'Volumen total, series completadas y PRs en una pantalla. En dos segundos sabes cómo fue tu sesión.' },
+            ].map((item, i) => {
+              const Icon = item.icon
+              return (
+                <Reveal key={item.title} delay={i * 0.09}>
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                      <div style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '9px', padding: '9px', display: 'flex' }}>
+                        <Icon style={{ width: '15px', height: '15px', color: '#2d7fad' }} />
+                      </div>
+                      {i < 2 && <div style={{ width: '1px', height: '24px', backgroundColor: '#e0e3e8' }} />}
+                    </div>
+                    <div style={{ paddingTop: '2px' }}>
+                      <p style={{ fontSize: '11px', color: '#b0b8c4', fontWeight: '700', letterSpacing: '0.06em', margin: '0 0 4px', textTransform: 'uppercase' }}>{item.step}</p>
+                      <p style={{ fontSize: '15px', fontWeight: '600', color: '#111318', margin: '0 0 5px', letterSpacing: '-0.01em', lineHeight: '1.25' }}>{item.title}</p>
+                      <p style={{ fontSize: '13px', color: '#7a8290', margin: 0, lineHeight: '1.65', fontWeight: '300' }}>{item.body}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              )
+            })}
+          </div>
         </div>
       </div>
     </section>
@@ -1160,6 +1433,7 @@ export default function LandingPage() {
         <ProductShowcase />
         <Stats />
         <WhySection />
+        <InteractiveDemo />
         <FAQ />
         <FinalCTA />
         <Footer />
