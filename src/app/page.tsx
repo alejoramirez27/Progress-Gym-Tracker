@@ -463,7 +463,7 @@ function Hero() {
             alt="Atleta entrenando en el gimnasio"
             fill
             unoptimized
-            style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+            style={{ objectFit: 'cover', objectPosition: '50% 15%' }}
             priority
           />
         </motion.div>
