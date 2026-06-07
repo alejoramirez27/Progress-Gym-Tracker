@@ -68,15 +68,15 @@ export default function LoginPage() {
 
           {/* Logo — shown on mobile inside card, hidden on desktop (branding is on the image) */}
           <div className="auth-mobile-logo">
-            <div style={{ backgroundColor: '#2d7fad', borderRadius: '7px', padding: '6px', display: 'flex' }}>
-              <Zap style={{ width: '14px', height: '14px', color: '#ffffff' }} />
+            <div style={{ backgroundColor: '#2d7fad', borderRadius: '6px', padding: '5px', display: 'flex' }}>
+              <Zap style={{ width: '12px', height: '12px', color: '#ffffff' }} />
             </div>
-            <span style={{ fontSize: '16px', fontWeight: '600', color: '#111318', letterSpacing: '-0.01em' }}>VoltTrack</span>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: '#111318', letterSpacing: '-0.01em' }}>VoltTrack</span>
           </div>
 
-          <div style={{ marginBottom: '28px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 6px' }}>Bienvenido</h1>
-            <p style={{ fontSize: '13px', color: '#7a8290', margin: 0 }}>Introduce tus credenciales para continuar</p>
+          <div style={{ marginBottom: '20px' }}>
+            <h1 style={{ fontSize: '18px', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Bienvenido</h1>
+            <p style={{ fontSize: '12px', color: '#7a8290', margin: 0 }}>Introduce tus credenciales para continuar</p>
           </div>
 
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -168,8 +168,7 @@ export default function LoginPage() {
           background: rgba(0,0,0,0.45);
         }
         .auth-img-branding {
-          position: absolute; bottom: 0; left: 0;
-          padding: clamp(32px,4vw,52px);
+          display: none;
         }
 
         /* ── Form panel ── */
@@ -186,20 +185,20 @@ export default function LoginPage() {
         /* Mobile card: frosted white over photo */
         .auth-form-card {
           width: 100%;
-          max-width: 400px;
+          max-width: 340px;
           background: rgba(255,255,255,0.95);
           backdrop-filter: blur(18px);
           -webkit-backdrop-filter: blur(18px);
-          border-radius: 20px;
-          box-shadow: 0 24px 64px rgba(0,0,0,0.28), 0 4px 16px rgba(0,0,0,0.14);
-          padding: 36px 28px 28px;
+          border-radius: 18px;
+          box-shadow: 0 20px 48px rgba(0,0,0,0.28), 0 4px 14px rgba(0,0,0,0.14);
+          padding: 24px 22px 22px;
         }
         .auth-mobile-logo {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          margin-bottom: 28px;
+          gap: 7px;
+          margin-bottom: 18px;
         }
 
         /* ── Desktop (≥768px): split layout ── */
@@ -216,6 +215,12 @@ export default function LoginPage() {
           /* Remove the full-screen mobile overlay on desktop */
           .auth-img-overlay-mobile {
             display: none;
+          }
+          /* Show branding on desktop */
+          .auth-img-branding {
+            display: block;
+            position: absolute; bottom: 0; left: 0;
+            padding: clamp(32px,4vw,52px);
           }
           /* Form panel: right column, plain white bg */
           .auth-form-panel {
