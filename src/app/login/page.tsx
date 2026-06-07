@@ -16,6 +16,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setError('')
     if (!email.trim()) { setError('Ingresa tu email'); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError('Ingresa un email válido'); return }
     if (!password) { setError('Ingresa tu contraseña'); return }
     setLoading(true)
     const res  = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
@@ -75,7 +76,7 @@ export default function LoginPage() {
             <label className="label" htmlFor="l-email">Email</label>
             <div style={{ position: 'relative' }}>
               <Mail style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'var(--text-tertiary)', pointerEvents: 'none' }} />
-              <input id="l-email" type="email" value={email} onChange={e => { setEmail(e.target.value); if (error) setError('') }}
+              <input id="l-email" type="text" inputMode="email" autoCapitalize="none" value={email} onChange={e => { setEmail(e.target.value); if (error) setError('') }}
                 placeholder="tu@email.com" autoComplete="email"
                 style={{ width: '100%', padding: '10px 12px 10px 34px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
