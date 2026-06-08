@@ -684,43 +684,6 @@ function ProductShowcase() {
   )
 }
 
-/* ─── Stats — P2-10: todos los colores unificados a azul ──── */
-function Stats() {
-  return (
-    <section style={{ position: 'relative', backgroundColor: '#ffffff', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', overflow: 'hidden', borderTop: '1px solid #eceef2' }}>
-      <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '1100px', height: '400px', background: 'radial-gradient(ellipse, rgba(45,127,173,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      {/* Identity: heatmap background */}
-      <div style={{ position: 'absolute', top: '50%', right: '5%', transform: 'translateY(-50%)', opacity: 0.05, pointerEvents: 'none' }} aria-hidden="true">
-        <HeatmapTexture cols={20} rows={7} />
-      </div>
-      <div style={{ position: 'relative', maxWidth: '1100px', margin: '0 auto' }}>
-        <Reveal>
-          <h2 style={{ fontSize: 'clamp(24px, 3.2vw, 40px)', fontWeight: '700', color: '#111318', letterSpacing: '-0.03em', margin: '0 0 72px', lineHeight: '1.15', maxWidth: '520px', textWrap: 'balance' } as React.CSSProperties}>
-            Diseñado para la sesión,<br />no para la galería.
-          </h2>
-        </Reveal>
-        {/* P2-10: color unificado — todos #2d7fad */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0', borderTop: '1px solid #eceef2' }}>
-          {[
-            { to: 100, suffix: '%', label: 'Privado',          sub: 'Solo tú ves tus datos' },
-            { to: 7,   suffix: '',  label: 'días por rutina', sub: 'Asigna cada rutina a su día de la semana' },
-            { to: 0,   suffix: '',  label: 'Distracciones',   sub: 'Interfaz diseñada solo para entrenar' },
-          ].map((m, i) => (
-            <Reveal key={m.label} delay={i * 0.1}>
-              <div style={{ padding: 'clamp(36px,4.5vw,56px) clamp(16px,3vw,40px) clamp(36px,4.5vw,56px) 0' }}>
-                <p style={{ fontSize: 'clamp(56px, 8vw, 96px)', fontWeight: '700', color: '#2d7fad', letterSpacing: '-0.05em', margin: '0 0 10px', lineHeight: '0.92', fontVariantNumeric: 'tabular-nums' }}>
-                  <CountUp to={m.to} suffix={m.suffix} />
-                </p>
-                <p style={{ fontSize: '15px', fontWeight: '600', color: '#111318', margin: '0 0 5px', letterSpacing: '-0.01em' }}>{m.label}</p>
-                <p style={{ fontSize: '13px', color: '#9aa0a8', margin: 0, fontWeight: '300' }}>{m.sub}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
 
 /* ─── P0-2: WhySection — dark section, 3 razones ──────────── */
 function WhySection() {
@@ -1205,7 +1168,6 @@ export default function LandingPage() {
         <MarqueeStrip />
         <FeaturesGrid />
         <ProductShowcase />
-        <Stats />
         <WhySection />
         <FAQ />
         <FinalCTA />
