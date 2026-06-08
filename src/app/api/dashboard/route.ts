@@ -129,14 +129,42 @@ export async function GET(request: Request) {
     })
   }
 
-  // Días de descanso del usuario
+  // ── Días de descanso ────────────────────────────────────────────────────────
+  // Priority 1: días configurados manualmente por el usuario en Rutinas
+  // Priority 2: auto-derivados de las rutinas con dia_semana asignado
+  //   → si el usuario tiene rutinas en Lun/Mar/Jue/Vie, los días sin rutina
+  //     (Mié/Sáb/Dom) se tratan automáticamente como descanso, sin configuración.
   const { data: usuarioData } = await supabase
     .from('usuario').select('dias_descanso').eq('id_usuario', session.id).single()
-  const diasDescanso: Set<number> = new Set(
-    usuarioData?.dias_descanso
-      ? usuarioData.dias_descanso.split(',').map(Number).filter((n: number) => !isNaN(n))
-      : []
+
+  const diasDescansoManual: number[] = usuarioData?.dias_descanso
+    ? usuarioData.dias_descanso.split(',').map(Number).filter((n: number) => !isNaN(n))
+    : []
+
+  // Map spanish day names → JS getDay() numbers
+  const DIA_NOMBRE_A_NUM: Record<string, number> = {
+    'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4,
+    'Viernes': 5, 'Sábado': 6, 'Domingo': 0,
+  }
+
+  // Días que tienen al menos una rutina asignada
+  const diasConRutina = new Set(
+    (rutinas ?? [])
+      .filter(r => r.dia_semana && DIA_NOMBRE_A_NUM[r.dia_semana] !== undefined)
+      .map(r => DIA_NOMBRE_A_NUM[r.dia_semana as string])
   )
+
+  let diasDescanso: Set<number>
+  if (diasDescansoManual.length > 0) {
+    // User explicitly configured rest days → use those
+    diasDescanso = new Set(diasDescansoManual)
+  } else if (diasConRutina.size > 0) {
+    // Auto-derive: every day NOT covered by a rutina is a rest day
+    diasDescanso = new Set([0, 1, 2, 3, 4, 5, 6].filter(d => !diasConRutina.has(d)))
+  } else {
+    // No info at all → no automatic rest days (streak breaks on any gap)
+    diasDescanso = new Set()
+  }
 
   /** Retorna true si TODOS los días entre dateB y dateA (sin incluirlos) son días de descanso */
   function soloDescansosEntre(dateA: string, dateB: string): boolean {
@@ -213,6 +241,8 @@ export async function GET(request: Request) {
       rachaMejor,
       sesionesEstaSemana,
       sesionesSemanaPasada,
+      diasDescanso: [...diasDescanso],          // JS getDay() numbers for the UI
+      diasDescansoFuente: diasDescansoManual.length > 0 ? 'manual' : diasConRutina.size > 0 ? 'auto' : 'none',
     },
     rutinas:    rutinas    ?? [],
     ejercicios: ejercicios ?? [],

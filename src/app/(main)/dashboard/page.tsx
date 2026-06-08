@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { TrendingUp, Calendar, ChevronDown, Flame, BarChart2, StickyNote, Scale, Plus, Trophy } from 'lucide-react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-interface Stats { totalRutinas: number; totalEjercicios: number; totalSeries: number; ultimaSesion: string | null; rachaActual: number; rachaMejor: number; sesionesEstaSemana: number; sesionesSemanaPasada: number }
+interface Stats { totalRutinas: number; totalEjercicios: number; totalSeries: number; ultimaSesion: string | null; rachaActual: number; rachaMejor: number; sesionesEstaSemana: number; sesionesSemanaPasada: number; diasDescanso?: number[]; diasDescansoFuente?: 'manual' | 'auto' | 'none' }
 interface Rutina    { id_rutina: string; nombre: string }
 interface Ejercicio { id_ejercicio: string; nombre: string; id_rutina: string }
 interface PuntoProgreso { fecha: string; peso_max: number; reps: number }
@@ -185,13 +185,16 @@ export default function DashboardPage() {
     .map(m => ({ ...m, col: m.col - semanaOffset }))
 
   // ── Semana actual (dots) ────────────────────────────────────────────────────
+  const diasDescansoSet = new Set(stats?.diasDescanso ?? [])
   const semanaActualDias = DIAS_SEMANA.map((nombre, i) => {
-    const base   = new Date(hoyStr + 'T12:00:00')
-    const offset = base.getDay() === 0 ? 6 : base.getDay() - 1
-    const dia    = new Date(base.getFullYear(), base.getMonth(), base.getDate() - offset + i)
-    const fStr   = dia.toISOString().split('T')[0]
-    const count  = heatmap.find(h => h.fecha === fStr)?.count ?? 0
-    return { nombre, fStr, isFuture: fStr > hoyStr, entreno: fStr <= hoyStr && count > 0, isHoy: fStr === hoyStr }
+    const base    = new Date(hoyStr + 'T12:00:00')
+    const offset  = base.getDay() === 0 ? 6 : base.getDay() - 1
+    const dia     = new Date(base.getFullYear(), base.getMonth(), base.getDate() - offset + i)
+    const fStr    = dia.toISOString().split('T')[0]
+    const count   = heatmap.find(h => h.fecha === fStr)?.count ?? 0
+    // getDay() on the date object: 0=Dom,1=Lun…6=Sáb
+    const isDescanso = diasDescansoSet.has(dia.getDay())
+    return { nombre, fStr, isFuture: fStr > hoyStr, entreno: fStr <= hoyStr && count > 0, isHoy: fStr === hoyStr, isDescanso }
   })
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -466,21 +469,51 @@ export default function DashboardPage() {
           </div>
 
           {/* Dots semana actual */}
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '8px' }}>
             {semanaActualDias.map(dia => (
               <div key={dia.nombre} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                <span style={{ fontSize: '9px', color: dia.isHoy ? 'var(--accent)' : 'var(--text-disabled)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: dia.isHoy ? '600' : '400' }}>{dia.nombre}</span>
+                <span style={{
+                  fontSize: '9px',
+                  color: dia.isHoy ? 'var(--accent)' : dia.isDescanso ? 'var(--text-disabled)' : 'var(--text-tertiary)',
+                  textTransform: 'uppercase', letterSpacing: '0.04em',
+                  fontWeight: dia.isHoy ? '600' : '400',
+                }}>{dia.nombre}</span>
                 <div style={{
                   width: '26px', height: '26px', borderRadius: '50%',
-                  backgroundColor: dia.entreno ? 'color-mix(in srgb, var(--accent) 20%, var(--surface-raised))' : dia.isFuture ? 'transparent' : 'var(--surface-high)',
-                  border: dia.isHoy ? '2px solid var(--accent)' : dia.entreno ? '2px solid color-mix(in srgb, var(--accent) 50%, transparent)' : '2px solid transparent',
+                  // Rest day: dashed or muted; trained: accent; future: transparent; missed: surface-high
+                  backgroundColor: dia.isDescanso && !dia.entreno
+                    ? 'transparent'
+                    : dia.entreno
+                      ? 'color-mix(in srgb, var(--accent) 20%, var(--surface-raised))'
+                      : dia.isFuture ? 'transparent' : 'var(--surface-high)',
+                  border: dia.isHoy
+                    ? '2px solid var(--accent)'
+                    : dia.isDescanso && !dia.entreno
+                      ? '1.5px dashed var(--border-subtle)'
+                      : dia.entreno
+                        ? '2px solid color-mix(in srgb, var(--accent) 50%, transparent)'
+                        : '2px solid transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box',
+                  opacity: dia.isDescanso && !dia.entreno ? 0.45 : 1,
                 }}>
                   {dia.entreno && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent)' }} />}
                 </div>
               </div>
             ))}
           </div>
+          {/* Rest days legend (only when auto-derived) */}
+          {stats?.diasDescansoFuente === 'auto' && (
+            <p style={{ fontSize: '10px', color: 'var(--text-disabled)', margin: '0 0 12px', paddingLeft: '2px' }}>
+              Días de descanso detectados de tus rutinas
+            </p>
+          )}
+          {stats?.diasDescansoFuente === 'none' && (
+            <p style={{ fontSize: '10px', color: 'var(--text-disabled)', margin: '0 0 12px', paddingLeft: '2px' }}>
+              Configura tus días de descanso en{' '}
+              <a href="/rutinas" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Rutinas</a>{' '}
+              para que la racha no se rompa en días libres
+            </p>
+          )}
 
           <hr className="divider" style={{ margin: '0 0 14px' }} />
 
