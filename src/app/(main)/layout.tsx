@@ -1,6 +1,7 @@
 import Sidebar from '@/components/Sidebar'
 import MobileNav from '@/components/MobileNav'
 import LoadingBar from '@/components/LoadingBar'
+import OnboardingModal from '@/components/OnboardingModal'
 
 // Server Component — CSS handles responsive, no SSR flash
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -16,6 +17,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <div className="app-mobile-nav">
         <MobileNav />
       </div>
+      <OnboardingModal />
     </div>
   )
 }

@@ -31,6 +31,29 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
+    shortcuts: [
+      {
+        name: 'Registrar sesión',
+        short_name: 'Sesión',
+        description: 'Ir a registrar un nuevo entrenamiento',
+        url: '/progreso',
+        icons: [{ src: '/icon-192', sizes: '192x192' }],
+      },
+      {
+        name: 'Dashboard',
+        short_name: 'Dashboard',
+        description: 'Ver métricas y heatmap',
+        url: '/dashboard',
+        icons: [{ src: '/icon-192', sizes: '192x192' }],
+      },
+      {
+        name: 'Récords personales',
+        short_name: 'PRs',
+        description: 'Ver todos mis PRs',
+        url: '/records',
+        icons: [{ src: '/icon-192', sizes: '192x192' }],
+      },
+    ],
     screenshots: [],
   }
 }

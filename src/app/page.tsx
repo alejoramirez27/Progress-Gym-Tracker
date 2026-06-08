@@ -15,7 +15,7 @@ import {
   Zap, TrendingUp, Trophy, Layers, ArrowRight, BicepsFlexed,
   CheckCircle2, BarChart2, ChevronDown, Timer, RotateCcw,
   Share2, Download, Smartphone, Target, ShieldCheck, Flame, Dumbbell,
-  HelpCircle,
+  HelpCircle, Scale,
 } from 'lucide-react'
 
 /* ─── Easing ──────────────────────────────────────────────── */
@@ -302,34 +302,48 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
 }
 
 /* ─── Floating achievement card ──────────────────────────── */
-function AchievementCard({ icon, label, value, delay = 0, style = {}, className = '', small = false }: {
-  icon: React.ReactNode; label: string; value: string; delay?: number; style?: React.CSSProperties; className?: string; small?: boolean
+function AchievementCard({ icon, label, value, delay = 0, style = {}, className = '', small = false, floatOffset = 0 }: {
+  icon: React.ReactNode; label: string; value: string; delay?: number; style?: React.CSSProperties; className?: string; small?: boolean; floatOffset?: number
 }) {
   const reduce = useReducedMotion()
+  // Outer div: handles entry animation + absolute positioning
+  // Inner div: handles continuous idle float + hover
   return (
     <motion.div
       className={className}
+      style={style}
       initial={reduce ? false : { opacity: 0, y: 16, scale: 0.92 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, duration: 0.7, ease: E }}
-      style={{
-        backgroundColor: 'rgba(255,255,255,0.92)',
-        backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255,255,255,0.9)',
-        borderRadius: small ? '10px' : '12px',
-        padding: small ? '7px 10px' : '12px 16px',
-        display: 'flex', alignItems: 'center', gap: small ? '7px' : '10px',
-        boxShadow: '0 6px 24px rgba(0,0,0,0.12)',
-        ...style,
-      }}
     >
-      <div style={{ backgroundColor: 'rgba(45,127,173,0.1)', borderRadius: small ? '5px' : '8px', padding: small ? '5px' : '8px', display: 'flex', flexShrink: 0 }}>
-        {icon}
-      </div>
-      <div>
-        <p style={{ fontSize: small ? '8px' : '10px', color: '#7a8290', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>{label}</p>
-        <p style={{ fontSize: small ? '11px' : '14px', fontWeight: '600', color: '#111318', margin: 0, letterSpacing: '-0.01em' }}>{value}</p>
-      </div>
+      <motion.div
+        animate={reduce ? {} : { y: [0, -8, 0] }}
+        transition={{
+          duration: 3.2 + floatOffset * 0.65,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: delay + 0.9 + floatOffset * 0.5,
+        }}
+        whileHover={{ scale: 1.04, y: -5 }}
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255,255,255,0.9)',
+          borderRadius: small ? '10px' : '12px',
+          padding: small ? '7px 10px' : '12px 16px',
+          display: 'flex', alignItems: 'center', gap: small ? '7px' : '10px',
+          boxShadow: '0 6px 24px rgba(0,0,0,0.12)',
+          cursor: 'default',
+        }}
+      >
+        <div style={{ backgroundColor: 'rgba(45,127,173,0.1)', borderRadius: small ? '5px' : '8px', padding: small ? '5px' : '8px', display: 'flex', flexShrink: 0 }}>
+          {icon}
+        </div>
+        <div>
+          <p style={{ fontSize: small ? '8px' : '10px', color: '#7a8290', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '500' }}>{label}</p>
+          <p style={{ fontSize: small ? '11px' : '14px', fontWeight: '600', color: '#111318', margin: 0, letterSpacing: '-0.01em' }}>{value}</p>
+        </div>
+      </motion.div>
     </motion.div>
   )
 }
@@ -469,15 +483,15 @@ function Hero() {
         </motion.div>
         {/* Desktop: cards absolutely positioned around the image */}
         <div className="hero-cards-desktop">
-          <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '22%', right: '8%' }} />
-          <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} style={{ position: 'absolute', top: '44%', right: '14%' }} />
-          <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
+          <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{ position: 'absolute', top: '22%', right: '8%' }} />
+          <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} floatOffset={1} style={{ position: 'absolute', top: '44%', right: '14%' }} />
+          <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} floatOffset={2} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
         </div>
         {/* Mobile: wrapper div controls visibility — avoids motion.div display:none issues */}
         <div className="hero-cards-mobile-wrap">
-          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} style={{ position: 'absolute', top: '10%', right: '3%', maxWidth: '62%' }} />
-          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} style={{ position: 'absolute', top: '42%', right: '13%', maxWidth: '62%' }} />
-          <AchievementCard small icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} style={{ position: 'absolute', bottom: '8%', right: '3%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{ position: 'absolute', top: '10%', right: '3%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} floatOffset={1} style={{ position: 'absolute', top: '42%', right: '13%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} floatOffset={2} style={{ position: 'absolute', bottom: '8%', right: '3%', maxWidth: '62%' }} />
         </div>
       </div>
     </section>
@@ -487,13 +501,17 @@ function Hero() {
 /* ─── Marquee strip ───────────────────────────────────────── */
 function MarqueeStrip() {
   const items = [
-    { icon: BicepsFlexed, text: 'Registra sesiones' },
-    { icon: Trophy,       text: 'Récords automáticos' },
+    { icon: BicepsFlexed, text: 'Series dinámicas' },
+    { icon: Trophy,       text: 'PRs automáticos' },
+    { icon: Zap,          text: '1RM estimado' },
     { icon: TrendingUp,   text: 'Progreso visual' },
-    { icon: Layers,       text: 'Historial completo' },
+    { icon: Scale,        text: 'Peso corporal' },
+    { icon: Flame,        text: 'Racha activa' },
     { icon: BarChart2,    text: 'Dashboard 365 días' },
+    { icon: RotateCcw,    text: 'Repite sesiones' },
     { icon: CheckCircle2, text: 'Rutinas por día' },
     { icon: Timer,        text: 'Timer de descanso' },
+    { icon: Layers,       text: 'Historial completo' },
     { icon: Download,     text: 'Exporta a CSV' },
     { icon: Share2,       text: 'Comparte tus PRs' },
   ]
@@ -704,56 +722,86 @@ function Stats() {
   )
 }
 
-/* ─── P0-2: WhySection reducida a 3 razones (las más fuertes) */
+/* ─── P0-2: WhySection — dark section, 3 razones ──────────── */
 function WhySection() {
   const reasons = [
     {
       icon: ShieldCheck,
+      stat: '100%',
+      statLabel: 'gratis',
       title: 'Gratis para siempre',
       body: 'No hay plan premium, no hay funciones bloqueadas. Todo lo que ves es todo lo que hay — sin costo, sin sorpresas.',
     },
     {
       icon: Target,
+      stat: '0',
+      statLabel: 'distracciones',
       title: 'Cero distracciones',
       body: 'Sin feed social, sin notificaciones innecesarias. Entras al gym, registras tu sesión, sales. Así de simple.',
     },
     {
       icon: Download,
+      stat: '∞',
+      statLabel: 'control',
       title: 'Tus datos son tuyos',
       body: 'Exporta todo tu historial en CSV en cualquier momento. Sin bloqueos ni suscripción requerida.',
     },
   ]
+  const reduce = useReducedMotion()
   return (
-    <section style={{ backgroundColor: '#f8f9fb', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)', borderTop: '1px solid #eceef2' }}>
+    <section style={{ backgroundColor: '#0d1117', padding: 'clamp(80px,10vw,120px) clamp(24px,5vw,80px)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <SectionHeader
-          title="Por qué VoltTrack."
-          eyebrow="3 razones · ninguna es marketing"
-          description="La mayoría de apps de gym son demasiado complicadas, lentas o te muestran anuncios mientras intentas concentrarte. VoltTrack no hace ninguna de esas cosas."
-        />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', backgroundColor: '#eceef2', borderRadius: '14px', overflow: 'hidden' }} className="why-grid">
+        {/* Header */}
+        <div style={{ marginBottom: 'clamp(48px,7vw,72px)' }}>
+          <p style={{ fontSize: '11px', fontWeight: '600', color: 'rgba(91,163,204,0.8)', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 18px' }}>
+            Por qué VoltTrack
+          </p>
+          <h2 style={{ fontSize: 'clamp(30px,4.5vw,52px)', fontWeight: '700', color: '#f0f2f5', letterSpacing: '-0.03em', lineHeight: '1.05', margin: '0 0 20px' }}>
+            Sin planes. Sin anuncios.<br />Sin excusas.
+          </h2>
+          <p style={{ fontSize: 'clamp(14px,1.4vw,16px)', color: '#8a9199', margin: 0, maxWidth: '560px', lineHeight: '1.7', fontWeight: '300' }}>
+            La mayoría de apps de gym son complicadas o te muestran anuncios mientras intentas concentrarte. VoltTrack no hace ninguna de esas cosas.
+          </p>
+        </div>
+
+        {/* 3 columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', borderRadius: '18px', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.05)' }} className="why-grid">
           {reasons.map((r, i) => {
             const Icon = r.icon
             return (
-              <Reveal key={r.title} delay={i * 0.07}>
+              <Reveal key={r.title} delay={i * 0.08}>
                 <motion.div
-                  whileHover={{ backgroundColor: '#f3f7fb' }}
-                  transition={{ duration: 0.18 }}
-                  style={{ backgroundColor: '#ffffff', padding: 'clamp(32px,4vw,48px) clamp(28px,3.5vw,40px)', height: '100%', boxSizing: 'border-box' }}
+                  whileHover={{ backgroundColor: '#161c26' }}
+                  transition={{ duration: 0.2 }}
+                  style={{ backgroundColor: '#111318', padding: 'clamp(32px,4vw,52px) clamp(28px,3.5vw,44px)', height: '100%', boxSizing: 'border-box', position: 'relative' }}
                 >
+                  {/* Top accent line */}
                   <motion.div
                     initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.07 + 0.1, ease: E }}
-                    style={{ height: '2px', backgroundColor: '#2d7fad', marginBottom: '28px', transformOrigin: 'left', opacity: 0.25, borderRadius: '2px' }}
+                    transition={{ duration: 0.6, delay: i * 0.08 + 0.1, ease: E }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', backgroundColor: '#2d7fad', transformOrigin: 'left', opacity: 0.5 }}
                   />
-                  <motion.div whileHover={{ rotate: 6, scale: 1.08 }} transition={{ duration: 0.2 }}
-                    style={{ backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.15)', borderRadius: '10px', padding: '10px', display: 'inline-flex', marginBottom: '20px' }}
+
+                  {/* Big stat */}
+                  <div style={{ marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                      <span style={{ fontSize: 'clamp(42px,5vw,64px)', fontWeight: '700', color: '#2d7fad', letterSpacing: '-0.04em', lineHeight: 1 }}>{r.stat}</span>
+                      <span style={{ fontSize: '13px', color: 'rgba(45,127,173,0.6)', fontWeight: '500', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{r.statLabel}</span>
+                    </div>
+                  </div>
+
+                  {/* Icon */}
+                  <motion.div
+                    whileHover={{ rotate: 6, scale: 1.08 }}
+                    transition={{ duration: 0.2 }}
+                    style={{ backgroundColor: 'rgba(45,127,173,0.12)', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '10px', padding: '10px', display: 'inline-flex', marginBottom: '18px' }}
                   >
-                    <Icon style={{ width: '18px', height: '18px', color: '#2d7fad' }} />
+                    <Icon style={{ width: '18px', height: '18px', color: '#5ba3cc' }} />
                   </motion.div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111318', letterSpacing: '-0.02em', margin: '0 0 10px', lineHeight: '1.25' }}>{r.title}</h3>
-                  <p style={{ fontSize: '14px', color: '#7a8290', margin: 0, lineHeight: '1.7', fontWeight: '300' }}>{r.body}</p>
+
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#f0f2f5', letterSpacing: '-0.02em', margin: '0 0 10px', lineHeight: '1.25' }}>{r.title}</h3>
+                  <p style={{ fontSize: '14px', color: '#8a9199', margin: 0, lineHeight: '1.75', fontWeight: '300' }}>{r.body}</p>
                 </motion.div>
               </Reveal>
             )
