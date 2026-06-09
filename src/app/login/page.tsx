@@ -36,7 +36,7 @@ export default function LoginPage() {
           fill
           unoptimized
           priority
-          style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+          style={{ objectFit: 'cover', objectPosition: 'center 20%' }}
         />
         {/* Desktop: right-edge fade into form panel */}
         <div className="auth-img-fade-right" />
@@ -165,7 +165,18 @@ export default function LoginPage() {
         /* Mobile-only top overlay so form card text stays readable at the top */
         .auth-img-overlay-mobile {
           position: absolute; inset: 0;
-          background: rgba(0,0,0,0.45);
+          background: rgba(0,0,0,0.28);
+        }
+        /* Slide-in animation for the form card on mobile */
+        @keyframes cardSlideDown {
+          from { transform: translateY(-100vh); opacity: 0; }
+          to   { transform: translateY(0);      opacity: 1; }
+        }
+        .auth-form-card {
+          animation: cardSlideDown 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .auth-form-card { animation: none; }
         }
         .auth-img-branding {
           display: none;
@@ -228,8 +239,9 @@ export default function LoginPage() {
             padding: 52px 44px;
             background: #ffffff;
           }
-          /* Card reverts to plain (no frosted card) */
+          /* Card reverts to plain (no frosted card), no slide animation */
           .auth-form-card {
+            animation: none;
             background: transparent;
             backdrop-filter: none;
             -webkit-backdrop-filter: none;

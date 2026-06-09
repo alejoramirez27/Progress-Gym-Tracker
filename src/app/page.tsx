@@ -1196,16 +1196,27 @@ const css = `
     }
     /* Hide scroll indicator */
     .hero-scroll-indicator { display: none !important; }
-    /* Achievement cards */
+    /* Achievement cards — fila en la parte superior */
     .hero-cards-desktop { display: none; }
     .hero-cards-mobile-wrap {
-      display: block;
+      display: flex;
+      flex-direction: row;
+      gap: 7px;
       position: absolute;
-      inset: 0;
+      top: 60px;
+      left: 16px;
+      right: 16px;
       z-index: 4;
       pointer-events: none;
+      align-items: flex-start;
     }
-    .hero-cards-mobile-wrap > * { pointer-events: auto; }
+    .hero-cards-mobile-wrap > * {
+      pointer-events: auto;
+      position: static !important;
+      max-width: none !important;
+      flex: 1;
+      min-width: 0;
+    }
     /* Hide 3rd card on mobile */
     .hero-mobile-card-hide { display: none !important; }
     /* Other responsive rules */
