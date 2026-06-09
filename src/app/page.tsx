@@ -268,36 +268,48 @@ function Nav() {
 
 /* ─── P0-1: ProductShot component ────────────────────────── */
 function ProductShot({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
+  const reduce = useReducedMotion()
   return (
+    // Outer: scroll-triggered entry
     <motion.div
-      whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ duration: 0.4, ease: E }}
-      style={{
-        position: 'relative',
-        width: '260px',
-        height: '564px',
-        flexShrink: 0,
-        borderRadius: '32px',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.06)',
-        overflow: 'hidden',
-      }}
+      initial={reduce ? false : { opacity: 0, y: 40, scale: 0.93 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.8, ease: E }}
     >
-      {/* Notch */}
-      <div style={{
-        position: 'absolute', top: '12px', left: '50%', transform: 'translateX(-50%)',
-        width: '72px', height: '22px', backgroundColor: '#111318',
-        borderRadius: '11px', zIndex: 3,
-      }} />
-      {/* Next.js Image — served through /_next/image, bypasses static-file routing issues */}
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        unoptimized
-        priority={priority}
-        style={{ objectFit: 'cover', objectPosition: 'top center' }}
-      />
+      {/* Inner: continuous float + hover lift + tap */}
+      <motion.div
+        animate={reduce ? {} : { y: [0, -10, 0] }}
+        transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+        whileHover={{ y: -6, scale: 1.02 }}
+        whileTap={{ scale: 1.03, y: -5 }}
+        style={{
+          position: 'relative',
+          width: '260px',
+          height: '564px',
+          flexShrink: 0,
+          borderRadius: '32px',
+          backgroundColor: '#ffffff',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.06)',
+          overflow: 'hidden',
+          cursor: 'default',
+        }}
+      >
+        {/* Notch */}
+        <div style={{
+          position: 'absolute', top: '12px', left: '50%', transform: 'translateX(-50%)',
+          width: '72px', height: '22px', backgroundColor: '#111318',
+          borderRadius: '11px', zIndex: 3,
+        }} />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          unoptimized
+          priority={priority}
+          style={{ objectFit: 'cover', objectPosition: 'top center' }}
+        />
+      </motion.div>
     </motion.div>
   )
 }
