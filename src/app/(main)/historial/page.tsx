@@ -242,8 +242,8 @@ export default function HistorialPage() {
           <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <History style={{ width: '26px', height: '26px', color: 'var(--accent)' }} />
           </div>
-          <p style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', margin: '4px 0 2px' }}>Sin sesiones todavía</p>
-          <p className="empty-hint" style={{ maxWidth: '280px', textAlign: 'center' }}>Cada entrenamiento quedará guardado aquí. ¡Tu primer sesión te espera!</p>
+          <p style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text-primary)', margin: '4px 0 2px' }}>Cada rep cuenta. Empieza a escribir tu historia</p>
+          <p className="empty-hint" style={{ maxWidth: '280px', textAlign: 'center' }}>Cuando termines tu primer entrenamiento quedará guardado aquí para siempre.</p>
           <button onClick={() => router.push('/progreso')}
             style={{ marginTop: '4px', padding: '8px 20px', backgroundColor: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 'var(--r-md)', fontSize: '13px', fontFamily: 'inherit', fontWeight: '500', cursor: 'pointer', transition: 'opacity var(--t-sm) var(--ease-out)' }}
             onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}

@@ -2,6 +2,7 @@ import Sidebar from '@/components/Sidebar'
 import MobileNav from '@/components/MobileNav'
 import LoadingBar from '@/components/LoadingBar'
 import OnboardingModal from '@/components/OnboardingModal'
+import PageTransition from '@/components/PageTransition'
 
 // Server Component — CSS handles responsive, no SSR flash
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -12,7 +13,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <Sidebar />
       </div>
       <main className="app-main">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
       <div className="app-mobile-nav">
         <MobileNav />

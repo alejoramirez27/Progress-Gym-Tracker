@@ -164,6 +164,18 @@ export default function DashboardPage() {
 
   const nombreEjercicio = ejercicios.find(e => e.id_ejercicio === ejSeleccionado)?.nombre ?? ''
 
+  // ── Volumen semanal en kg ────────────────────────────────────────────────────
+  const lunesActual = (() => {
+    const d = new Date(hoyStr + 'T12:00:00'); const day = d.getDay()
+    d.setDate(d.getDate() - (day === 0 ? 6 : day - 1)); return d.toISOString().split('T')[0]
+  })()
+  const lunesAnterior = (() => {
+    const d = new Date(lunesActual + 'T12:00:00'); d.setDate(d.getDate() - 7); return d.toISOString().split('T')[0]
+  })()
+  const volEstaSemana   = volumen.filter(v => v.fecha >= lunesActual).reduce((a, v) => a + v.volumen, 0)
+  const volSemanaPasada = volumen.filter(v => v.fecha >= lunesAnterior && v.fecha < lunesActual).reduce((a, v) => a + v.volumen, 0)
+  const fmtKg = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}t` : `${n.toLocaleString('es-CO')} kg`
+
   // ── Heatmap ─────────────────────────────────────────────────────────────────
   const semanas: HeatDay[][] = []
   for (let i = 0; i < heatmap.length; i += 7) semanas.push(heatmap.slice(i, i + 7))
@@ -230,16 +242,17 @@ export default function DashboardPage() {
               icon={<Calendar style={{ width: '13px', height: '13px', color: 'var(--text-disabled)', opacity: 0.7 }} />}
             />
             <StatCard
-              label="Última sesión"
-              value={stats.ultimaSesion ? fmtFecha(stats.ultimaSesion) : '—'}
-              sub={stats.ultimaSesion ? diasDesde(stats.ultimaSesion) : 'sin sesiones aún'}
-              icon={<Calendar style={{ width: '13px', height: '13px', color: 'var(--text-disabled)', opacity: 0.7 }} />}
+              label="Volumen esta semana"
+              value={volEstaSemana > 0 ? fmtKg(volEstaSemana) : '—'}
+              sub={volSemanaPasada > 0 ? `${fmtKg(volSemanaPasada)} sem. pasada` : volEstaSemana > 0 ? 'primera semana registrada' : 'sin sesiones esta semana'}
+              subColor={volEstaSemana > volSemanaPasada && volSemanaPasada > 0 ? 'var(--success)' : undefined}
+              icon={<TrendingUp style={{ width: '13px', height: '13px', color: volEstaSemana > volSemanaPasada && volSemanaPasada > 0 ? 'var(--success)' : 'var(--text-disabled)', opacity: 0.7 }} />}
             />
             <StatCard
               label="Mejor racha"
               value={stats.rachaMejor}
               unit="días"
-              sub="récord personal"
+              sub={stats.ultimaSesion ? `Última: ${diasDesde(stats.ultimaSesion)}` : 'récord personal'}
               icon={<Trophy style={{ width: '13px', height: '13px', color: 'var(--text-disabled)', opacity: 0.7 }} />}
             />
           </div>
@@ -298,7 +311,8 @@ export default function DashboardPage() {
             : volumen.length === 0 ? (
               <div className="empty-state" style={{ height: '220px', padding: 0 }}>
                 <BarChart2 style={{ width: '22px', height: '22px' }} />
-                <p>Sin datos de volumen todavía</p>
+                <p>Tu primer entrenamiento aparecerá aquí</p>
+                <p className="empty-hint">Cada sesión suma kg a tu semana — empieza hoy</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
@@ -321,8 +335,8 @@ export default function DashboardPage() {
             ) : progreso.length === 0 ? (
               <div className="empty-state" style={{ height: '220px', padding: 0 }}>
                 <TrendingUp style={{ width: '22px', height: '22px' }} />
-                <p>Sin datos para {nombreEjercicio}</p>
-                <p className="empty-hint">Registra sesiones con peso para ver tu progreso</p>
+                <p>Tu curva de progreso está por nacer</p>
+                <p className="empty-hint">Registra {nombreEjercicio} con peso y la gráfica se construye sola</p>
               </div>
             ) : progreso.length === 1 ? (
               /* Una sola sesión: punto sobre ejes reales, sin número flotante */
@@ -546,9 +560,12 @@ export default function DashboardPage() {
                       {semana.map((dia, di) => {
                         const isToday  = dia.fecha === hoy()
                         const isFuture = dia.fecha > hoy()
-                        const bg = isFuture ? 'transparent'
-                          : dia.count === 0 ? 'var(--surface-raised)'
-                          : 'var(--accent)'
+                        // Saturación por volumen: level 0→4 basado en kg de esa fecha
+                        const volDia = volumen.find(v => v.fecha === dia.fecha)?.volumen ?? 0
+                        const maxVol = Math.max(...volumen.map(v => v.volumen), 1)
+                        const lvl = dia.count === 0 ? 0 : Math.min(4, Math.ceil((volDia / maxVol) * 4) || 1)
+                        const HEAT = ['var(--surface-raised)', 'oklch(0.72 0.08 230)', 'oklch(0.62 0.13 230)', 'oklch(0.52 0.17 230)', 'oklch(0.43 0.21 230)']
+                        const bg = isFuture ? 'transparent' : HEAT[lvl]
                         const d = new Date(dia.fecha + 'T12:00:00')
                         const titulo = `${d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}${dia.count > 0 ? ` — ${dia.count} sesión${dia.count > 1 ? 'es' : ''}` : ''}`
                         return (

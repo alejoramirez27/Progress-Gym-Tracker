@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import confetti from 'canvas-confetti'
 import { ChevronDown, ChevronLeft, ChevronRight, CheckCircle2, Dumbbell, BicepsFlexed, AlertTriangle, Plus, Minus, X, CalendarDays } from 'lucide-react'
 
 interface Rutina    { id_rutina: string; nombre: string }
@@ -409,6 +410,13 @@ export default function ProgresoPage() {
     if (!res.ok) { toast.error(data.error ?? 'Error al guardar'); setGuardando(false); return }
     setResumen({ totalSeries, volumen: Math.round(volumen), nuevosPRs })
     setGuardado(true); setGuardando(false)
+    // 🎉 Canvas confetti — solo cuando hay PRs
+    if (nuevosPRs.length > 0) {
+      const fire = (opts: confetti.Options) => confetti({ zIndex: 9999, disableForReducedMotion: true, ...opts })
+      fire({ particleCount: 60, spread: 70, origin: { y: 0.55 }, colors: ['#2d7fad','#5ab4e8','#ffffff','#c07040','#f5c542'] })
+      setTimeout(() => fire({ particleCount: 40, spread: 90, origin: { x: 0.1, y: 0.6 }, angle: 60,  colors: ['#2d7fad','#ffffff','#c07040'] }), 250)
+      setTimeout(() => fire({ particleCount: 40, spread: 90, origin: { x: 0.9, y: 0.6 }, angle: 120, colors: ['#2d7fad','#ffffff','#5ab4e8'] }), 400)
+    }
   }
 
   if (guardado) {
@@ -686,7 +694,11 @@ export default function ProgresoPage() {
                       backgroundColor: lastConfirmed === `${ejIdx}-${sIdx}` ? 'color-mix(in srgb, var(--success) 12%, transparent)' : 'transparent',
                       padding: lastConfirmed === `${ejIdx}-${sIdx}` ? '2px 4px' : '0',
                     }}>
-                      <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>S{sIdx + 1}</span>
+                      {lastConfirmed === `${ejIdx}-${sIdx}` ? (
+                        <CheckCircle2 style={{ width: '15px', height: '15px', color: 'var(--success)', margin: '0 auto', display: 'block', animation: 'serieCheck 0.35s cubic-bezier(0.34,1.56,0.64,1) both' }} />
+                      ) : (
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums', display: 'block' }}>S{sIdx + 1}</span>
+                      )}
                       {/* Numpad-driven inputs — readOnly to suppress native keyboard */}
                       <input readOnly
                         placeholder={antSerie && antSerie.peso_kg > 0 ? String(kgADisplay(antSerie.peso_kg, u)) : (u === 'lb' ? '176' : '80')}
