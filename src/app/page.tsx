@@ -9,6 +9,7 @@ import {
   useMotionValue,
   useSpring,
   useInView,
+  useAnimation,
 } from 'motion/react'
 import Link from 'next/link'
 import {
@@ -269,6 +270,30 @@ function Nav() {
 /* ─── P0-1: ProductShot component ────────────────────────── */
 function ProductShot({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
   const reduce = useReducedMotion()
+  const controls = useAnimation()
+  const tapping = useRef(false)
+
+  // Start idle float once entry animation completes
+  const startFloat = () => {
+    if (reduce) return
+    controls.start({
+      y: [0, -10, 0],
+      scale: 1,
+      transition: { duration: 3.8, repeat: Infinity, ease: 'easeInOut' },
+    })
+  }
+
+  // Tap: lift → hold briefly → return, then resume float
+  const handleTap = async () => {
+    if (reduce || tapping.current) return
+    tapping.current = true
+    controls.stop()
+    await controls.start({ y: -18, scale: 1.04, transition: { duration: 0.26, ease: E } })
+    await controls.start({ y: 0,   scale: 1,    transition: { duration: 0.52, ease: E } })
+    tapping.current = false
+    startFloat()
+  }
+
   return (
     // Outer: scroll-triggered entry
     <motion.div
@@ -276,13 +301,13 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.8, ease: E }}
+      onAnimationComplete={startFloat}
     >
-      {/* Inner: continuous float + hover lift + tap */}
+      {/* Inner: float + desktop hover + mobile tap */}
       <motion.div
-        animate={reduce ? {} : { y: [0, -10, 0] }}
-        transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-        whileHover={{ y: -6, scale: 1.02 }}
-        whileTap={{ scale: 1.03, y: -5 }}
+        animate={controls}
+        whileHover={reduce ? {} : { y: -6, scale: 1.02, transition: { duration: 0.4, ease: E } }}
+        onTap={handleTap}
         style={{
           position: 'relative',
           width: '260px',
@@ -293,6 +318,7 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
           boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.06)',
           overflow: 'hidden',
           cursor: 'default',
+          touchAction: 'manipulation',
         }}
       >
         {/* Notch */}
