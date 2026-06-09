@@ -173,7 +173,7 @@ export default function LoginPage() {
           to   { transform: translateY(0);      opacity: 1; }
         }
         .auth-form-card {
-          animation: cardSlideDown 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: cardSlideDown 8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @media (prefers-reduced-motion: reduce) {
           .auth-form-card { animation: none; }

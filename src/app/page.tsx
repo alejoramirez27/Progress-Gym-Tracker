@@ -444,6 +444,12 @@ function Hero() {
           ))}
         </motion.div>
 
+        {/* Mobile achievement cards — shown inline after trust badges on mobile */}
+        <div className="hero-cards-mobile-wrap">
+          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{}} />
+          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} floatOffset={1} style={{}} />
+        </div>
+
         {/* Scroll indicator */}
         <motion.div className="hero-scroll-indicator" style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
@@ -490,12 +496,6 @@ function Hero() {
           <AchievementCard icon={<Trophy style={{ width: '14px', height: '14px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{ position: 'absolute', top: '22%', right: '8%' }} />
           <AchievementCard icon={<Flame style={{ width: '14px', height: '14px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.35} floatOffset={1} style={{ position: 'absolute', top: '44%', right: '14%' }} />
           <AchievementCard icon={<TrendingUp style={{ width: '14px', height: '14px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.6} floatOffset={2} style={{ position: 'absolute', bottom: '24%', right: '7%' }} />
-        </div>
-        {/* Mobile: wrapper div controls visibility — avoids motion.div display:none issues */}
-        <div className="hero-cards-mobile-wrap">
-          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{ position: 'absolute', top: '18%', right: '4%', maxWidth: '58%' }} />
-          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} floatOffset={1} style={{ position: 'absolute', top: '38%', right: '6%', maxWidth: '58%' }} />
-          <AchievementCard small className="hero-mobile-card-hide" icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} floatOffset={2} style={{ position: 'absolute', bottom: '28%', right: '4%', maxWidth: '58%' }} />
         </div>
       </div>
     </section>
@@ -1131,7 +1131,7 @@ const css = `
   }
   /* Hero achievement cards */
   .hero-cards-desktop { display: contents; }
-  /* Mobile wrapper hidden by default — plain div respects display:none unlike motion.div */
+  /* Mobile wrapper hidden on desktop */
   .hero-cards-mobile-wrap { display: none; }
   /* Dark overlay: hidden on desktop, shown on mobile */
   .hero-dark-overlay { display: none; pointer-events: none; }
@@ -1196,29 +1196,19 @@ const css = `
     }
     /* Hide scroll indicator */
     .hero-scroll-indicator { display: none !important; }
-    /* Achievement cards — fila en la parte superior */
+    /* Achievement cards — fila inline bajo los trust badges */
     .hero-cards-desktop { display: none; }
     .hero-cards-mobile-wrap {
       display: flex;
       flex-direction: row;
-      gap: 7px;
-      position: absolute;
-      top: 60px;
-      left: 16px;
-      right: 16px;
-      z-index: 4;
-      pointer-events: none;
-      align-items: flex-start;
+      gap: 8px;
+      margin-top: 20px;
+      width: 100%;
     }
     .hero-cards-mobile-wrap > * {
-      pointer-events: auto;
-      position: static !important;
-      max-width: none !important;
       flex: 1;
       min-width: 0;
     }
-    /* Hide 3rd card on mobile */
-    .hero-mobile-card-hide { display: none !important; }
     /* Other responsive rules */
     .showcase-row, .showcase-row--rev {
       grid-template-columns: 1fr !important;
