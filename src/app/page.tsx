@@ -181,7 +181,7 @@ function SectionHeader({
 }
 
 /* ─── Magnetic CTA ───────────────────────────────────────── */
-function MagneticCTA({ href, children, primary = false }: { href: string; children: React.ReactNode; primary?: boolean }) {
+function MagneticCTA({ href, children, primary = false, className = '' }: { href: string; children: React.ReactNode; primary?: boolean; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const reduce = useReducedMotion()
   const mx = useMotionValue(0); const my = useMotionValue(0)
@@ -190,6 +190,7 @@ function MagneticCTA({ href, children, primary = false }: { href: string; childr
   return (
     <motion.div
       ref={ref}
+      className={className}
       style={reduce ? { display: 'inline-block' } : { x: sx, y: sy, display: 'inline-block' }}
       onMouseMove={(e) => {
         if (reduce || !ref.current) return
@@ -383,19 +384,20 @@ function Hero() {
           initial={reduce ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.05, ease: E }}
+          className="hero-eyebrow"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#e8f3fb', border: '1px solid rgba(45,127,173,0.2)', borderRadius: '99px', padding: '5px 12px', marginBottom: '20px', alignSelf: 'flex-start' }}
         >
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2d7fad' }} />
-          <span style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
+          <div className="hero-eyebrow-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#2d7fad' }} />
+          <span className="hero-eyebrow-text" style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gym Performance Tracker</span>
         </motion.div>
 
         <div style={{ overflow: 'hidden', paddingBottom: '6px' }}>
-          <motion.h1 className="land-h1" initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.1, ease: E }}>
+          <motion.h1 className="land-h1 land-h1-main" initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.1, ease: E }}>
             Entrena con
           </motion.h1>
         </div>
         <div style={{ overflow: 'hidden', marginBottom: '20px', paddingBottom: '6px' }}>
-          <motion.h1 className="land-h1" style={{ color: '#2d7fad' }} initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.22, ease: E }}>
+          <motion.h1 className="land-h1 land-h1-accent" style={{ color: '#2d7fad' }} initial={reduce ? false : { y: '105%' }} animate={{ y: '0%' }} transition={{ duration: 1.0, delay: 0.22, ease: E }}>
             intención.
           </motion.h1>
         </div>
@@ -418,7 +420,7 @@ function Hero() {
           <MagneticCTA href="/registro" primary>
             Crear cuenta gratis <ArrowRight style={{ width: '16px', height: '16px' }} />
           </MagneticCTA>
-          <MagneticCTA href="/login">
+          <MagneticCTA href="/login" className="hero-cta-secondary">
             Iniciar sesión
           </MagneticCTA>
         </motion.div>
@@ -427,6 +429,7 @@ function Hero() {
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.84, ease: E }}
+          className="hero-trust-row"
           style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}
         >
           {[
@@ -442,7 +445,7 @@ function Hero() {
         </motion.div>
 
         {/* Scroll indicator */}
-        <motion.div style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <motion.div className="hero-scroll-indicator" style={{ opacity: scrollOpacity, marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative', width: '34px', height: '34px', flexShrink: 0 }}>
             <motion.div
               animate={reduce ? {} : { scale: [1, 1.7, 1], opacity: [0.5, 0, 0.5] }}
@@ -465,7 +468,8 @@ function Hero() {
 
       {/* Right: gym image + floating cards — P1-4 priority image */}
       <div className="land-hero-right" style={{ position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 14%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.35) 0%, transparent 22%)' }} />
+        <div className="hero-desktop-overlay" style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 14%, transparent 28%), linear-gradient(to top, rgba(255,255,255,0.35) 0%, transparent 22%)' }} />
+        <div className="hero-dark-overlay" aria-hidden="true" />
         <motion.div
           style={{ position: 'absolute', inset: '0 0 -28% 0', y: reduce ? 0 : imgY }}
           initial={reduce ? false : { scale: 1.08, opacity: 0 }}
@@ -489,9 +493,9 @@ function Hero() {
         </div>
         {/* Mobile: wrapper div controls visibility — avoids motion.div display:none issues */}
         <div className="hero-cards-mobile-wrap">
-          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{ position: 'absolute', top: '10%', right: '3%', maxWidth: '62%' }} />
-          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} floatOffset={1} style={{ position: 'absolute', top: '42%', right: '13%', maxWidth: '62%' }} />
-          <AchievementCard small icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} floatOffset={2} style={{ position: 'absolute', bottom: '8%', right: '3%', maxWidth: '62%' }} />
+          <AchievementCard small icon={<Trophy style={{ width: '11px', height: '11px', color: '#c07040' }} />} label="Nuevo PR" value="Press banca · 130 kg" delay={1.1} floatOffset={0} style={{ position: 'absolute', top: '18%', right: '4%', maxWidth: '58%' }} />
+          <AchievementCard small icon={<Flame style={{ width: '11px', height: '11px', color: '#e06030' }} />} label="Racha activa" value="18 días seguidos 🔥" delay={1.3} floatOffset={1} style={{ position: 'absolute', top: '38%', right: '6%', maxWidth: '58%' }} />
+          <AchievementCard small className="hero-mobile-card-hide" icon={<TrendingUp style={{ width: '11px', height: '11px', color: '#2e9a60' }} />} label="Progreso mensual" value="+12 kg en sentadilla" delay={1.5} floatOffset={2} style={{ position: 'absolute', bottom: '28%', right: '4%', maxWidth: '58%' }} />
         </div>
       </div>
     </section>
@@ -1129,8 +1133,70 @@ const css = `
   .hero-cards-desktop { display: contents; }
   /* Mobile wrapper hidden by default — plain div respects display:none unlike motion.div */
   .hero-cards-mobile-wrap { display: none; }
+  /* Dark overlay: hidden on desktop, shown on mobile */
+  .hero-dark-overlay { display: none; pointer-events: none; }
+  /* Desktop gradient overlay: shown by default */
+  .hero-desktop-overlay { display: block; }
 
   @media (max-width: 767px) {
+    /* ── Hero: full-bleed photo background ─────────────────── */
+    .land-hero {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
+      min-height: 100dvh;
+    }
+    /* Image panel becomes absolute full-bleed background */
+    .land-hero-right {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 0;
+      overflow: hidden !important;
+    }
+    /* Hide white desktop gradient, show dark mobile overlay */
+    .hero-desktop-overlay { display: none; }
+    .hero-dark-overlay {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.15) 100%),
+        rgba(0,0,0,0.08);
+    }
+    /* Text column: full height, content sits at bottom */
+    .land-hero-left {
+      position: relative;
+      z-index: 10;
+      padding: 88px 24px 48px;
+      min-height: 100dvh;
+      justify-content: flex-end;
+    }
+    /* Text colors on dark background */
+    .land-h1 { font-size: clamp(42px, 11vw, 58px); }
+    .land-h1-main { color: #ffffff !important; }
+    .land-h1-accent { color: #5ab4e8 !important; }
+    .land-sub { color: rgba(255,255,255,0.70) !important; }
+    /* Eyebrow pill */
+    .hero-eyebrow {
+      background-color: rgba(255,255,255,0.12) !important;
+      border-color: rgba(255,255,255,0.18) !important;
+    }
+    .hero-eyebrow-dot { background-color: rgba(255,255,255,0.65) !important; }
+    .hero-eyebrow-text { color: rgba(255,255,255,0.80) !important; }
+    /* Trust badges */
+    .hero-trust-row span { color: rgba(255,255,255,0.50) !important; }
+    .hero-trust-row svg { color: rgba(255,255,255,0.45) !important; }
+    /* Secondary CTA on dark bg */
+    .hero-cta-secondary a {
+      color: rgba(255,255,255,0.88) !important;
+      border-color: rgba(255,255,255,0.28) !important;
+      background-color: rgba(255,255,255,0.08) !important;
+    }
+    /* Hide scroll indicator */
+    .hero-scroll-indicator { display: none !important; }
+    /* Achievement cards */
     .hero-cards-desktop { display: none; }
     .hero-cards-mobile-wrap {
       display: block;
@@ -1140,9 +1206,9 @@ const css = `
       pointer-events: none;
     }
     .hero-cards-mobile-wrap > * { pointer-events: auto; }
-    .land-hero { grid-template-columns: 1fr; grid-template-rows: auto 56vw; }
-    .land-hero-left { padding: 100px 20px 40px; }
-    .land-h1 { font-size: clamp(44px, 12vw, 60px); }
+    /* Hide 3rd card on mobile */
+    .hero-mobile-card-hide { display: none !important; }
+    /* Other responsive rules */
     .showcase-row, .showcase-row--rev {
       grid-template-columns: 1fr !important;
     }
