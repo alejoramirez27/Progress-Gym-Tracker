@@ -1,8 +1,9 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil, RotateCcw, TrendingUp, TrendingDown, Minus, ListFilter } from 'lucide-react'
+import { ChevronDown, ChevronRight, History, Trash2, Search, X, Pencil, RotateCcw, TrendingUp, TrendingDown, Minus, ListFilter, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import ShareSessionCard from '@/components/ShareSessionCard'
 
 interface Sesion { id_sesion: string; id_rutina: string; fecha: string; nombre_rutina: string; grupos_rutina: string | null; num_ejercicios: number; num_series: number }
 interface SerieDet { id_serie: string; numero_serie: number; peso_kg: number | null; repeticiones: number; rir: number | null; notas: string | null }
@@ -52,6 +53,7 @@ export default function HistorialPage() {
   const [mesesCollapsed, setMesesCollapsed]     = useState<Set<string>>(new Set())
   const [semanasCollapsed, setSemanasCollapsed] = useState<Set<string>>(new Set())
   const filtroRef = useRef<HTMLDivElement>(null)
+  const [shareData, setShareData] = useState<{ fecha: string; rutina: string; ejercicios: EjDet[] } | null>(null)
 
   const toggleMes = (mes: string) => setMesesCollapsed(prev => {
     const next = new Set(prev); next.has(mes) ? next.delete(mes) : next.add(mes); return next
@@ -340,6 +342,22 @@ export default function HistorialPage() {
                                   onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}>
                                   <Pencil style={{ width: '13px', height: '13px' }} />
                                 </button>
+                                <button
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    const det = detalles[sesion.id_sesion]
+                                    if (det?.current?.length) {
+                                      setShareData({ fecha: sesion.fecha, rutina: sesion.nombre_rutina, ejercicios: det.current })
+                                    } else {
+                                      toast.error('Abre la sesión primero para cargar los detalles')
+                                    }
+                                  }}
+                                  aria-label="Compartir sesión"
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out)' }}
+                                  onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+                                  onMouseLeave={e => e.currentTarget.style.color = 'var(--text-disabled)'}>
+                                  <Share2 style={{ width: '13px', height: '13px' }} />
+                                </button>
                                 <button onClick={e => eliminarSesion(sesion.id_sesion, e)} aria-label="Eliminar sesión"
                                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-disabled)', padding: '4px', borderRadius: 'var(--r-xs)', transition: 'color var(--t-sm) var(--ease-out), background-color var(--t-sm) var(--ease-out)' }}
                                   onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.backgroundColor = 'var(--error-dim)' }}
@@ -399,6 +417,15 @@ export default function HistorialPage() {
           </div>
         )
       })}
+
+      {shareData && (
+        <ShareSessionCard
+          fecha={shareData.fecha}
+          rutina={shareData.rutina}
+          ejercicios={shareData.ejercicios}
+          onClose={() => setShareData(null)}
+        />
+      )}
     </div>
   )
 }
