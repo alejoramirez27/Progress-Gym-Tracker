@@ -214,9 +214,12 @@ export default function DashboardPage() {
   return (
     <div className="page-enter">
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Dashboard</h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Evolución y métricas de tu entrenamiento</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '24px' }}>
+        <div>
+          <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', margin: '0 0 4px' }}>Dashboard</h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Evolución y métricas de tu entrenamiento</p>
+        </div>
+        <PushNotifications />
       </div>
 
       {/* ══ KPIs ══════════════════════════════════════════════════════════════ */}
@@ -258,13 +261,10 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Config line + notificaciones */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', margin: '0 0 20px' }}>
-            <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0, paddingLeft: '2px' }}>
-              {stats.totalRutinas} rutinas · {stats.totalEjercicios} ejercicios · {stats.totalSeries.toLocaleString('es-CO')} series totales
-            </p>
-            <PushNotifications />
-          </div>
+          {/* Config line */}
+          <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: '0 0 20px', paddingLeft: '2px' }}>
+            {stats.totalRutinas} rutinas · {stats.totalEjercicios} ejercicios · {stats.totalSeries.toLocaleString('es-CO')} series totales
+          </p>
         </>
       )}
 
