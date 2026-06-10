@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TrendingUp, Calendar, ChevronDown, Flame, BarChart2, StickyNote, Scale, Plus, Trophy } from 'lucide-react'
+import PushNotifications from '@/components/PushNotifications'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface Stats { totalRutinas: number; totalEjercicios: number; totalSeries: number; ultimaSesion: string | null; rachaActual: number; rachaMejor: number; sesionesEstaSemana: number; sesionesSemanaPasada: number; diasDescanso?: number[]; diasDescansoFuente?: 'manual' | 'auto' | 'none' }
@@ -257,10 +258,13 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Config line — datos de configuración, no de progreso */}
-          <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: '0 0 20px', paddingLeft: '2px' }}>
-            {stats.totalRutinas} rutinas · {stats.totalEjercicios} ejercicios · {stats.totalSeries.toLocaleString('es-CO')} series totales
-          </p>
+          {/* Config line + notificaciones */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', margin: '0 0 20px' }}>
+            <p style={{ fontSize: '11px', color: 'var(--text-disabled)', margin: 0, paddingLeft: '2px' }}>
+              {stats.totalRutinas} rutinas · {stats.totalEjercicios} ejercicios · {stats.totalSeries.toLocaleString('es-CO')} series totales
+            </p>
+            <PushNotifications />
+          </div>
         </>
       )}
 

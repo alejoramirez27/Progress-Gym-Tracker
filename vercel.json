@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/push/send-racha",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
