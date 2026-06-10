@@ -1,6 +1,6 @@
 'use client'
 import { useRef, useState } from 'react'
-import { Share2 } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { toast } from 'sonner'
 
@@ -35,15 +35,11 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
     setBusy(true)
     try {
       const dataUrl = await toPng(exportRef.current, { pixelRatio: 2, cacheBust: true })
-      const blob    = await (await fetch(dataUrl)).blob()
-      const file    = new File([blob], 'volttrack-sesion.png', { type: 'image/png' })
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Mi sesión en VoltTrack' })
-      } else {
-        const a = document.createElement('a')
-        a.href = dataUrl; a.download = `volttrack-${fecha}.png`; a.click()
-        toast.success('Imagen guardada')
-      }
+      const a = document.createElement('a')
+      a.href = dataUrl
+      a.download = `volttrack-${fecha}.png`
+      a.click()
+      toast.success('Imagen descargada')
     } catch {
       toast.error('No se pudo generar la imagen')
     } finally {
@@ -100,8 +96,8 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
             opacity: busy ? 0.7 : 1, transition: 'opacity 0.15s', flexShrink: 0,
           }}
         >
-          <Share2 style={{ width: '13px', height: '13px' }} />
-          {busy ? 'Generando…' : 'Compartir'}
+          <Download style={{ width: '13px', height: '13px' }} />
+          {busy ? 'Generando…' : 'Descargar'}
         </button>
       </div>
 
@@ -118,7 +114,6 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
         {/* Chips de stats */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'color-mix(in srgb, var(--accent) 10%, var(--surface-raised))', borderRadius: '20px', padding: '5px 12px' }}>
-            <span style={{ fontSize: '12px' }}>💪</span>
             <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{fmtKg(volumen)}</span>
             <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>volumen</span>
           </div>
@@ -164,7 +159,7 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
       <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <div ref={exportRef} style={{
           width: '390px',
-          backgroundColor: '#f8fafc',
+          backgroundColor: '#e8edf2',
           padding: '28px 24px 24px',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
           color: '#0f172a',
@@ -186,7 +181,7 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
               { icon: null, val: `${totalSeries}`, lbl: 'series' },
               { icon: null, val: `${ejercicios.length}`, lbl: 'ejercicios' },
             ].map(({ icon, val, lbl }) => (
-              <div key={lbl} style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: lbl === 'volumen' ? '#dbeafe' : '#f1f5f9', borderRadius: '20px', padding: '5px 12px' }}>
+              <div key={lbl} style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: lbl === 'volumen' ? '#bfdbfe' : '#dde3ea', borderRadius: '20px', padding: '5px 12px' }}>
                 {icon && <span style={{ fontSize: '12px' }}>{icon}</span>}
                 <span style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>{val}</span>
                 <span style={{ fontSize: '11px', color: '#64748b' }}>{lbl}</span>
@@ -201,7 +196,7 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
                 const pesoMax   = Math.max(...ej.series.filter(s => s.peso_kg != null).map(s => Number(s.peso_kg)), 0)
                 const totalReps = ej.series.reduce((t, s) => t + s.repeticiones, 0)
                 return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', borderRadius: '8px', backgroundColor: '#f1f5f9' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', borderRadius: '8px', backgroundColor: '#dde3ea' }}>
                     <div>
                       <p style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a', margin: '0 0 1px' }}>{ej.nombre}</p>
                       <p style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>{ej.series.length} series · {totalReps} reps</p>
