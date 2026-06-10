@@ -1,8 +1,9 @@
 'use client'
 import { useRef, useState } from 'react'
-import { Share2, Download, X } from 'lucide-react'
+import { Share2, X } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { toast } from 'sonner'
+import { motion } from 'motion/react'
 
 interface Serie  { numero_serie: number; peso_kg: number | null; repeticiones: number; rir: number | null }
 interface EjDet  { nombre: string; series: Serie[] }
@@ -27,10 +28,10 @@ function fmtKg(n: number) {
 }
 
 export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }: Props) {
-  const cardRef  = useRef<HTMLDivElement>(null)
+  const cardRef     = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
 
-  const volumen    = calcVolumen(ejercicios)
+  const volumen     = calcVolumen(ejercicios)
   const totalSeries = ejercicios.reduce((t, ej) => t + ej.series.length, 0)
 
   async function handleShare() {
@@ -44,7 +45,6 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: 'Mi sesión en VoltTrack' })
       } else {
-        // Fallback: download
         const a = document.createElement('a')
         a.href  = dataUrl
         a.download = `volttrack-${fecha}.png`
@@ -59,25 +59,36 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 9000,
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '16px',
-    }}
-    onClick={onClose}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.18 }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9000,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'flex-start',
+        overflowY: 'auto',
+        padding: '0',
+      }}
+      onClick={onClose}
     >
-      <div style={{ width: '100%', maxWidth: '380px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+      <motion.div
+        initial={{ y: '-100%', opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '-100%', opacity: 0 }}
+        transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+        style={{ width: '100%', maxWidth: '420px', display: 'flex', flexDirection: 'column', gap: '0' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Card a exportar */}
         <div ref={cardRef} style={{
-          backgroundColor: '#0d1117',
-          borderRadius: '20px',
+          backgroundColor: '#ffffff',
+          borderRadius: '0 0 20px 20px',
           padding: '28px 24px 24px',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          color: '#f0f6fc',
-          overflow: 'hidden',
+          color: '#0f172a',
         }}>
           {/* Header branding */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -86,33 +97,33 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
                 width: '28px', height: '28px', borderRadius: '8px',
                 background: 'linear-gradient(135deg, #2d7fad, #5ab4e8)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '14px', fontWeight: '800', color: '#fff',
+                fontSize: '14px',
               }}>⚡</div>
-              <span style={{ fontSize: '15px', fontWeight: '700', color: '#f0f6fc', letterSpacing: '-0.02em' }}>VoltTrack</span>
+              <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', letterSpacing: '-0.02em' }}>VoltTrack</span>
             </div>
-            <span style={{ fontSize: '11px', color: '#8b949e', fontWeight: '500' }}>volttrack.app</span>
+            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>volttrack.app</span>
           </div>
 
           {/* Fecha + rutina */}
           <p style={{ fontSize: '11px', fontWeight: '600', color: '#2d7fad', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px' }}>
             {fmtFecha(fecha)}
           </p>
-          <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#f0f6fc', margin: '0 0 20px', letterSpacing: '-0.03em', lineHeight: 1.2 }}>
+          <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#0f172a', margin: '0 0 20px', letterSpacing: '-0.03em', lineHeight: 1.2 }}>
             {rutina}
           </h2>
 
           {/* Stats row */}
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
             {[
               { label: 'Volumen', value: fmtKg(volumen) },
               { label: 'Series', value: String(totalSeries) },
               { label: 'Ejercicios', value: String(ejercicios.length) },
             ].map(({ label, value }) => (
               <div key={label} style={{
-                flex: 1, backgroundColor: '#161b22', borderRadius: '10px', padding: '10px 12px',
+                flex: 1, backgroundColor: '#f1f5f9', borderRadius: '10px', padding: '10px 12px',
               }}>
-                <p style={{ fontSize: '17px', fontWeight: '700', color: '#f0f6fc', margin: '0 0 2px', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
-                <p style={{ fontSize: '10px', color: '#8b949e', margin: 0, fontWeight: '500' }}>{label}</p>
+                <p style={{ fontSize: '17px', fontWeight: '700', color: '#0f172a', margin: '0 0 2px', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+                <p style={{ fontSize: '10px', color: '#64748b', margin: 0, fontWeight: '500' }}>{label}</p>
               </div>
             ))}
           </div>
@@ -120,41 +131,42 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
           {/* Ejercicios */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {ejercicios.slice(0, 6).map((ej, i) => {
-              const pesoMax = Math.max(...ej.series.filter(s => s.peso_kg != null).map(s => Number(s.peso_kg)), 0)
+              const pesoMax   = Math.max(...ej.series.filter(s => s.peso_kg != null).map(s => Number(s.peso_kg)), 0)
               const totalReps = ej.series.reduce((t, s) => t + s.repeticiones, 0)
+              const last      = i === Math.min(ejercicios.length, 6) - 1
               return (
                 <div key={i} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  paddingBottom: i < ejercicios.slice(0, 6).length - 1 ? '10px' : 0,
-                  borderBottom: i < ejercicios.slice(0, 6).length - 1 ? '1px solid #21262d' : 'none',
+                  paddingBottom: last ? 0 : '10px',
+                  borderBottom: last ? 'none' : '1px solid #e2e8f0',
                 }}>
                   <div>
-                    <p style={{ fontSize: '13px', fontWeight: '600', color: '#f0f6fc', margin: '0 0 2px' }}>{ej.nombre}</p>
-                    <p style={{ fontSize: '11px', color: '#8b949e', margin: 0 }}>{ej.series.length} series · {totalReps} reps</p>
+                    <p style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a', margin: '0 0 2px' }}>{ej.nombre}</p>
+                    <p style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>{ej.series.length} series · {totalReps} reps</p>
                   </div>
                   {pesoMax > 0 && (
-                    <span style={{ fontSize: '14px', fontWeight: '700', color: '#5ab4e8', fontVariantNumeric: 'tabular-nums' }}>
-                      {pesoMax} <span style={{ fontSize: '10px', fontWeight: '400', color: '#8b949e' }}>kg</span>
+                    <span style={{ fontSize: '14px', fontWeight: '700', color: '#2d7fad', fontVariantNumeric: 'tabular-nums' }}>
+                      {pesoMax} <span style={{ fontSize: '10px', fontWeight: '400', color: '#94a3b8' }}>kg</span>
                     </span>
                   )}
                 </div>
               )
             })}
             {ejercicios.length > 6 && (
-              <p style={{ fontSize: '11px', color: '#8b949e', margin: 0, textAlign: 'center' }}>
+              <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, textAlign: 'center' }}>
                 + {ejercicios.length - 6} ejercicios más
               </p>
             )}
           </div>
 
           {/* Footer */}
-          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #21262d', textAlign: 'center' }}>
-            <p style={{ fontSize: '11px', color: '#8b949e', margin: 0 }}>Registrado con VoltTrack · 100% gratis</p>
+          <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+            <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>Registrado con VoltTrack · 100% gratis</p>
           </div>
         </div>
 
         {/* Botones acción */}
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', padding: '14px 16px', backgroundColor: '#ffffff' }}>
           <button
             onClick={handleShare}
             disabled={busy}
@@ -173,15 +185,14 @@ export default function ShareSessionCard({ fecha, rutina, ejercicios, onClose }:
             onClick={onClose}
             style={{
               padding: '13px 16px', borderRadius: '12px',
-              backgroundColor: 'var(--surface-raised)', color: 'var(--text-secondary)',
-              border: '1px solid var(--border-subtle)', cursor: 'pointer',
-              fontFamily: 'inherit',
+              backgroundColor: '#f1f5f9', color: '#64748b',
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
             <X style={{ width: '15px', height: '15px' }} />
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
