@@ -24,6 +24,7 @@ export default function RegistroPage() {
     const res  = await fetch('/api/auth/registro', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nombre, email, password }) })
     const data = await res.json()
     if (!res.ok) { setError(data.error ?? 'Error al crear la cuenta'); setLoading(false); return }
+    localStorage.removeItem('volttrack_onboarding_done')
     toast.success(`Bienvenido, ${data.nombre}`)
     window.location.href = '/rutinas'
   }
