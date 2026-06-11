@@ -716,7 +716,7 @@ function ProductShowcase() {
             </div>
 
             {/* ProductShot — sin opacity:0 inicial para evitar bug whileInView en desktop */}
-            <div style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(20px,3vw,40px) 0' }}>
+            <div className="showcase-shot-wrap">
               <ProductShot src={s.shot} alt={s.shotAlt} />
             </div>
           </div>
@@ -1138,6 +1138,11 @@ const css = `
   /* Layout handled inline; no CSS grid needed */
 
   /* Product showcase row */
+  .showcase-shot-wrap {
+    display: flex;
+    justify-content: center;
+    padding: clamp(20px,3vw,40px) 0;
+  }
   .showcase-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1253,6 +1258,12 @@ const css = `
     }
     .showcase-row--rev .showcase-text { order: 1 !important; }
     .showcase-row--rev > :last-child   { order: 2 !important; }
+    .showcase-shot-wrap {
+      transform: scale(0.82);
+      transform-origin: center top;
+      margin-bottom: -80px;
+      padding: 0;
+    }
     .land-features-grid { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr !important; }
     .footer-bottom { flex-direction: column; text-align: center; }
