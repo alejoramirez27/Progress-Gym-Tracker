@@ -302,6 +302,7 @@ function ProductShot({ src, alt, priority = false }: { src: string; alt: string;
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.8, ease: E }}
       onAnimationComplete={startFloat}
+      style={{ display: 'flex', justifyContent: 'center' }}
     >
       {/* Inner: float + desktop hover + mobile tap */}
       <motion.div
