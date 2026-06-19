@@ -107,8 +107,10 @@ export default function RutinaDetallePage() {
 
   const eliminarEjercicio = async (ej: Ejercicio) => {
     if (!confirm(`¿Eliminar "${ej.nombre}"?`)) return
-    await fetch(`/api/ejercicios/${ej.id_ejercicio}`, { method: 'DELETE' })
-    toast.success(`"${ej.nombre}" eliminado`); cargarEjercicios()
+    setEjercicios(prev => prev.filter(e => e.id_ejercicio !== ej.id_ejercicio))
+    const res = await fetch(`/api/ejercicios/${ej.id_ejercicio}`, { method: 'DELETE' })
+    if (!res.ok) { toast.error('No se pudo eliminar'); cargarEjercicios() }
+    else toast.success(`"${ej.nombre}" eliminado`)
   }
 
   const onDragStart = (e: React.DragEvent, idx: number) => {
