@@ -13,6 +13,9 @@ export async function DELETE(
   const { id } = await params
   const supabase = createServiceClient()
 
+  // Eliminar primero las series que referencian este ejercicio
+  await supabase.from('serie').delete().eq('id_ejercicio', id)
+
   const { error } = await supabase.from('ejercicio').delete().eq('id_ejercicio', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ ok: true })
