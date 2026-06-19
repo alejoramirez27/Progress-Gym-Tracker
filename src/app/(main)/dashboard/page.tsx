@@ -93,7 +93,8 @@ export default function DashboardPage() {
     if (saved) setNota(saved)
   }, [todayKey])
 
-  const guardarNota = () => {
+  const guardarNota = async () => {
+    if (pesoHoy && parseFloat(pesoHoy) > 0) await guardarPesoRapido()
     localStorage.setItem(todayKey, nota)
     setNotaGuardada(true)
     setTimeout(() => setNotaGuardada(false), 2000)
