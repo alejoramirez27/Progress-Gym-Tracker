@@ -209,7 +209,6 @@ export default function ProgresoPage() {
   const [loadingEj, setLoadingEj]       = useState(false)
   const [guardando, setGuardando]       = useState(false)
   const [guardado, setGuardado]         = useState(false)
-  const [notasEj, setNotasEj]             = useState<Set<number>>(new Set())
   const [mostrarModal, setMostrarModal]   = useState(false)
   const [plantillaUsada, setPlantilla]    = useState(false)
   const [ultimosPesos, setUltimosPesos]   = useState<Record<string, { peso_kg: number; repeticiones: number }[]>>({})
@@ -218,38 +217,7 @@ export default function ProgresoPage() {
   // Unidad por ejercicio: { [id_ejercicio]: 'kg' | 'lb' }
   const [unidades, setUnidades] = useState<Record<string, Unidad>>({})
 
-  // ── Custom numpad ──────────────────────────────────────────────────────────
-  type NumpadField = 'peso_kg' | 'repeticiones' | 'rir'
-  const [numpadTarget, setNumpadTarget] = useState<{ ejIdx: number; sIdx: number; field: NumpadField; label: string } | null>(null)
-  const [numpadValue, setNumpadValue]   = useState('')
   const [lastConfirmed, setLastConfirmed] = useState<string | null>(null)
-
-  function openNumpad(ejIdx: number, sIdx: number, field: NumpadField, currentVal: string) {
-    setNumpadTarget({ ejIdx, sIdx, field, label: field === 'peso_kg' ? 'Peso' : field === 'repeticiones' ? 'Reps' : 'RIR' })
-    setNumpadValue(currentVal)
-  }
-
-  function numpadPress(key: string) {
-    setNumpadValue(prev => {
-      if (key === '⌫') return prev.slice(0, -1)
-      if (key === 'C') return ''
-      if (key === '.') {
-        if (prev.includes('.')) return prev
-        return prev === '' ? '0.' : prev + '.'
-      }
-      if (prev === '0' && key !== '.') return key
-      return prev + key
-    })
-  }
-
-  function numpadConfirm() {
-    if (!numpadTarget) return
-    const key = `${numpadTarget.ejIdx}-${numpadTarget.sIdx}`
-    updateSerie(numpadTarget.ejIdx, numpadTarget.sIdx, numpadTarget.field, numpadValue)
-    setNumpadTarget(null)
-    setLastConfirmed(key)
-    setTimeout(() => setLastConfirmed(null), 700)
-  }
 
   const getUnidad = (id: string): Unidad => unidades[id] ?? 'kg'
 
@@ -332,7 +300,6 @@ export default function ProgresoPage() {
       const lista = Array.isArray(ejData) ? ejData : []
       setEjConSeries(lista.map(ej => ({ ejercicio: ej, series: Array.from({ length: Math.max(ej.num_series ?? 1, 1) }, serieVacia) })))
       setUltimosPesos(pesosData ?? {})
-      setNotasEj(new Set())
       setLoadingEj(false)
     }).catch(() => setLoadingEj(false))
   }, [rutinaId, plantillaUsada])
@@ -360,14 +327,6 @@ export default function ProgresoPage() {
       const next = [...prev]
       if (next[ejIdx].series.length <= 1) return prev
       next[ejIdx] = { ...next[ejIdx], series: next[ejIdx].series.slice(0, -1) }
-      return next
-    })
-  }
-
-  const toggleNotasEj = (ejIdx: number) => {
-    setNotasEj(prev => {
-      const next = new Set(prev)
-      next.has(ejIdx) ? next.delete(ejIdx) : next.add(ejIdx)
       return next
     })
   }
@@ -663,12 +622,6 @@ export default function ProgresoPage() {
                     }}>{opt}</span>
                   ))}
                 </button>
-                <button
-                  onClick={() => toggleNotasEj(ejIdx)}
-                  style={{ fontSize: '11px', color: notasEj.has(ejIdx) ? 'var(--accent)' : 'var(--text-disabled)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 'var(--r-sm)', fontFamily: 'inherit', flexShrink: 0 }}
-                >
-                  notas
-                </button>
                 <span className="tag tag-accent" style={{ flexShrink: 0 }}>{item.series.length}s</span>
               </div>
 
@@ -686,7 +639,7 @@ export default function ProgresoPage() {
                   const pesosAnt = ultimosPesos[item.ejercicio.id_ejercicio] ?? []
                   const antSerie = pesosAnt[sIdx] ?? pesosAnt[pesosAnt.length - 1] ?? null
                   return (
-                  <div key={sIdx} style={{ marginBottom: notasEj.has(ejIdx) ? '8px' : '5px' }}>
+                  <div key={sIdx} style={{ marginBottom: '8px' }}>
                     <div style={{
                       display: 'grid', gridTemplateColumns: '28px 1fr 1fr 1fr', gap: '6px', alignItems: 'center',
                       borderRadius: 'var(--r-sm)',
@@ -699,34 +652,29 @@ export default function ProgresoPage() {
                       ) : (
                         <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center', fontVariantNumeric: 'tabular-nums', display: 'block' }}>S{sIdx + 1}</span>
                       )}
-                      {/* Numpad-driven inputs — readOnly to suppress native keyboard */}
-                      <input readOnly
+                      <input
                         placeholder={antSerie && antSerie.peso_kg > 0 ? String(kgADisplay(antSerie.peso_kg, u)) : (u === 'lb' ? '176' : '80')}
-                        value={numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'peso_kg' ? numpadValue : serie.peso_kg}
-                        onClick={() => openNumpad(ejIdx, sIdx, 'peso_kg', serie.peso_kg)}
-                        style={{ ...inp, caretColor: 'transparent', cursor: 'pointer',
-                          outline: numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'peso_kg' ? '2px solid var(--accent)' : inp.outline }} />
-                      <input readOnly
+                        value={serie.peso_kg}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'peso_kg', e.target.value)}
+                        style={inp} />
+                      <input
                         placeholder={antSerie && antSerie.repeticiones > 0 ? String(antSerie.repeticiones) : '10'}
-                        value={numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'repeticiones' ? numpadValue : serie.repeticiones}
-                        onClick={() => openNumpad(ejIdx, sIdx, 'repeticiones', serie.repeticiones)}
-                        style={{ ...inp, caretColor: 'transparent', cursor: 'pointer',
-                          outline: numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'repeticiones' ? '2px solid var(--accent)' : inp.outline }} />
-                      <input readOnly
-                        placeholder="2" value={numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'rir' ? numpadValue : serie.rir}
-                        onClick={() => openNumpad(ejIdx, sIdx, 'rir', serie.rir)}
-                        style={{ ...inp, caretColor: 'transparent', cursor: 'pointer',
-                          outline: numpadTarget?.ejIdx === ejIdx && numpadTarget?.sIdx === sIdx && numpadTarget?.field === 'rir' ? '2px solid var(--accent)' : inp.outline }} />
+                        value={serie.repeticiones}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'repeticiones', e.target.value)}
+                        style={inp} />
+                      <input
+                        placeholder="2"
+                        value={serie.rir}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'rir', e.target.value)}
+                        style={inp} />
                     </div>
-                    {notasEj.has(ejIdx) && (
-                      <div style={{ marginTop: '4px', paddingLeft: '34px' }}>
-                        <input
-                          type="text" placeholder={`Nota serie ${sIdx + 1}...`} value={serie.notas}
-                          onChange={e => updateSerie(ejIdx, sIdx, 'notas', e.target.value)}
-                          style={{ ...inp, textAlign: 'left', fontSize: '12px', color: 'var(--text-secondary)' }}
-                        />
-                      </div>
-                    )}
+                    <div style={{ marginTop: '4px', paddingLeft: '34px' }}>
+                      <input
+                        type="text" placeholder={`Nota serie ${sIdx + 1}...`} value={serie.notas}
+                        onChange={e => updateSerie(ejIdx, sIdx, 'notas', e.target.value)}
+                        style={{ ...inp, textAlign: 'left', fontSize: '12px', color: 'var(--text-secondary)' }}
+                      />
+                    </div>
                   </div>
                   )
                 })}
@@ -784,102 +732,6 @@ export default function ProgresoPage() {
             {guardando ? 'Guardando sesión...' : 'Guardar sesión'}
           </button>
         </div>
-      )}
-
-      {/* ── Custom Numpad ─────────────────────────────────────────────────── */}
-      {numpadTarget && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={numpadConfirm}
-            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 300 }}
-          />
-          {/* Numpad panel */}
-          <div style={{
-            position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 301,
-            backgroundColor: 'var(--surface-card)',
-            borderTop: '1px solid var(--border-default)',
-            borderRadius: '20px 20px 0 0',
-            padding: '16px 12px 32px',
-            animation: 'slide-up-numpad 0.22s cubic-bezier(0.32,0.72,0,1) both',
-          }}>
-            <style>{`
-              @keyframes slide-up-numpad {
-                from { transform: translateY(100%); }
-                to   { transform: translateY(0); }
-              }
-            `}</style>
-
-            {/* Handle + label */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <div style={{ width: '36px', height: '4px', borderRadius: '2px', backgroundColor: 'var(--border-default)', margin: '0 auto 0 0' }} />
-              <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                {numpadTarget.label}
-              </span>
-              <button onClick={() => setNumpadTarget(null)} style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', cursor: 'pointer', padding: '2px 6px', fontSize: '18px', lineHeight: 1 }}>×</button>
-            </div>
-
-            {/* Value display */}
-            <div style={{
-              backgroundColor: 'var(--surface-input)', border: '1.5px solid var(--accent)',
-              borderRadius: '12px', padding: '12px 16px', marginBottom: '14px',
-              textAlign: 'center',
-            }}>
-              <span style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
-                {numpadValue || <span style={{ color: 'var(--text-disabled)' }}>0</span>}
-              </span>
-            </div>
-
-            {/* Keys grid */}
-            {(() => {
-              const isDecimal = numpadTarget.field === 'peso_kg'
-              const rows: string[][] = [
-                ['7', '8', '9'],
-                ['4', '5', '6'],
-                ['1', '2', '3'],
-                [isDecimal ? '.' : 'C', '0', '⌫'],
-              ]
-              const btnStyle = (key: string): React.CSSProperties => ({
-                height: '60px',
-                borderRadius: '12px',
-                border: 'none',
-                fontSize: key === '⌫' ? '20px' : '22px',
-                fontWeight: key === '⌫' || key === 'C' ? '400' : '600',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: key === '⌫' ? 'color-mix(in srgb, var(--error) 12%, var(--surface-raised))' :
-                                 key === 'C'  ? 'var(--surface-raised)' :
-                                               'var(--surface-raised)',
-                color: key === '⌫' ? 'var(--error)' : 'var(--text-primary)',
-                letterSpacing: '-0.01em',
-              })
-              return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-                  {rows.map((row, ri) => (
-                    <div key={ri} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                      {row.map(key => (
-                        <button key={key} style={btnStyle(key)} onClick={() => numpadPress(key)}>
-                          {key}
-                        </button>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )
-            })()}
-
-            {/* Confirm button */}
-            <button
-              onClick={numpadConfirm}
-              style={{ width: '100%', height: '56px', backgroundColor: 'var(--accent)', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', color: '#0c0e12', cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '-0.01em' }}
-            >
-              Listo ✓
-            </button>
-          </div>
-        </>
       )}
 
       {/* Modal confirmación salir */}
